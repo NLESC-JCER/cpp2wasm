@@ -18,7 +18,31 @@
 Document describing a way that a scientist with a C++ algorithm can make it available as a web application.
 Bubble algoritm will be the use case.
 
-> TODO add interface of algorithm
+```cpp {.cpp file=bubble.hpp}
+#ifndef H_BUBBLE_H
+#define H_BUBBLE_H
+
+#include <string>
+
+namespace bubble {
+  class Bubbler {
+    public:
+      Bubbler(std::string name);
+      std::string blup() const;
+    private:
+      std::string m_name;
+  }
+}
+```
+
+```cpp {.cpp file=bubble.cpp}
+namespace bubble {
+  Bubbler::Bubbler(std::string name): m_name(name) {}
+  std::string blup() const {
+    return m_name + " says blup";
+  }
+}
+```
 
 A C++ algorithm is a collection of functions/classes that can perform a mathematical computation.
 
@@ -67,7 +91,7 @@ In the [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.htm
 The executable can read the request body from the stdin for and the response must be printed to the stdout.
 The response must first print the content type and then the content. A web service which accepts and returns JSON documents can for example look like:
 
-```cpp
+```cpp {.cpp file=hellocgi.cpp}
 #include <string>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -81,6 +105,47 @@ int main(int argc, char *argv[])
   response["name"] = request["name"];
   std::cout << response.dump() << std::endl;
   return 0;
+}
+```
+
+Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header only library to convert a JSON string to and from a data type.
+
+This can be compile with
+```
+g++ -std=c++14 -Ideps  hellocgi.cpp -o ./cgi-bin/hello
+```
+
+The CGI script can be tested directly with
+```
+echo '{"name":"me"}' | ./cgi-bin/hello
+```
+
+Example Apache config file
+```.conf {file=httpd.conf}
+ServerName 127.0.0.1
+Listen 8080
+ScriptAlias "/cgi-bin/" "cgi-bin/"
+```
+
+Start Apache httpd web server
+
+```sh
+/usr/sbin/apache2 -X -d . -f ./httpd.conf
+```
+
+And in another shell call CGI script using curl
+```
+curl --header "Content-Type: application/json" \
+  --request POST \
+  --data '{"name":"me"}' \
+  http://localhost:8080/cgi-bin/hello
+```
+
+Should return the following JSON document as a response
+```json
+{
+  "message": "Hello World!",
+  "name": "me"
 }
 ```
 
