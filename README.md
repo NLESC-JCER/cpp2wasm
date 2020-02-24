@@ -18,30 +18,92 @@
 Document describing a way that a scientist with a C++ algorithm can make it available as a web application.
 Bubble algoritm will be the use case.
 
-```cpp {.cpp file=bubble.hpp}
-#ifndef H_BUBBLE_H
-#define H_BUBBLE_H
+```{.cpp file=newtonraphson.hpp}
+#ifndef H_NEWTONRAPHSON_H
+#define H_NEWTONRAPHSON_H
 
 #include <string>
 
-namespace bubble {
-  class Bubbler {
+namespace rootfinding {
+  class NewtonRaphson {
     public:
-      Bubbler(std::string name);
-      std::string blup() const;
+      NewtonRaphson(double epsilon);
+      double find(double xin);
     private:
-      std::string m_name;
+      double m_epsilon;
+  };
+}
+
+#endif
+```
+
+```{.cpp #algorithm}
+#include "newtonraphson.hpp"
+
+namespace rootfinding
+{
+
+// An example function whose solution is determined using
+// Bisection Method. The function is x^3 - x^2  + 2
+double func(double x)
+{
+  return x * x * x - x * x + 2;
+}
+
+// Derivative of the above function which is 3*x^x - 2*x
+double derivFunc(double x)
+{
+  return 3 * x * x - 2 * x;
+}
+
+NewtonRaphson::NewtonRaphson(double epsilon) : m_epsilon(epsilon) {}
+
+// Function to find the root 
+double NewtonRaphson::find(double xin)
+{
+  double x = xin;
+  double h = func(x) / derivFunc(x);
+  while (abs(h) >= m_epsilon)
+  {
+    h = func(x) / derivFunc(x);
+
+    // x(i+1) = x(i) - f(x) / f'(x)
+    x = x - h;
   }
+  return x;
+};
+
+
+} // namespace rootfinding
+```
+
+```{.cpp file=cli-newtonraphson.cpp}
+#include<bits/stdc++.h> 
+
+<<algorithm>>
+
+// Driver program to test above
+int main()
+{
+  double x0 = -20; // Initial values assumed
+  double epsilon = 0.001;
+  rootfinding::NewtonRaphson finder(epsilon);
+  double x1 = finder.find(x0);
+
+  std::cout << "The value of the root is : " << x1 << std::endl; 
+  return 0;
 }
 ```
 
-```cpp {.cpp file=bubble.cpp}
-namespace bubble {
-  Bubbler::Bubbler(std::string name): m_name(name) {}
-  std::string blup() const {
-    return m_name + " says blup";
-  }
-}
+Compile with
+```shell
+g++ cli-newtonraphson.cpp -o newtonraphson.exe
+```
+
+Run with
+```shell
+./newtonraphson.exe
+The value of the root is : -1.62292
 ```
 
 A C++ algorithm is a collection of functions/classes that can perform a mathematical computation.
@@ -91,19 +153,31 @@ In the [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.htm
 The executable can read the request body from the stdin for and the response must be printed to the stdout.
 The response must first print the content type and then the content. A web service which accepts and returns JSON documents can for example look like:
 
-```cpp {.cpp file=hellocgi.cpp}
+```{.cpp file=cgi-newtonraphson.cpp}
 #include <string>
 #include <iostream>
 #include <nlohmann/json.hpp>
 
+<<algorithm>>
+
 int main(int argc, char *argv[])
 {
   std::cout << "Content-type: application/json" << std::endl << std::endl;
+
+  // Retrieve epsilon and guess from request body
   nlohmann::json request(nlohmann::json::parse(std::cin));
+  double epsilon = request["epsilon"];
+  double guess = request["guess"];
+
+  // Find root
+  rootfinding::NewtonRaphson finder(epsilon);
+  double root = finder.find(guess);
+
+  // Assemble response
   nlohmann::json response;
-  response["message"] = "Hello World!";
-  response["name"] = request["name"];
-  std::cout << response.dump() << std::endl;
+  response["guess"] = guess;
+  response["root"] = root;
+  std::cout << response.dump(2) << std::endl;
   return 0;
 }
 ```
@@ -112,16 +186,22 @@ Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header onl
 
 This can be compile with
 ```
-g++ -std=c++14 -Ideps  hellocgi.cpp -o ./cgi-bin/hello
+g++ -Ideps cgi-newtonraphson.cpp -o ./cgi-bin/newtonraphson
 ```
 
 The CGI script can be tested directly with
 ```
-echo '{"name":"me"}' | ./cgi-bin/hello
+echo '{"guess":-20, "epsilon":0.001}' | ./cgi-bin/newtonraphson
+Content-type: application/json
+
+{
+  "guess": -20.0,
+  "root": -1.622923986083026
+}
 ```
 
 Example Apache config file to host executables in `cgi-bin/` directory as `http://localhost:8080/cgi-bin/
-```.conf {file=httpd.conf}
+```{.python file=httpd.conf}
 ServerName 127.0.0.1
 Listen 8080
 LoadModule mpm_event_module /usr/lib/apache2/modules/mod_mpm_event.so
@@ -134,25 +214,25 @@ PidFile httpd.pid
 ScriptAlias "/cgi-bin/" "cgi-bin/"
 ```
 
-Start Apache httpd web server
+Start Apache httpd web server using
 
 ```sh
-/usr/sbin/apache2 -X -d . -f ./httpd.conf
+/usr/sbin/apache2  -X -d . -f ./httpd.conf 
 ```
 
 And in another shell call CGI script using curl
 ```
 curl --header "Content-Type: application/json" \
   --request POST \
-  --data '{"name":"me"}' \
-  http://localhost:8080/cgi-bin/hello
+  --data '{"guess":-20, "epsilon":0.001}' \
+  http://localhost:8080/cgi-bin/newtonraphson
 ```
 
 Should return the following JSON document as a response
 ```json
 {
-  "message": "Hello World!",
-  "name": "me"
+  "guess": -20,
+  "root":-1.62292
 }
 ```
 
@@ -176,31 +256,44 @@ Python can call functions in a C++ library if it's functions use [Python.h datat
 
 Pybind11 requires a bindings (PYBIND11_MODULE macro) to expose C++ constants/functions/enumerations/classes to Python. The bindings can be compiled to a shared library (eg. pybubble.so) which can be imported into Python.
 
-For example the bindings of `bubble/sort.h:BubbleSort` class would look like:
+For example the bindings of `newtonraphson.hpp:NewtonRaphson` class would look like:
 
-```cpp
+```{.cpp file=py-newtonraphson.cpp}
 #include <pybind11/pybind11.h>
-#include "bubble/sort.h"
+#include <pybind11/stl.h>
 
-PYBIND11_MODULE(pybubble, m) {
-    py::class_<bubble>(m, "BubbleSort")
-        .def(py::init<int, int, double, int, double, double, double, int, int, double>())
-        .def("integrate", py::overload_cast<double, double, unsigned>(&bubble::BubbleSort::integrate, py::const_))
+<<algorithm>>
+
+namespace py = pybind11;
+
+PYBIND11_MODULE(newtonraphsonpy, m) {
+    py::class_<rootfinding::NewtonRaphson>(m, "NewtonRaphson")
+        .def(py::init<double>(), py::arg("epsilon"))
+        .def("find", 
+             &rootfinding::NewtonRaphson::find, 
+             py::arg("guess"), 
+             "Find root starting from initial guess"
+        )
     ;
 }
+```
+
+Compile with
+
+```shell
+g++ -O3 -Wall -shared -std=c++14 -fPIC `python3 -m pybind11 --includes` \
+  py-newtonraphson.cpp -o newtonraphsonpy`python3-config --extension-suffix`
 ```
 
 In Python it can be used:
 
 ```python
-from pybubble import BubbleSort
+from newtonraphsonpy import NewtonRaphson
 
-calculator = BubbleSort(
-    # ... list of arguments ...
-)
-result = calculator.integrate(
-    # ... list of arguments ...
-)
+finder = NewtonRaphson(epsilon=0.001)
+root = finder.find(guess=-20)
+print(root)
+-1.0000001181322415
 ```
 
 ### Web application
@@ -221,7 +314,7 @@ from flask import Flask
 app = Flask(__name__)
 
 @app.route("/")
-def hello():
+def newtonraphson():
     return "Hello World!"
 ```
 
@@ -243,8 +336,8 @@ and to render the template the function would look like:
 from flask import render_template
 
 @app.route("/")
-def hello():
-    return render_template('hello.html')
+def newtonraphson():
+    return render_template('newtonraphson.html')
 ```
 
 Where `name` is a variable which gets combined with template to render into a html page.
