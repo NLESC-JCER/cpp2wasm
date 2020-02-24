@@ -120,10 +120,17 @@ The CGI script can be tested directly with
 echo '{"name":"me"}' | ./cgi-bin/hello
 ```
 
-Example Apache config file
+Example Apache config file to host executables in `cgi-bin/` directory as `http://localhost:8080/cgi-bin/
 ```.conf {file=httpd.conf}
 ServerName 127.0.0.1
 Listen 8080
+LoadModule mpm_event_module /usr/lib/apache2/modules/mod_mpm_event.so
+LoadModule authz_core_module /usr/lib/apache2/modules/mod_authz_core.so
+LoadModule alias_module /usr/lib/apache2/modules/mod_alias.so
+LoadModule cgi_module /usr/lib/apache2/modules/mod_cgi.so
+ErrorLog httpd_error_log
+PidFile httpd.pid
+
 ScriptAlias "/cgi-bin/" "cgi-bin/"
 ```
 
