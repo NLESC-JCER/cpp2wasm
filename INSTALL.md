@@ -15,5 +15,5 @@ To run the commands in the README.md the following items are required
 2. Run entangled daemon with
 
 ```shell
-entangled
+entangled README.md
 ```
