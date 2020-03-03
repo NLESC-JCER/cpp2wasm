@@ -17,3 +17,18 @@ To run the commands in the README.md the following items are required
 ```shell
 entangled README.md
 ```
+
+## C++ dependencies
+
+The `deps/` directory contains C++ dependencies.
+
+They where downloaded by
+
+```shell
+mkdir -p deps/nmlohmann
+cd deps/nmlohmann
+wget https://github.com/nlohmann/json/releases/download/v3.7.3/json.hpp
+cd -
+cd deps
+svn export --force https://github.com/pboettch/json-schema-validator/trunk/src/ .
+```
