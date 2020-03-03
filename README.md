@@ -161,28 +161,64 @@ The response must first print the content type and then the content. A web servi
 #include <string>
 #include <iostream>
 #include <nlohmann/json.hpp>
+#include <nlohmann/json-schema.hpp>
 
 <<algorithm>>
 
+// TODO replace with request-schema snippet
+static nlohmann::json request_schema = R"(
+  {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://example.com/schemas/person.json",
+    "type": "object",
+    "properties": {
+      "epsilon": { "type": "number", "minimum": 0 },
+      "guess": { "type": "number" }
+    },
+    "required": [ "epsilon", "guess" ],
+    "additionalProperties": false
+  }
+)"_json;
+
 int main(int argc, char *argv[])
 {
-  std::cout << "Content-type: application/json" << std::endl << std::endl;
+  // Create JSON schema validator
+  nlohmann::json_schema::json_validator validator;
+  validator.set_root_schema(request_schema);
 
-  // Retrieve epsilon and guess from request body
+  // Parse JSON document on stdin as request body
   nlohmann::json request(nlohmann::json::parse(std::cin));
-  double epsilon = request["epsilon"];
-  double guess = request["guess"];
 
-  // Find root
-  rootfinding::NewtonRaphson finder(epsilon);
-  double root = finder.find(guess);
+  try {
+    // Validate that the request body adheres to the JSON schema
+    validator.validate(request);
+    // Retrieve epsilon and guess from request body
+    double epsilon = request["epsilon"];
+    double guess = request["guess"];
 
-  // Assemble response
-  nlohmann::json response;
-  response["guess"] = guess;
-  response["root"] = root;
-  std::cout << response.dump(2) << std::endl;
-  return 0;
+    // Find root
+    rootfinding::NewtonRaphson finder(epsilon);
+    double root = finder.find(guess);
+
+    // Assemble response
+    std::cout << "Content-type: application/json" << std::endl << std::endl;
+    nlohmann::json response = {
+      {"guess", guess},
+      {"root", root}
+    };
+    std::cout << response.dump(2) << std::endl;
+    return 0;
+  } catch (const std::exception &e) {
+    // Assemble error response
+    std::cout << "Content-type: application/problem+json" << std::endl;
+    std::cout << "Status: 400 Bad request" << std::endl << std::endl;
+    nlohmann::json response = {
+      {"status", "Bad request"},
+      {"detail", e.what()}
+    };
+    std::cout << response.dump(2) << std::endl;
+    return 1;
+  }
 }
 ```
 
@@ -191,7 +227,7 @@ Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header onl
 This can be compile with
 
 ```shell
-g++ -Ideps cgi-newtonraphson.cpp -o ./cgi-bin/newtonraphson
+g++ -Ideps deps/*.cpp cgi-newtonraphson.cpp -o ./cgi-bin/newtonraphson
 ```
 
 The CGI script can be tested directly with
