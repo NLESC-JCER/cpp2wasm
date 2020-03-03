@@ -127,16 +127,17 @@ Compare with a binary format or comma seperated file it is more verbose, but is 
 
 An example of JSON schema:
 
-```json
+```{.json #request-schema}
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://example.com/schemas/person.json",
   "type": "object",
   "properties": {
-    "name": { "type": "string" },
-    "age": { "type": "number", "minimum": 0 }
+    "epsilon": { "type": "number", "minimum": 0 },
+    "guess": { "type": "number" }
   },
-  "required": [ "name" ]
+  "required": [ "epsilon", "guess" ],
+  "additionalProperties": false
 }
 ```
 
@@ -144,8 +145,8 @@ And a valid document:
 
 ```json
 {
-  "name": "me",
-  "age": 42
+  "guess":-20,
+  "epsilon":0.001
 }
 ```
 
