@@ -58,7 +58,7 @@ double derivFunc(double x)
 
 NewtonRaphson::NewtonRaphson(double epsilon) : m_epsilon(epsilon) {}
 
-// Function to find the root 
+// Function to find the root
 double NewtonRaphson::find(double xin)
 {
   double x = xin;
@@ -78,7 +78,7 @@ double NewtonRaphson::find(double xin)
 ```
 
 ```{.cpp file=cli-newtonraphson.cpp}
-#include<bits/stdc++.h> 
+#include<bits/stdc++.h>
 
 <<algorithm>>
 
@@ -90,17 +90,19 @@ int main()
   rootfinding::NewtonRaphson finder(epsilon);
   double x1 = finder.find(x0);
 
-  std::cout << "The value of the root is : " << x1 << std::endl; 
+  std::cout << "The value of the root is : " << x1 << std::endl;
   return 0;
 }
 ```
 
 Compile with
+
 ```shell
 g++ cli-newtonraphson.cpp -o newtonraphson.exe
 ```
 
 Run with
+
 ```shell
 ./newtonraphson.exe
 The value of the root is : -1.62292
@@ -146,6 +148,7 @@ And a valid document:
   "age": 42
 }
 ```
+
 ## CGI script
 
 The classic way to run programs when accessing an url is to use the Common Gateway Interface (CGI).
@@ -185,12 +188,14 @@ int main(int argc, char *argv[])
 Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header only library to convert a JSON string to and from a data type.
 
 This can be compile with
-```
+
+```shell
 g++ -Ideps cgi-newtonraphson.cpp -o ./cgi-bin/newtonraphson
 ```
 
 The CGI script can be tested directly with
-```
+
+```shell
 echo '{"guess":-20, "epsilon":0.001}' | ./cgi-bin/newtonraphson
 Content-type: application/json
 
@@ -200,7 +205,8 @@ Content-type: application/json
 }
 ```
 
-Example Apache config file to host executables in `cgi-bin/` directory as `http://localhost:8080/cgi-bin/
+Example Apache config file to host executables in `cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
+
 ```{.python file=httpd.conf}
 ServerName 127.0.0.1
 Listen 8080
@@ -217,11 +223,12 @@ ScriptAlias "/cgi-bin/" "cgi-bin/"
 Start Apache httpd web server using
 
 ```sh
-/usr/sbin/apache2  -X -d . -f ./httpd.conf 
+/usr/sbin/apache2  -X -d . -f ./httpd.conf
 ```
 
 And in another shell call CGI script using curl
-```
+
+```shell
 curl --header "Content-Type: application/json" \
   --request POST \
   --data '{"guess":-20, "epsilon":0.001}' \
@@ -229,6 +236,7 @@ curl --header "Content-Type: application/json" \
 ```
 
 Should return the following JSON document as a response
+
 ```json
 {
   "guess": -20,
@@ -269,9 +277,9 @@ namespace py = pybind11;
 PYBIND11_MODULE(newtonraphsonpy, m) {
     py::class_<rootfinding::NewtonRaphson>(m, "NewtonRaphson")
         .def(py::init<double>(), py::arg("epsilon"))
-        .def("find", 
-             &rootfinding::NewtonRaphson::find, 
-             py::arg("guess"), 
+        .def("find",
+             &rootfinding::NewtonRaphson::find,
+             py::arg("guess"),
              "Find root starting from initial guess"
         )
     ;
@@ -303,8 +311,8 @@ To assist in making a web application a web framework needs to be picked. For Bu
 
 The Bubble web application has 3 kinds of pages:
 
-1. a page with form and submit button, 
-2. a page to show the progress of the calculation 
+1. a page with form and submit button,
+2. a page to show the progress of the calculation
 3. and a page which shows the result of the calculation. Each calculation will have it's own submit and result page.
 
 Each page is available on a different url. In flask the way urls are mapped to Python function is done by adding a route decorator to the function for example:
@@ -417,7 +425,6 @@ worker.postMessage({
 ```
 
 > TODO add worker.js content
-
 
 ### Single page application
 
