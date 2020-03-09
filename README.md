@@ -527,7 +527,7 @@ PYTHONPATH=$PWD python src/py/awebapp.py
 
 Tasks will be run by the Celery worker. The worker can be started with
 
-```{.awk #py-awebapp}
+```{.awk #py-worker}
 cd src/py
 PYTHONPATH=$PWD/../.. celery -A tasks worker
 ```
