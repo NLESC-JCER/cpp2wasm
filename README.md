@@ -457,7 +457,7 @@ Will add some sleeps to demonstrate what would happen with a long running calcul
 ```{.python file=src/py/tasks.py}
 import time
 
-<< celery-config>>
+<<celery-config>>
 
 @capp.task(bind=True)
 def calculate(self, epsilon, guess):
@@ -532,7 +532,7 @@ cd src/py
 PYTHONPATH=$PWD/../.. celery -A tasks worker
 ```
 
-To test 
+To test web service
 1. Goto http://localhost:5000, 
 2. Submit form,
 3. Refresh result page until progress states are replaced with result.
