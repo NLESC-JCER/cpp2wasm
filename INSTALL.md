@@ -5,7 +5,7 @@
 To run the commands in the README.md the following items are required
 
 1. Apache httpd server 2.4
-1. Python libraries `pip install flask pybind11 celery redis connexion`
+1. Python libraries `pip install flask pybind11 celery redis connexion[swagger-ui]`
 1. Python devel with `sudo apt install python3-dev`
 1. Emscriptem
 
