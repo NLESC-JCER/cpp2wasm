@@ -16,7 +16,7 @@
     - [Visualization](#visualization)
 
 Document describing a way that a scientist with a C++ algorithm can make it available as a web application.
-Bubble algoritm will be the use case.
+The [Newton raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton%27s_method) will be the use case.
 
 ```{.cpp file=newtonraphson.hpp}
 #ifndef H_NEWTONRAPHSON_H
@@ -112,11 +112,11 @@ A C++ algorithm is a collection of functions/classes that can perform a mathemat
 
 The web application is a set of web pages with a form to fill the input required for the algorithm, a submit button that will start the execution and a page that shows the output of the algorithm. The output should be presented in a usable format like a table, chart/plot and download.
 
-The Bubble has the following characteristics:
+The C++ code has the following characteristics:
 
-- It is a collection of C++ algorithms which can be called as functions in a C++ library or command line executables.
+- A C++ algorithm which can be called as function in a C++ library or command line executable
 - The input and output files of the command line executables adhere to a JSON schema
-- Uses cmake as build tool
+- Uses Makefile as build tool
 - Copies of C++ dependencies are in the git repository
 
 ## JSON schema
