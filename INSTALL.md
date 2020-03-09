@@ -15,5 +15,36 @@ To run the commands in the README.md the following items are required
 2. Run entangled daemon with
 
 ```shell
-entangled README.md
+entangled README.md INSTALL.md
+```
+
+## Command collection
+
+All the commands in the README.md can be captured in a Makefile like so:
+
+```{.makefile file=Makefile}
+newtonraphson.exe: cli-newtonraphson.cpp
+    <<build-cli>>
+
+test-cli: newtonraphson.exe
+    <<test-cli>>
+
+cgi-bin/newtonraphson: cgi-newtonraphson.cpp
+    <<build-cgi>>
+
+test-cgi: cgi-bin/newtonraphson
+    <<test-cgi>>
+
+newtonraphsonpy.*.so: py-newtonraphson.cpp
+    <<build-py>>
+
+test-py: example.py newtonraphsonpy.*.so
+    python example.py
+
+.PHONY: clean test
+
+test: test-cli test-py
+
+clean:
+    $(RM) newtonraphson.exe newtonraphsonpy.*.so cgi-bin/newtonraphson
 ```
