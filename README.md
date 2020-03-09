@@ -307,9 +307,9 @@ print(root)
 ### Web application
 
 Now that the C++ functions can be called from Python it is time to call the function from a web page.
-To assist in making a web application a web framework needs to be picked. For Bubble [flask](https://flask.palletsprojects.com/) was chosen as it minimalistic and has a large active community.
+To assist in making a web application a web framework needs to be picked. The [Flask](https://flask.palletsprojects.com/) web framework was chosen as it minimalistic and has a large active community.
 
-The Bubble web application has 3 kinds of pages:
+The web application has 3 kinds of pages:
 
 1. a page with form and submit button,
 2. a page to show the progress of the calculation
@@ -317,18 +317,25 @@ The Bubble web application has 3 kinds of pages:
 
 Each page is available on a different url. In flask the way urls are mapped to Python function is done by adding a route decorator to the function for example:
 
-```python
+```{.python file=src/py/hello.py}
 from flask import Flask
 app = Flask(__name__)
 
 @app.route("/")
-def newtonraphson():
+def hello():
     return "Hello World!"
+
+app.run()
+```
+
+Run with
+```{.awk #py-hello}
+python src/py/hello.py
 ```
 
 The above route will just return the string "Hello World!" in the web browser when visiting [http://localhost:5000/](http://localhost:5000/). It is possible to return a html page aswell, but to make it dynamic it soon becomes a mess of string concatenations. Template languages help to avoid the concatination mess. Flask is configured with the [Jinja2](https://jinja.palletsprojects.com/). A template for the above route could look like:
 
-```jinja
+```{.html file=src/py/templates/hello.html}
 <!doctype html>
 <title>Hello from Flask</title>
 {% if name %}
@@ -340,19 +347,195 @@ The above route will just return the string "Hello World!" in the web browser wh
 
 and to render the template the function would look like:
 
-```python
-from flask import render_template
+```{.python file=src/py/hello-templated.py}
+from flask import Flask, render_template
 
-@app.route("/")
-def newtonraphson():
-    return render_template('newtonraphson.html')
+app = Flask(__name__)
+
+@app.route('/hello/<name>')
+def hello_name(name=None):
+    return render_template('hello.html', name=name)
+
+app.run()
 ```
 
 Where `name` is a variable which gets combined with template to render into a html page.
 
+The web application can be started with
+```{.awk #py-hello-templated}
+python src/py/hello-templated.py
+```
+
+In a web browser you can visit http://localhost:5000/hello/yourname to the web application.
+
+Let's make the web application for our Newton raphson algorithm.
+
+The first thing we want is the web page with the form, the template that renders the form looks like
+
+```{.html file=src/py/templates/form.html}
+<!doctype html>
+<form method="POST">
+  <label for="epsilon">Epsilon</label>
+  <input type="number" name="epsilon" value="0.001">
+  <label for="guess">Guess</label>
+  <input type="number" name="guess" value="-20">
+  <button type="submit">Submit</button>
+</form>
+```
+
+The home page will render the form like so
+
+```{.python #py-form}
+@app.route('/', methods=['GET'])
+def form():
+  return render_template('form.html')
+```
+
+The result will be displayed on a html page with the following template
+
+```{.html file=src/py/templates/result.html}
+<!doctype html>
+<p>With epsilon of {{ epsilon }} and a guess of {{ guess }} the found root is {{ root }}.</p>
+```
+
+The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result html page.
+
+```{.python #py-calculate}
+@app.route('/', methods=['POST'])
+def calculate():
+  epsilon = float(request.form['epsilon'])
+  guess = float(request.form['guess'])
+
+  from newtonraphsonpy import NewtonRaphson
+  finder = NewtonRaphson(epsilon)
+  root = finder.find(guess)
+
+  return render_template('result.html', epsilon=epsilon, guess=guess, root=root)
+```
+
+Putting it all together in
+
+```{.python file=src/py/webapp.py}
+from flask import Flask, render_template, request
+app = Flask(__name__)
+
+<<py-form>>
+
+<<py-calculate>>
+
+app.run()
+```
+
+And running it with
+
+```{.awk #py-webapp}
+PYTHONPATH=$PWD python src/py/webapp.py
+```
+
+To test we can visit http://localhost:5000 fill the form and press submit to get the result.
+
 When performing a long calculation (more than 30 seconds), the end-user requires feedback of the progress. In a normal request/response cycle, feedback is only returned in the response. To give feedback during the calculation, the computation must be offloaded to a task queue. In Python the most used task queue is [celery](http://www.celeryproject.org/). While the calculation is running on some worker it is possible to have a progress page which can check in the queue what the progress is of the calculation.
 
-> TODO point celery example
+Celery needs a broker to use a queue and store the results. 
+Will use [redis](https://redis.io/) in a Docker container as Celery broker.
+
+```{.awk #run-redis}
+docker run -d -p 6379:6379 redis
+```
+
+Let's setup a method that can be submitted to the Celery task queue.
+First configure Celery to use the Redis database.
+
+```{.python #celery-config}
+from celery import Celery
+capp = Celery('tasks', broker='redis://localhost:6379', backend='redis://localhost:6379')
+```
+
+When a method is decorated with the Celery task decorator then it can be submitted to the Celery task queue.
+Will add some sleeps to demonstrate what would happen with a long running calculation. Will also tell Celery about in which step the calculation is, later we can display this step to the user.
+
+```{.python file=src/py/tasks.py}
+import time
+
+<< celery-config>>
+
+@capp.task(bind=True)
+def calculate(self, epsilon, guess):
+  if not self.request.called_directly:
+    self.update_state(state='INITIALIZING')
+  time.sleep(5)
+  from newtonraphsonpy import NewtonRaphson
+  finder = NewtonRaphson(epsilon)
+  if not self.request.called_directly:
+    self.update_state(state='FINDING')
+  time.sleep(5)
+  root = finder.find(guess)
+  return {'root': root, 'guess': guess, 'epsilon':epsilon}
+```
+
+Instead of running the calculation when the submit button is pressed. 
+We will submit the calculation task to the task queue by using the `.delay()` function.
+The submission will return a job identifier we can use later to get the status and result of the job. The web browser will redirect to a url with the job identifier in it.
+
+```{.python #py-submit}
+@app.route('/', methods=['POST'])
+def submit():
+  epsilon = float(request.form['epsilon'])
+  guess = float(request.form['guess'])
+  from tasks import calculate
+  job = calculate.delay(epsilon, guess)
+  return redirect(url_for('result', jobid=job.id))
+```
+
+The last method is to ask the Celery task queue what the status is of the job and return the result when it is succesfull.
+
+```{.python #py-result}
+@app.route('/result/<jobid>')
+def result(jobid):
+  from tasks import capp
+  job = capp.AsyncResult(jobid)
+  job.maybe_throw()
+  if job.successful():
+    result = job.get()
+    return render_template('result.html', epsilon=result['epsilon'], guess=result['guess'], root=result['root'])
+  else:
+    return job.status
+```
+
+Putting it all together
+
+```{.python file=src/py/awebapp.py}
+from flask import Flask, render_template, request, redirect, url_for
+
+app = Flask(__name__)
+
+<<py-form>>
+
+<<py-submit>>
+
+<<py-result>>
+
+if __name__ == '__main__':
+  app.run()
+```
+
+Start the web application like before with
+
+```{.awk #py-awebapp}
+PYTHONPATH=$PWD python src/py/awebapp.py
+```
+
+Tasks will be run by the Celery worker. The worker can be started with
+
+```{.awk #py-awebapp}
+cd src/py
+PYTHONPATH=$PWD/../.. celery -A tasks worker
+```
+
+To test 
+1. Goto http://localhost:5000, 
+2. Submit form,
+3. Refresh result page until progress states are replaced with result.
 
 ### Web service
 
