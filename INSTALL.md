@@ -11,6 +11,8 @@ To run the commands in the README.md the following items are required
 
 ## Generating code from Markdown
 
+Entangled is used to convert code blocks in Markdown to source code files.
+
 1. Install [entangled](https://github.com/entangled/entangled)
 2. Run entangled daemon with
 

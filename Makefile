@@ -23,6 +23,3 @@ test: test-cli test-cgi test-py
 
 clean:
 	$(RM) newtonraphson.exe newtonraphsonpy.*.so cgi-bin/newtonraphson
-
-entangle: README.md INSTALL.md
-	docker run --rm -ti --user $$(id -u) -v ${PWD}:/data nlesc/pandoc-tangle README.md INSTALL.md
