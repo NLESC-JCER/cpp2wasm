@@ -105,6 +105,10 @@ Run with
 
 ```{.awk #test-cli}
 ./newtonraphson.exe
+```
+Should output
+
+```shell
 The value of the root is : -1.62292
 ```
 
@@ -195,6 +199,10 @@ g++ -Ideps cgi-newtonraphson.cpp -o ./cgi-bin/newtonraphson
 The CGI script can be tested directly with
 ```{.awk #test-cgi}
 echo '{"guess":-20, "epsilon":0.001}' | ./cgi-bin/newtonraphson
+```
+
+It should output
+```{.awk #test-cgi-output}
 Content-type: application/json
 
 {
@@ -288,7 +296,7 @@ Compile with
 
 ```{.shell #build-py}
 g++ -O3 -Wall -shared -std=c++14 -fPIC `python3 -m pybind11 --includes` \
-  py-newtonraphson.cpp -o newtonraphsonpy`python3-config --extension-suffix`
+py-newtonraphson.cpp -o newtonraphsonpy`python3-config --extension-suffix`
 ```
 
 In Python it can be used:
