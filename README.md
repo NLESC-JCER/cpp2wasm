@@ -18,6 +18,8 @@
 Document describing a way that a scientist with a C++ algorithm can make it available as a web application.
 The [Newton raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton%27s_method) will be the use case.
 
+The interface would like
+
 ```{.cpp file=newtonraphson.hpp}
 #ifndef H_NEWTONRAPHSON_H
 #define H_NEWTONRAPHSON_H
@@ -36,6 +38,8 @@ namespace rootfinding {
 
 #endif
 ```
+
+The implementation would look like
 
 ```{.cpp #algorithm}
 #include "newtonraphson.hpp"
@@ -76,6 +80,8 @@ double NewtonRaphson::find(double xin)
 
 } // namespace rootfinding
 ```
+
+A simple CLI program would look like
 
 ```{.cpp file=cli-newtonraphson.cpp}
 #include<bits/stdc++.h>
@@ -123,7 +129,7 @@ The C++ code has the following characteristics:
 
 To make the same input and output reusable from either the command line or web service, the [JSON format](http://json.org/) was chosen. As the JSON format is easy read and write by human and machines.
 
-Compare with a binary format or comma seperated file it is more verbose, but is more self documenting. It is less verbose than [XML](https://en.wikipedia.org/wiki/XML) and like there is a [XML schema definition](https://en.wikipedia.org/wiki/XML_Schema_(W3C)) for validation of XML there is an equivalent for JSON called [JSON schema](https://json-schema.org/). JSON schema is used to describe the shape of a JSON document and make sure Bubble consumers know how to provide the input and what to expect from the output. [YAML format](https://yaml.org/) was not chosen, because it is a superset of JSON and JSON is all expressiveness Bubble required. YAML allows for comments while this is not supported in JSON. Also JSON is the lingua france for web services.
+Compare with a binary format or comma seperated file it is more verbose, but is more self documenting. It is less verbose than [XML](https://en.wikipedia.org/wiki/XML) and like there is a [XML schema definition](https://en.wikipedia.org/wiki/XML_Schema_(W3C)) for validation of XML there is an equivalent for JSON called [JSON schema](https://json-schema.org/). JSON schema is used to describe the shape of a JSON document and make sure root finder consumers know how to provide the input and what to expect from the output. [YAML format](https://yaml.org/) was not chosen, because it is a superset of JSON and JSON is all expressiveness root finder required. YAML allows for comments while this is not supported in JSON. Also JSON is the lingua france for web services.
 
 An example of JSON schema:
 
@@ -616,7 +622,7 @@ def calculate(body):
   return {'root': root}
 ```
 
-To run the web service we have to to tell Connexion which specificiation it should expose.
+To run the web service we have to to tell Connexion which specification it should expose.
 
 ```{.python file=src/py/webservice.py}
 import connexion
