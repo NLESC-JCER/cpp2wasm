@@ -19,7 +19,7 @@ jobs:
 
     # Should not be needed anymore when https://github.com/NLESC-JCER/cpp2wasm/issues/1 is fixed
     - name: Generate source code
-      run: docker run --rm -ti --user $(id -u) -v ${PWD}:/data nlesc/pandoc-tangle README.md INSTALL.md
+      run: docker run --rm --user $(id -u) -v ${PWD}:/data nlesc/pandoc-tangle README.md INSTALL.md
 
     # Should not be needed anymore when https://github.com/entangled/filters/issues/2 is fixed
     - name: Correct Makefile
@@ -38,7 +38,7 @@ jobs:
 
     # Should not be needed anymore when https://github.com/NLESC-JCER/cpp2wasm/issues/1 is fixed
     - name: Generate source code
-      run: docker run --rm -ti --user $(id -u) -v ${PWD}:/data nlesc/pandoc-tangle README.md INSTALL.md
+      run: docker run --rm --user $(id -u) -v ${PWD}:/data nlesc/pandoc-tangle README.md INSTALL.md
 
     # Should not be needed anymore when https://github.com/entangled/filters/issues/2 is fixed
     - name: Correct Makefile
