@@ -103,14 +103,18 @@ int main()
 
 Compile with
 
-```shell
+```{.awk #build-cli}
 g++ cli-newtonraphson.cpp -o newtonraphson.exe
 ```
 
 Run with
 
-```shell
+```{.awk #test-cli}
 ./newtonraphson.exe
+```
+Should output
+
+```shell
 The value of the root is : -1.62292
 ```
 
@@ -194,15 +198,17 @@ int main(int argc, char *argv[])
 Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header only library to convert a JSON string to and from a data type.
 
 This can be compile with
-
-```shell
+```{.awk #build-cgi}
 g++ -Ideps cgi-newtonraphson.cpp -o ./cgi-bin/newtonraphson
 ```
 
 The CGI script can be tested directly with
-
-```shell
+```{.awk #test-cgi}
 echo '{"guess":-20, "epsilon":0.001}' | ./cgi-bin/newtonraphson
+```
+
+It should output
+```{.awk #test-cgi-output}
 Content-type: application/json
 
 {
@@ -228,8 +234,8 @@ ScriptAlias "/cgi-bin/" "cgi-bin/"
 
 Start Apache httpd web server using
 
-```sh
-/usr/sbin/apache2  -X -d . -f ./httpd.conf
+```{.shell #run-httpd}
+/usr/sbin/apache2  -X -d . -f ./httpd.conf 
 ```
 
 And in another shell call CGI script using curl
@@ -294,14 +300,14 @@ PYBIND11_MODULE(newtonraphsonpy, m) {
 
 Compile with
 
-```shell
+```{.shell #build-py}
 g++ -O3 -Wall -shared -std=c++14 -fPIC `python3 -m pybind11 --includes` \
-  py-newtonraphson.cpp -o newtonraphsonpy`python3-config --extension-suffix`
+py-newtonraphson.cpp -o newtonraphsonpy`python3-config --extension-suffix`
 ```
 
 In Python it can be used:
 
-```python
+```{.python file=example.py}
 from newtonraphsonpy import NewtonRaphson
 
 finder = NewtonRaphson(epsilon=0.001)
