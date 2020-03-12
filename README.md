@@ -472,8 +472,8 @@ When performing a long calculation (more than 30 seconds), the end-user requires
 Celery needs a broker for a queue and result storage.
 Will use [redis](https://redis.io/) in a Docker container as Celery broker, because it's simple to setup. Redis can be started with the following command
 
-```{.awk #run-redis}
-docker run -d -p 6379:6379 redis
+```{.awk #start-redis}
+docker run --rm -d -p 6379:6379 --name some-redis redis
 ```
 
 To use Celery we must install the redis flavoured version with
@@ -576,6 +576,12 @@ To test web service
 1. Goto [http://localhost:5000](http://localhost:5000),
 2. Submit form,
 3. Refresh result page until progress states are replaced with result.
+
+The redis server can be shutdown with
+
+```{.awk #stop-redis}
+docker stop some-redis
+```
 
 ### Web service
 

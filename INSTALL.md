@@ -4,9 +4,10 @@
 
 To run the commands in the README.md the following items are required
 
-1. [Apache httpd server 2.4](http://httpd.apache.org/)
-1. Python devel with `sudo apt install python3-dev`
+1. [Apache httpd server 2.4](http://httpd.apache.org/) with `sudo apt install -y apache2`
+1. Python devel with `sudo apt install -y python3-dev`
 1. [Emscriptem](https://emscripten.org/docs/getting_started/downloads.html)
+1. [Docker Engine](https://docs.docker.com/install/)
 
 ## Generating code from Markdown
 
@@ -30,9 +31,9 @@ docker run --rm -ti --user $(id -u) -v ${PWD}:/data nlesc/pandoc-tangle README.m
 All the commands in the README.md can be captured in a Makefile like so:
 
 ```{.makefile file=Makefile}
-.PHONY: clean test entangle deps
+.PHONY: clean test entangle py-deps start-redis stop-redis
 
-deps: pip-pybind11 pip-flask pip-celery pip-connexion
+py-deps: pip-pybind11 pip-flask pip-celery pip-connexion
 
 pip-pybind11:
 	<<pip-pybind11>>
@@ -43,7 +44,7 @@ pip-flask:
 pip-celery:
 	<<pip-celery>>
 
-pip-connexion
+pip-connexion:
 	<pip-connexion>>
 
 newtonraphson.exe: cli-newtonraphson.cpp
@@ -68,4 +69,12 @@ test: test-cli test-cgi test-py
 
 clean:
 	$(RM) newtonraphson.exe newtonraphsonpy.*.so cgi-bin/newtonraphson
+
+start-redis:
+	<<start-redis>>
+
+stop-redis:
+	<<stop-redis>>
 ```
+
+Some of the commands expect a Debian based OS like Ubuntu.

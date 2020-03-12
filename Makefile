@@ -1,4 +1,18 @@
-.PHONY: clean test entangle
+.PHONY: clean test entangle py-deps start-redis stop-redis
+
+py-deps: pip-pybind11 pip-flask pip-celery pip-connexion
+
+pip-pybind11:
+	pip install pybind11
+
+pip-flask:
+	pip install flask
+
+pip-celery:
+	pip install celery[redis]
+
+pip-connexion:
+	<pip-connexion>>
 
 newtonraphson.exe: cli-newtonraphson.cpp
 	g++ cli-newtonraphson.cpp -o newtonraphson.exe
@@ -23,3 +37,9 @@ test: test-cli test-cgi test-py
 
 clean:
 	$(RM) newtonraphson.exe newtonraphsonpy.*.so cgi-bin/newtonraphson
+
+start-redis:
+	docker run --rm -d -p 6379:6379 --name some-redis redis
+
+stop-redis:
+	docker stop some-redis
