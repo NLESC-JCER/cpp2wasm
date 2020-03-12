@@ -1,5 +1,7 @@
 # Installation
 
+![CI](https://github.com/NLESC-JCER/cpp2wasm/workflows/CI/badge.svg)
+
 ## Dependencies
 
 To run the commands in the README.md the following items are required
@@ -31,7 +33,7 @@ docker run --rm -ti --user $(id -u) -v ${PWD}:/data nlesc/pandoc-tangle README.m
 All the commands in the README.md can be captured in a Makefile like so:
 
 ```{.makefile file=Makefile}
-.PHONY: clean test entangle py-deps start-redis stop-redis
+.PHONY: clean test entangle py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp
 
 py-deps: pip-pybind11 pip-flask pip-celery pip-connexion
 
@@ -63,9 +65,9 @@ newtonraphsonpy.*.so: py-newtonraphson.cpp
 	<<build-py>>
 
 test-py: example.py newtonraphsonpy.*.so
-	python example.py
+	PYTHONPATH=${PWD} python src/py/example.py
 
-test: test-cli test-cgi test-py
+test: test-cli test-cgi test-py test-webservice
 
 clean:
 	$(RM) newtonraphson.exe newtonraphsonpy.*.so cgi-bin/newtonraphson
@@ -75,6 +77,28 @@ start-redis:
 
 stop-redis:
 	<<stop-redis>>
+
+run-webapp: newtonraphsonpy.*.so
+	<<run-webapp>>
+
+run-webservice: newtonraphsonpy.*.so
+	<<run-webservice>>
+
+test-webservice:
+	<<test-webservice>>
+
+# Unable to get worker runnig correctly from Makefile, the newtonraphsonpy.*.so cannot be found
+# run-celery-worker: newtonraphsonpy.*.so
+#	<<run-celery-worker>>
+
+run-celery-webapp: newtonraphsonpy.*.so
+	<<run-celery-webapp>>
 ```
 
-Some of the commands expect a Debian based OS like Ubuntu.
+For example the Python dependencies can be installed with
+
+```shell
+make py-deps
+```
+
+See [GitHub Actions workflow](.github/workflows/main.yml) for other usages of the Makefile.

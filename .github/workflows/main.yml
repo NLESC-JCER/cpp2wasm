@@ -54,3 +54,38 @@ jobs:
 
     - name: Run Python example
       run: make test-py
+
+    - name: Start web application in background
+      run: make run-webapp &
+
+    - name: Test web application
+      run: |
+        pip install httpie
+        http -hf localhost:5001 epsilon=0.001 guess=-20
+
+    - name: Start web service in background
+      run: make run-webservice &
+
+    - name: Test web service
+      run: make test-webservice
+
+    - name: Start redis
+      run: make start-redis
+
+    - name: Start Celery web app in background
+      run: make start-celery-webapp &
+
+    - name: Start Celery worker in background
+      run: |
+        cd src/py
+        PYTHONPATH=$PWD/../.. celery -A tasks worker &
+        cd ../..
+
+    - name: Test Celery web app
+      run: |
+        RESULT_URL=$(http -hf localhost:5000 epsilon=0.001 guess=-20 |grep Location |awk '{print $2}')
+        sleep 2
+        http $RESULT_URL
+
+    - name: Stop redis
+      run: make stop-redis
