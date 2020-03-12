@@ -345,7 +345,7 @@ Run with
 python src/py/hello.py
 ```
 
-The above route will just return the string "Hello World!" in the web browser when visiting [http://localhost:5000/](http://localhost:5000/). It is possible to return a html page aswell, but to make it dynamic it soon becomes a mess of string concatenations. Template languages help to avoid the concatination mess. Flask is configured with the [Jinja2](https://jinja.palletsprojects.com/). A template for the above route could look like:
+The above route will just return the string "Hello World!" in the web browser when visiting [http://localhost:5000/](http://localhost:5000/). It is possible to return a html page as well, but to make it dynamic it soon becomes a mess of string concatenations. Template engines help to avoid the concatination mess. Flask is configured with the [Jinja2](https://jinja.palletsprojects.com/) template engine. A template for the above route could look like:
 
 ```{.html file=src/py/templates/hello.html}
 <!doctype html>
