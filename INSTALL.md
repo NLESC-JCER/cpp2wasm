@@ -45,7 +45,7 @@ pip-celery:
 	<<pip-celery>>
 
 pip-connexion:
-	<pip-connexion>>
+	<<pip-connexion>>
 
 newtonraphson.exe: cli-newtonraphson.cpp
 	<<build-cli>>
