@@ -50,7 +50,7 @@ jobs:
         architecture: 'x64' # optional x64 or x86. Defaults to x64 if not specified
 
     - name: Install Python dependencies
-      run: make py-deps
+      run: make py-deps && pip install httpie
 
     - name: Run Python example
       run: make test-py
@@ -59,9 +59,7 @@ jobs:
       run: make run-webapp &
 
     - name: Test web application
-      run: |
-        pip install httpie
-        http -f --ignore-stdin localhost:5001 epsilon=0.001 guess=-20
+      run: http --ignore-stdin -f localhost:5001 epsilon=0.001 guess=-20
 
     - name: Start web service in background
       run: make run-webservice &
@@ -83,9 +81,9 @@ jobs:
 
     - name: Test Celery web app
       run: |
-        RESULT_URL=$(http -hf --ignore-stdin  localhost:5000 epsilon=0.001 guess=-20 |grep Location |awk '{print $2}')
+        RESULT_URL=$(http --ignore-stdin -hf localhost:5000 epsilon=0.001 guess=-20 |grep Location |awk '{print $2}')
         sleep 2
-        http $RESULT_URL
+        http --ignore-stdin $RESULT_URL
 
     - name: Stop redis
       run: make stop-redis
