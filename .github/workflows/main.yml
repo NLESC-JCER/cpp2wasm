@@ -86,6 +86,8 @@ jobs:
 
     - name: Test Celery web app
       run: |
-        RESULT_URL=$(http --ignore-stdin -hf localhost:5000 epsilon=0.001 guess=-20 |grep Location |awk '{print $2}')
+        http --ignore-stdin -hf localhost:5000 epsilon=0.001 guess=-20 | tee response.txt
+        # Parse result url from response
+        RESULT_URL=$(cat response.txt |grep Location |awk '{print $2}')
         sleep 2
         http --ignore-stdin $RESULT_URL
