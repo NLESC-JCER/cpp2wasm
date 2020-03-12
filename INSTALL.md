@@ -5,7 +5,6 @@
 To run the commands in the README.md the following items are required
 
 1. [Apache httpd server 2.4](http://httpd.apache.org/)
-1. Python libraries `pip install flask pybind11 celery redis connexion[swagger-ui]`
 1. Python devel with `sudo apt install python3-dev`
 1. [Emscriptem](https://emscripten.org/docs/getting_started/downloads.html)
 
@@ -31,7 +30,21 @@ docker run --rm -ti --user $(id -u) -v ${PWD}:/data nlesc/pandoc-tangle README.m
 All the commands in the README.md can be captured in a Makefile like so:
 
 ```{.makefile file=Makefile}
-.PHONY: clean test entangle
+.PHONY: clean test entangle deps
+
+deps: pip-pybind11 pip-flask pip-celery pip-connexion
+
+pip-pybind11:
+	<<pip-pybind11>>
+
+pip-flask:
+	<<pip-flask>>
+
+pip-celery:
+	<<pip-celery>>
+
+pip-connexion
+	<pip-connexion>>
 
 newtonraphson.exe: cli-newtonraphson.cpp
 	<<build-cli>>

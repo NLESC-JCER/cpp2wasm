@@ -279,6 +279,12 @@ Python packages can be installed using `pip` from the [Python Package Index](htt
 To make a web application in Python, the C++ functions need to be called somehow.
 Python can call functions in a C++ library if it's functions use [Python.h datatypes](https://docs.python.org/3.7/extending/index.html). This requires a lot of boilerplate and conversions, several tools are out there that make the boilerplate/conversions much simpler. The tool we chose to use is [pybind11](https://github.com/pybind/pybind11) as it is currently (May 2019) activly maintained and is header only library.
 
+To use pybind11, it must installed with pip
+
+```{.awk #pip-pybind11}
+pip install pybind11
+```
+
 Pybind11 requires a bindings (PYBIND11_MODULE macro) to expose C++ constants/functions/enumerations/classes to Python. The bindings can be compiled to a shared library (eg. pybubble.so) which can be imported into Python.
 
 For example the bindings of `newtonraphson.hpp:NewtonRaphson` class would look like:
@@ -325,6 +331,12 @@ print(root)
 
 Now that the C++ functions can be called from Python it is time to call the function from a web page.
 To assist in making a web application a web framework needs to be picked. The [Flask](https://flask.palletsprojects.com/) web framework was chosen as it minimalistic and has a large active community.
+
+The Flask Python library can be installed with
+
+```{.awk #pip-flask}
+pip install flask
+```
 
 The web application has 3 kinds of pages:
 
@@ -462,6 +474,12 @@ Will use [redis](https://redis.io/) in a Docker container as Celery broker, beca
 
 ```{.awk #run-redis}
 docker run -d -p 6379:6379 redis
+```
+
+To use Celery we must install the redis flavoured version with
+
+```{.awk #pip-celery}
+pip install celery[redis]
 ```
 
 Let's setup a method that can be submitted to the Celery task queue.
@@ -638,6 +656,12 @@ def calculate(body):
   return {'root': root}
 ```
 
+To provide the `calculate` method as a web service we must install Connexion Python library (with the Swagger UI for later testing)
+
+```{.awk #pip-connexion}
+pip install connexion[swagger-ui]
+```
+
 To run the web service we have to to tell Connexion which specification it should expose.
 
 ```{.python file=src/py/webservice.py}
@@ -654,7 +678,7 @@ The web service can be started with
 PYTHONPATH=$PWD python src/py/webservice.py
 ```
 
-We can try out the web service using Swagger UI at [http://localhost:8080/ui/](http://localhost:8080/ui/).
+We can try out the web service using the Swagger UI at [http://localhost:8080/ui/](http://localhost:8080/ui/).
 
 ## Javascript
 
