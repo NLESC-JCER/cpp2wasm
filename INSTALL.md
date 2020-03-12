@@ -64,7 +64,7 @@ test-cgi: cgi-bin/newtonraphson
 newtonraphsonpy.*.so: py-newtonraphson.cpp
 	<<build-py>>
 
-test-py: example.py newtonraphsonpy.*.so
+test-py: src/py/example.py newtonraphsonpy.*.so
 	PYTHONPATH=${PWD} python src/py/example.py
 
 test: test-cli test-cgi test-py test-webservice
