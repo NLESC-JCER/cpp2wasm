@@ -112,6 +112,7 @@ Run with
 ```{.awk #test-cli}
 ./newtonraphson.exe
 ```
+
 Should output
 
 ```shell
@@ -198,16 +199,19 @@ int main(int argc, char *argv[])
 Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header only library to convert a JSON string to and from a data type.
 
 This can be compile with
+
 ```{.awk #build-cgi}
 g++ -Ideps cgi-newtonraphson.cpp -o ./cgi-bin/newtonraphson
 ```
 
 The CGI script can be tested directly with
+
 ```{.awk #test-cgi}
 echo '{"guess":-20, "epsilon":0.001}' | ./cgi-bin/newtonraphson
 ```
 
 It should output
+
 ```{.awk #test-cgi-output}
 Content-type: application/json
 
@@ -235,7 +239,7 @@ ScriptAlias "/cgi-bin/" "cgi-bin/"
 Start Apache httpd web server using
 
 ```{.shell #run-httpd}
-/usr/sbin/apache2  -X -d . -f ./httpd.conf 
+/usr/sbin/apache2  -X -d . -f ./httpd.conf
 ```
 
 And in another shell call CGI script using curl
@@ -341,6 +345,7 @@ app.run()
 ```
 
 Run with
+
 ```{.awk #py-hello}
 python src/py/hello.py
 ```
@@ -374,11 +379,12 @@ app.run()
 Where `name` is a variable which gets combined with template to render into a html page.
 
 The web application can be started with
+
 ```{.awk #py-hello-templated}
 python src/py/hello-templated.py
 ```
 
-In a web browser you can visit http://localhost:5000/hello/yourname to the web application.
+In a web browser you can visit [http://localhost:5000/hello/yourname](http://localhost:5000/hello/yourname) to the web application.
 
 Let's make the web application for our Newton raphson algorithm.
 
@@ -444,11 +450,11 @@ And running it with
 PYTHONPATH=$PWD python src/py/webapp.py
 ```
 
-To test we can visit http://localhost:5000 fill the form and press submit to get the result.
+To test we can visit [http://localhost:5000](http://localhost:5000) fill the form and press submit to get the result.
 
 When performing a long calculation (more than 30 seconds), the end-user requires feedback of the progress. In a normal request/response cycle, feedback is only returned in the response. To give feedback during the calculation, the computation must be offloaded to a task queue. In Python the most used task queue is [celery](http://www.celeryproject.org/). While the calculation is running on some worker it is possible to have a progress page which can check in the queue what the progress is of the calculation.
 
-Celery needs a broker to use a queue and store the results. 
+Celery needs a broker to use a queue and store the results.
 Will use [redis](https://redis.io/) in a Docker container as Celery broker.
 
 ```{.awk #run-redis}
@@ -485,7 +491,7 @@ def calculate(self, epsilon, guess):
   return {'root': root, 'guess': guess, 'epsilon':epsilon}
 ```
 
-Instead of running the calculation when the submit button is pressed. 
+Instead of running the calculation when the submit button is pressed.
 We will submit the calculation task to the task queue by using the `.delay()` function.
 The submission will return a job identifier we can use later to get the status and result of the job. The web browser will redirect to a url with the job identifier in it.
 
@@ -545,7 +551,8 @@ PYTHONPATH=$PWD/../.. celery -A tasks worker
 ```
 
 To test web service
-1. Goto http://localhost:5000, 
+
+1. Goto [http://localhost:5000](http://localhost:5000),
 2. Submit form,
 3. Refresh result page until progress states are replaced with result.
 
@@ -644,7 +651,7 @@ The web service can be started with
 PYTHONPATH=$PWD python src/py/webservice.py
 ```
 
-We can try out the webservice at http://localhost:8080/ui/, this user interface also shows the curl command which can be used to call the web service.
+We can try out the webservice at [http://localhost:8080/ui/](http://localhost:8080/ui/), this user interface also shows the curl command which can be used to call the web service.
 
 ## Javascript
 
