@@ -61,7 +61,7 @@ jobs:
     - name: Test web application
       run: |
         pip install httpie
-        http -hf localhost:5001 epsilon=0.001 guess=-20
+        http -f --ignore-stdin localhost:5001 epsilon=0.001 guess=-20
 
     - name: Start web service in background
       run: make run-webservice &
@@ -83,7 +83,7 @@ jobs:
 
     - name: Test Celery web app
       run: |
-        RESULT_URL=$(http -hf localhost:5000 epsilon=0.001 guess=-20 |grep Location |awk '{print $2}')
+        RESULT_URL=$(http -hf --ignore-stdin  localhost:5000 epsilon=0.001 guess=-20 |grep Location |awk '{print $2}')
         sleep 2
         http $RESULT_URL
 
