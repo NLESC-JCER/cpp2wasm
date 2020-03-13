@@ -619,6 +619,9 @@ paths:
           'application/json':
             schema:
               $ref: '#/components/schemas/NRRequest'
+            example:
+              epsilon: 0.001
+              guess: -20
       responses:
         '200':
           description: The found root
