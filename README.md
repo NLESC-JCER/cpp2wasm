@@ -23,7 +23,7 @@ The [Newton raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton
 
 The interface would like
 
-```{.cpp file=newtonraphson.hpp}
+```{.cpp file=src/newtonraphson.hpp}
 #ifndef H_NEWTONRAPHSON_H
 #define H_NEWTONRAPHSON_H
 
@@ -86,7 +86,7 @@ double NewtonRaphson::find(double xin)
 
 A simple CLI program would look like
 
-```{.cpp file=cli-newtonraphson.cpp}
+```{.cpp file=src/cli-newtonraphson.cpp}
 #include<bits/stdc++.h>
 
 <<algorithm>>
@@ -107,13 +107,13 @@ int main()
 Compile with
 
 ```{.awk #build-cli}
-g++ cli-newtonraphson.cpp -o newtonraphson.exe
+g++ src/cli-newtonraphson.cpp -o bin/newtonraphson.exe
 ```
 
 Run with
 
 ```{.awk #test-cli}
-./newtonraphson.exe
+./bin/newtonraphson.exe
 ```
 
 Should output
@@ -170,7 +170,7 @@ In the [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.htm
 The executable can read the request body from the stdin for and the response must be printed to the stdout.
 The response must first print the content type and then the content. A web service which accepts and returns JSON documents can for example look like:
 
-```{.cpp file=cgi-newtonraphson.cpp}
+```{.cpp file=src/cgi-newtonraphson.cpp}
 #include <string>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -204,13 +204,13 @@ Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header onl
 This can be compile with
 
 ```{.awk #build-cgi}
-g++ -Ideps cgi-newtonraphson.cpp -o ./cgi-bin/newtonraphson
+g++ -Ideps src/cgi-newtonraphson.cpp -o apache2/cgi-bin/newtonraphson
 ```
 
 The CGI script can be tested directly with
 
 ```{.awk #test-cgi}
-echo '{"guess":-20, "epsilon":0.001}' | ./cgi-bin/newtonraphson
+echo '{"guess":-20, "epsilon":0.001}' | apache2/cgi-bin/newtonraphson
 ```
 
 It should output
@@ -224,9 +224,9 @@ Content-type: application/json
 }
 ```
 
-Example Apache config file to host executables in `cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
+Example Apache config file to host executables in `apache2/cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
 
-```{.python file=httpd.conf}
+```{.python file=apache2/apache2.conf}
 ServerName 127.0.0.1
 Listen 8080
 LoadModule mpm_event_module /usr/lib/apache2/modules/mod_mpm_event.so
@@ -242,7 +242,7 @@ ScriptAlias "/cgi-bin/" "cgi-bin/"
 Start Apache httpd web server using
 
 ```{.shell #run-httpd}
-/usr/sbin/apache2  -X -d . -f ./httpd.conf
+/usr/sbin/apache2 -X -d apache2
 ```
 
 And in another shell call CGI script using curl
@@ -291,7 +291,7 @@ Pybind11 requires a bindings (PYBIND11_MODULE macro) to expose C++ constants/fun
 
 For example the bindings of `newtonraphson.hpp:NewtonRaphson` class would look like:
 
-```{.cpp file=py-newtonraphson.cpp}
+```{.cpp file=src/py-newtonraphson.cpp}
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -315,7 +315,7 @@ Compile with
 
 ```{.shell #build-py}
 g++ -O3 -Wall -shared -std=c++14 -fPIC `python3 -m pybind11 --includes` \
-py-newtonraphson.cpp -o newtonraphsonpy`python3-config --extension-suffix`
+src/py-newtonraphson.cpp -o src/py/newtonraphsonpy`python3-config --extension-suffix`
 ```
 
 In Python it can be used:
@@ -462,7 +462,7 @@ app.run(port=5001)
 And running it with
 
 ```{.awk #run-webapp}
-PYTHONPATH=${PWD} python src/py/webapp.py
+python src/py/webapp.py
 ```
 
 To test we can visit [http://localhost:5001](http://localhost:5001) fill the form and press submit to get the result.
@@ -563,15 +563,16 @@ if __name__ == '__main__':
 Start the web application like before with
 
 ```{.awk #run-celery-webapp}
-PYTHONPATH=${PWD} python src/py/webapp-celery.py
+python src/py/webapp-celery.py
 ```
 
 Tasks will be run by the Celery worker. The worker can be started with
 
 ```{.awk #run-celery-worker}
-cd src/py
-PYTHONPATH=$PWD/../.. celery -A tasks worker
+PYTHONPATH=$PWD/src/py celery worker -A tasks
 ```
+
+(The PYTHONPATH environment variable is set so the Celery worker can find the `tasks.py` and `newtonraphsonpy.*.so` files in the `src/py/` directory)
 
 To test web service
 
@@ -683,7 +684,7 @@ app.run(port=8080)
 The web service can be started with
 
 ```{.awk #run-webservice}
-PYTHONPATH=${PWD} python src/py/webservice.py
+python src/py/webservice.py
 ```
 
 We can try out the web service using the Swagger UI at [http://localhost:8080/ui/](http://localhost:8080/ui/).
