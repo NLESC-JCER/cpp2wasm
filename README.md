@@ -16,6 +16,8 @@
     - [Form](#form)
     - [Visualization](#visualization)
 
+![CI](https://github.com/NLESC-JCER/cpp2wasm/workflows/CI/badge.svg)
+
 Document describing a way that a scientist with a C++ algorithm can make it available as a web application.
 The [Newton raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton%27s_method) will be the use case.
 
@@ -318,7 +320,7 @@ py-newtonraphson.cpp -o newtonraphsonpy`python3-config --extension-suffix`
 
 In Python it can be used:
 
-```{.python file=example.py}
+```{.python file=src/py/example.py}
 from newtonraphsonpy import NewtonRaphson
 
 finder = NewtonRaphson(epsilon=0.001)
@@ -454,16 +456,16 @@ app = Flask(__name__)
 
 <<py-calculate>>
 
-app.run()
+app.run(port=5001)
 ```
 
 And running it with
 
-```{.awk #py-webapp}
-PYTHONPATH=$PWD python src/py/webapp.py
+```{.awk #run-webapp}
+PYTHONPATH=${PWD} python src/py/webapp.py
 ```
 
-To test we can visit [http://localhost:5000](http://localhost:5000) fill the form and press submit to get the result.
+To test we can visit [http://localhost:5001](http://localhost:5001) fill the form and press submit to get the result.
 
 ### Long running tasks
 
@@ -472,8 +474,8 @@ When performing a long calculation (more than 30 seconds), the end-user requires
 Celery needs a broker for a queue and result storage.
 Will use [redis](https://redis.io/) in a Docker container as Celery broker, because it's simple to setup. Redis can be started with the following command
 
-```{.awk #run-redis}
-docker run -d -p 6379:6379 redis
+```{.awk #start-redis}
+docker run --rm -d -p 6379:6379 --name some-redis redis
 ```
 
 To use Celery we must install the redis flavoured version with
@@ -543,7 +545,7 @@ def result(jobid):
 
 Putting it all together
 
-```{.python file=src/py/awebapp.py}
+```{.python file=src/py/webapp-celery.py}
 from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
@@ -555,18 +557,18 @@ app = Flask(__name__)
 <<py-result>>
 
 if __name__ == '__main__':
-  app.run()
+  app.run(port=5000)
 ```
 
 Start the web application like before with
 
-```{.awk #py-awebapp}
-PYTHONPATH=$PWD python src/py/awebapp.py
+```{.awk #run-celery-webapp}
+PYTHONPATH=${PWD} python src/py/webapp-celery.py
 ```
 
 Tasks will be run by the Celery worker. The worker can be started with
 
-```{.awk #py-worker}
+```{.awk #run-celery-worker}
 cd src/py
 PYTHONPATH=$PWD/../.. celery -A tasks worker
 ```
@@ -576,6 +578,12 @@ To test web service
 1. Goto [http://localhost:5000](http://localhost:5000),
 2. Submit form,
 3. Refresh result page until progress states are replaced with result.
+
+The redis server can be shutdown with
+
+```{.awk #stop-redis}
+docker stop some-redis
+```
 
 ### Web service
 
@@ -675,10 +683,15 @@ app.run(port=8080)
 The web service can be started with
 
 ```{.awk #run-webservice}
-PYTHONPATH=$PWD python src/py/webservice.py
+PYTHONPATH=${PWD} python src/py/webservice.py
 ```
 
 We can try out the web service using the Swagger UI at [http://localhost:8080/ui/](http://localhost:8080/ui/).
+Or by running a curl command like
+
+```{.awk #test-webservice}
+curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
+```
 
 ## Javascript
 
