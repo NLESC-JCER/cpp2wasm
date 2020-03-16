@@ -18,8 +18,8 @@
 
 [![CI](https://github.com/NLESC-JCER/cpp2wasm/workflows/CI/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3ACI)
 
-Document describing a way that a scientist with a C++ algorithm can make it available as a web application.
-The [Newton raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton%27s_method) will be the use case.
+Document describing a way that a researcher with a C++ algorithm can make it available as a web application.
+The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton%27s_method) will be the use case.
 
 The interface would like
 
