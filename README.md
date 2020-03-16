@@ -168,7 +168,7 @@ And a valid document:
 The classic way to run programs when accessing a url is to use the Common Gateway Interface (CGI).
 In the [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.html) you can configure a directory as a ScriptAlias, when visiting a file inside that directory the file will be executed.
 The executable can read the request body from the stdin for and the response must be printed to the stdout.
-The response must first print the content type and then the content. A web service which accepts and returns JSON documents can for example look like:
+A response should consist of the content type such as ``application/json`` or ``text/html``, followed by the content itself. A web service which accepts and returns JSON documents can for example look like:
 
 ```{.cpp file=cgi-newtonraphson.cpp}
 #include <string>
@@ -201,7 +201,7 @@ int main(int argc, char *argv[])
 
 Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header only library to convert a JSON string to and from a data type.
 
-This can be compile with
+This can be compiled with
 
 ```{.awk #build-cgi}
 g++ -Ideps cgi-newtonraphson.cpp -o ./cgi-bin/newtonraphson
@@ -267,7 +267,7 @@ The problem with CGI scripts is when the program does some initialization, you h
 
 ## Web framework
 
-A web framework is a abstraction layer for making web applications. It takes care of mapping a request on a certain url to an user defined function. And mapping the return of an user defined function to a response like a HTML page or error message.
+A web framework is an abstraction layer for making web applications. It takes care of mapping a request on a certain url to a user defined function. And mapping the return of a user defined function to a response like an HTML page or an error message.
 
 ## Python
 
@@ -279,7 +279,7 @@ Python packages can be installed using `pip` from the [Python Package Index](htt
 ### Accessing C++ function from Python
 
 To make a web application in Python, the C++ functions need to be called somehow.
-Python can call functions in a C++ library if it's functions use [Python.h datatypes](https://docs.python.org/3.7/extending/index.html). This requires a lot of boilerplate and conversions, several tools are out there that make the boilerplate/conversions much simpler. The tool we chose to use is [pybind11](https://github.com/pybind/pybind11) as it is currently (May 2019) activly maintained and is header only library.
+Python can call functions in a C++ library if its functions use [Python.h datatypes](https://docs.python.org/3.7/extending/index.html). This requires a lot of boilerplate and conversions, several tools are out there that make the boilerplate/conversions much simpler. The tool we chose to use is [pybind11](https://github.com/pybind/pybind11) as it is currently (May 2019) actively maintained and is a header-only library.
 
 To use pybind11, it must installed with pip
 
@@ -287,7 +287,7 @@ To use pybind11, it must installed with pip
 pip install pybind11
 ```
 
-Pybind11 requires a bindings (PYBIND11_MODULE macro) to expose C++ constants/functions/enumerations/classes to Python. The bindings can be compiled to a shared library (eg. pybubble.so) which can be imported into Python.
+Pybind11 requires a bindings macro (PYBIND11_MODULE) to expose C++ constants/functions/enumerations/classes to Python. The bindings can be compiled to a shared library (eg. pybubble.so) which can be imported into Python.
 
 For example the bindings of `newtonraphson.hpp:NewtonRaphson` class would look like:
 
