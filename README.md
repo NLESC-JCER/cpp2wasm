@@ -137,7 +137,7 @@ The C++ code has the following characteristics:
 
 To make the same input and output reusable from either the command line or web service, the [JSON format](http://json.org/) was chosen. As the JSON format is easy read and write by human and machines.
 
-Compare with a binary format or comma seperated file it is more verbose, but is more self documenting. It is less verbose than [XML](https://en.wikipedia.org/wiki/XML) and like there is a [XML schema definition](https://en.wikipedia.org/wiki/XML_Schema_(W3C)) for validation of XML there is an equivalent for JSON called [JSON schema](https://json-schema.org/). JSON schema is used to describe the shape of a JSON document and make sure root finder consumers know how to provide the input and what to expect from the output. [YAML format](https://yaml.org/) was not chosen, because it is a superset of JSON and JSON is all expressiveness root finder required. YAML allows for comments while this is not supported in JSON. Also JSON is the lingua france for web services.
+Compared with a binary format or a comma separated file, JSON is more verbose, but is more self documenting. It is less verbose than [XML](https://en.wikipedia.org/wiki/XML), and just like there is an [XML schema definition](https://en.wikipedia.org/wiki/XML_Schema_(W3C)) for validation of XML, there is an equivalent for JSON called [JSON schema](https://json-schema.org/). JSON schema is used to describe the shape of a JSON document and make sure root finder consumers know how to provide the input and what to expect from the output. [YAML format](https://yaml.org/) was not chosen, because it is a superset of JSON and JSON has all the expressiveness root finder required. YAML allows for comments while this is not supported in JSON. Also JSON is the lingua franca for web services.
 
 An example of JSON schema:
 
@@ -165,7 +165,7 @@ And a valid document:
 
 ## CGI script
 
-The classic way to run programs when accessing an url is to use the Common Gateway Interface (CGI).
+The classic way to run programs when accessing a url is to use the Common Gateway Interface (CGI).
 In the [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.html) you can configure a directory as a ScriptAlias, when visiting a file inside that directory the file will be executed.
 The executable can read the request body from the stdin for and the response must be printed to the stdout.
 The response must first print the content type and then the content. A web service which accepts and returns JSON documents can for example look like:
