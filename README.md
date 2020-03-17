@@ -448,7 +448,6 @@ def calculate():
 
 Putting it all together in
 
-~~~~python
 ```{.python file=src/py/webapp.py}
 from flask import Flask, render_template, request
 app = Flask(__name__)
@@ -459,7 +458,6 @@ app = Flask(__name__)
 
 app.run(port=5001)
 ```
-~~~~
 
 And running it with
 
