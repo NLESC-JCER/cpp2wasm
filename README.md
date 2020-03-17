@@ -23,7 +23,7 @@ The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton
 
 The interface would like
 
-```cpp {.cpp file=newtonraphson.hpp}
+```{.cpp file=newtonraphson.hpp}
 #ifndef H_NEWTONRAPHSON_H
 #define H_NEWTONRAPHSON_H
 
@@ -44,7 +44,7 @@ namespace rootfinding {
 
 The implementation would look like
 
-```cpp {.cpp #algorithm}
+```{.cpp #algorithm}
 #include "newtonraphson.hpp"
 
 namespace rootfinding
@@ -86,7 +86,7 @@ double NewtonRaphson::find(double xin)
 
 A simple CLI program would look like
 
-```cpp {.cpp file=cli-newtonraphson.cpp}
+```{.cpp file=cli-newtonraphson.cpp}
 #include<bits/stdc++.h>
 
 <<algorithm>>
@@ -106,13 +106,13 @@ int main()
 
 Compile with
 
-```shell {.awk #build-cli}
+```{.awk #build-cli}
 g++ cli-newtonraphson.cpp -o newtonraphson.exe
 ```
 
 Run with
 
-```shell {.awk #test-cli}
+```{.awk #test-cli}
 ./newtonraphson.exe
 ```
 
@@ -170,7 +170,7 @@ In the [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.htm
 The executable can read the request body from the stdin for and the response must be printed to the stdout.
 A response should consist of the content type such as ``application/json`` or ``text/html``, followed by the content itself. A web service which accepts and returns JSON documents can for example look like:
 
-```cpp {.cpp file=cgi-newtonraphson.cpp}
+```{.cpp file=cgi-newtonraphson.cpp}
 #include <string>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -203,19 +203,19 @@ Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header onl
 
 This can be compiled with
 
-```shell {.awk #build-cgi}
+```{.awk #build-cgi}
 g++ -Ideps cgi-newtonraphson.cpp -o ./cgi-bin/newtonraphson
 ```
 
 The CGI script can be tested directly with
 
-```shell {.awk #test-cgi}
+```{.awk #test-cgi}
 echo '{"guess":-20, "epsilon":0.001}' | ./cgi-bin/newtonraphson
 ```
 
 It should output
 
-```shell {.awk #test-cgi-output}
+```{.awk #test-cgi-output}
 Content-type: application/json
 
 {
@@ -226,7 +226,7 @@ Content-type: application/json
 
 Example Apache config file to host executables in `cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
 
-``` {.python file=httpd.conf}
+```{.python file=httpd.conf}
 ServerName 127.0.0.1
 Listen 8080
 LoadModule mpm_event_module /usr/lib/apache2/modules/mod_mpm_event.so
@@ -241,7 +241,7 @@ ScriptAlias "/cgi-bin/" "cgi-bin/"
 
 Start Apache httpd web server using
 
-```shell {.shell #run-httpd}
+```{.shell #run-httpd}
 /usr/sbin/apache2  -X -d . -f ./httpd.conf
 ```
 
@@ -283,7 +283,7 @@ Python can call functions in a C++ library if its functions use [Python.h dataty
 
 To use pybind11, it must installed with pip
 
-```shell {.awk #pip-pybind11}
+```{.awk #pip-pybind11}
 pip install pybind11
 ```
 
@@ -291,7 +291,7 @@ Pybind11 requires a bindings macro (PYBIND11_MODULE) to expose C++ constants/fun
 
 For example the bindings of `newtonraphson.hpp:NewtonRaphson` class would look like:
 
-```cpp {.cpp file=py-newtonraphson.cpp}
+```{.cpp file=py-newtonraphson.cpp}
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -313,14 +313,14 @@ PYBIND11_MODULE(newtonraphsonpy, m) {
 
 Compile with
 
-```shell {.shell #build-py}
+```{.shell #build-py}
 g++ -O3 -Wall -shared -std=c++14 -fPIC `python3 -m pybind11 --includes` \
 py-newtonraphson.cpp -o newtonraphsonpy`python3-config --extension-suffix`
 ```
 
 In Python it can be used:
 
-```python {.python file=src/py/example.py}
+```{.python file=src/py/example.py}
 from newtonraphsonpy import NewtonRaphson
 
 finder = NewtonRaphson(epsilon=0.001)
@@ -336,7 +336,7 @@ To assist in making a web application a web framework needs to be picked. The [F
 
 The Flask Python library can be installed with
 
-```shell {.awk #pip-flask}
+```{.awk #pip-flask}
 pip install flask
 ```
 
@@ -348,7 +348,7 @@ The web application has 3 kinds of pages:
 
 Each page is available on a different url. In flask the way urls are mapped to Python function is done by adding a route decorator to the function for example:
 
-```python {.python file=src/py/hello.py}
+```{.python file=src/py/hello.py}
 from flask import Flask
 app = Flask(__name__)
 
@@ -361,13 +361,13 @@ app.run()
 
 Run with
 
-```shell {.awk #py-hello}
+```{.awk #py-hello}
 python src/py/hello.py
 ```
 
 The above route will just return the string "Hello World!" in the web browser when visiting [http://localhost:5000/](http://localhost:5000/). It is possible to return a html page as well, but to make it dynamic it soon becomes a mess of string concatenations. Template engines help to avoid the concatination mess. Flask is configured with the [Jinja2](https://jinja.palletsprojects.com/) template engine. A template for the above route could look like:
 
-```html {.html file=src/py/templates/hello.html}
+```{.html file=src/py/templates/hello.html}
 <!doctype html>
 <title>Hello from Flask</title>
 {% if name %}
@@ -379,7 +379,7 @@ The above route will just return the string "Hello World!" in the web browser wh
 
 and to render the template the function would look like:
 
-```python {.python file=src/py/hello-templated.py}
+```{.python file=src/py/hello-templated.py}
 from flask import Flask, render_template
 
 app = Flask(__name__)
@@ -395,7 +395,7 @@ Where `name` is a variable which gets combined with template to render into a ht
 
 The web application can be started with
 
-```shell {.awk #py-hello-templated}
+```{.awk #py-hello-templated}
 python src/py/hello-templated.py
 ```
 
@@ -405,7 +405,7 @@ Let's make the web application for our Newton raphson algorithm.
 
 The first thing we want is the web page with the form, the template that renders the form looks like
 
-```html {.html file=src/py/templates/form.html}
+```{.html file=src/py/templates/form.html}
 <!doctype html>
 <form method="POST">
   <label for="epsilon">Epsilon</label>
@@ -418,7 +418,7 @@ The first thing we want is the web page with the form, the template that renders
 
 The home page will render the form like so
 
-```python {.python #py-form}
+```{.python #py-form}
 @app.route('/', methods=['GET'])
 def form():
   return render_template('form.html')
@@ -426,14 +426,14 @@ def form():
 
 The result will be displayed on a html page with the following template
 
-```html {.html file=src/py/templates/result.html}
+```{.html file=src/py/templates/result.html}
 <!doctype html>
 <p>With epsilon of {{ epsilon }} and a guess of {{ guess }} the found root is {{ root }}.</p>
 ```
 
 The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result html page.
 
-```python {.python #py-calculate}
+```{.python #py-calculate}
 @app.route('/', methods=['POST'])
 def calculate():
   epsilon = float(request.form['epsilon'])
@@ -448,7 +448,7 @@ def calculate():
 
 Putting it all together in
 
-```python {.python file=src/py/webapp.py}
+```{.python file=src/py/webapp.py}
 from flask import Flask, render_template, request
 app = Flask(__name__)
 
@@ -461,7 +461,7 @@ app.run(port=5001)
 
 And running it with
 
-```shell {.awk #run-webapp}
+```{.awk #run-webapp}
 PYTHONPATH=${PWD} python src/py/webapp.py
 ```
 
@@ -474,20 +474,20 @@ When performing a long calculation (more than 30 seconds), the end-user requires
 Celery needs a broker for a queue and result storage.
 Will use [redis](https://redis.io/) in a Docker container as Celery broker, because it's simple to setup. Redis can be started with the following command
 
-```shell {.awk #start-redis}
+```{.awk #start-redis}
 docker run --rm -d -p 6379:6379 --name some-redis redis
 ```
 
 To use Celery we must install the redis flavoured version with
 
-```shell {.awk #pip-celery}
+```{.awk #pip-celery}
 pip install celery[redis]
 ```
 
 Let's setup a method that can be submitted to the Celery task queue.
 First configure Celery to use the Redis database.
 
-```python {.python #celery-config}
+```{.python #celery-config}
 from celery import Celery
 capp = Celery('tasks', broker='redis://localhost:6379', backend='redis://localhost:6379')
 ```
@@ -495,7 +495,7 @@ capp = Celery('tasks', broker='redis://localhost:6379', backend='redis://localho
 When a method is decorated with the Celery task decorator then it can be submitted to the Celery task queue.
 Will add some sleeps to demonstrate what would happen with a long running calculation. Will also tell Celery about in which step the calculation is, later we can display this step to the user.
 
-```python {.python file=src/py/tasks.py}
+```{.python file=src/py/tasks.py}
 import time
 
 <<celery-config>>
@@ -518,7 +518,7 @@ Instead of running the calculation when the submit button is pressed.
 We will submit the calculation task to the task queue by using the `.delay()` function.
 The submission will return a job identifier we can use later to get the status and result of the job. The web browser will redirect to a url with the job identifier in it.
 
-```python {.python #py-submit}
+```{.python #py-submit}
 @app.route('/', methods=['POST'])
 def submit():
   epsilon = float(request.form['epsilon'])
@@ -530,7 +530,7 @@ def submit():
 
 The last method is to ask the Celery task queue what the status is of the job and return the result when it is succesfull.
 
-```python {.python #py-result}
+```{.python #py-result}
 @app.route('/result/<jobid>')
 def result(jobid):
   from tasks import capp
@@ -545,7 +545,7 @@ def result(jobid):
 
 Putting it all together
 
-```python {.python file=src/py/webapp-celery.py}
+```{.python file=src/py/webapp-celery.py}
 from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
@@ -562,13 +562,13 @@ if __name__ == '__main__':
 
 Start the web application like before with
 
-```shell {.awk #run-celery-webapp}
+```{.awk #run-celery-webapp}
 PYTHONPATH=${PWD} python src/py/webapp-celery.py
 ```
 
 Tasks will be run by the Celery worker. The worker can be started with
 
-```shell {.awk #run-celery-worker}
+```{.awk #run-celery-worker}
 cd src/py
 PYTHONPATH=$PWD/../.. celery -A tasks worker
 ```
@@ -581,7 +581,7 @@ To test web service
 
 The redis server can be shutdown with
 
-```shell {.awk #stop-redis}
+```{.awk #stop-redis}
 docker stop some-redis
 ```
 
@@ -600,7 +600,7 @@ For the Python based root finding web service, Connexion was used as the web fra
 
 The OpenAPI specification for performing root finding would look like
 
-```yaml {.yaml file=src/py/openapi.yaml}
+```{.yaml file=src/py/openapi.yaml}
 openapi: 3.0.0
 info:
   title: Root finder
@@ -654,7 +654,7 @@ The request and response are in JSON format and adhere to their respective JSON 
 
 The operation identifier (`operationId`) in the specification gets translated by Connexion to a Python method that will be called when the path is requested. Connexion calls the function with the JSON parsed request body.
 
-```python {.python file=src/py/api.py}
+```{.python file=src/py/api.py}
 def calculate(body):
   epsilon = body['epsilon']
   guess = body['guess']
@@ -666,13 +666,13 @@ def calculate(body):
 
 To provide the `calculate` method as a web service we must install Connexion Python library (with the Swagger UI for later testing)
 
-```shell {.awk #pip-connexion}
+```{.awk #pip-connexion}
 pip install connexion[swagger-ui]
 ```
 
 To run the web service we have to to tell Connexion which specification it should expose.
 
-```python {.python file=src/py/webservice.py}
+```{.python file=src/py/webservice.py}
 import connexion
 
 app = connexion.App(__name__)
@@ -682,14 +682,14 @@ app.run(port=8080)
 
 The web service can be started with
 
-```shell {.awk #run-webservice}
+```{.awk #run-webservice}
 PYTHONPATH=${PWD} python src/py/webservice.py
 ```
 
 We can try out the web service using the Swagger UI at [http://localhost:8080/ui/](http://localhost:8080/ui/).
 Or by running a curl command like
 
-```shell {.awk #test-webservice}
+```{.awk #test-webservice}
 curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 ```
 
