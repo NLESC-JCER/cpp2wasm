@@ -88,8 +88,8 @@ test-webservice:
 	<<test-webservice>>
 
 # Unable to get worker runnig correctly from Makefile, the newtonraphsonpy.*.so cannot be found
-# run-celery-worker: newtonraphsonpy.*.so
-#	<<run-celery-worker>>
+run-celery-worker: newtonraphsonpy.*.so
+	<<run-celery-worker>>
 
 run-celery-webapp: newtonraphsonpy.*.so
 	<<run-celery-webapp>>

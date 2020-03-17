@@ -313,7 +313,7 @@ PYBIND11_MODULE(newtonraphsonpy, m) {
 
 Compile with
 
-```{.shell #build-py}
+```{.awk #build-py}
 g++ -O3 -Wall -shared -std=c++14 -fPIC `python3 -m pybind11 --includes` \
 py-newtonraphson.cpp -o newtonraphsonpy`python3-config --extension-suffix`
 ```
@@ -569,8 +569,7 @@ PYTHONPATH=${PWD} python src/py/webapp-celery.py
 Tasks will be run by the Celery worker. The worker can be started with
 
 ```{.awk #run-celery-worker}
-cd src/py
-PYTHONPATH=$PWD/../.. celery -A tasks worker
+celery worker --workdir src/py --app tasks
 ```
 
 To test web service
