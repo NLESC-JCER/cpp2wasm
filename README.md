@@ -469,16 +469,16 @@ To test we can visit [http://localhost:5001](http://localhost:5001) fill the for
 
 ### Long running tasks
 
-When performing a long calculation (more than 30 seconds), the end-user requires feedback of the progress. In a normal request/response cycle, feedback is only returned in the response. To give feedback during the calculation, the computation must be offloaded to a task queue. In Python the most used task queue is [celery](http://www.celeryproject.org/). While the calculation is running on some worker it is possible to have a progress page which can check in the queue what the progress is of the calculation.
+When performing a long calculation (more than 30 seconds), the end-user requires feedback of the progress. In a normal request/response cycle, feedback is only returned in the response. To give feedback during the calculation, the computation must be offloaded to a task queue. In Python, a commonly used task queue is [celery](http://www.celeryproject.org/). While the calculation is running on some worker it is possible to have a progress page which can check in the queue what the progress is of the calculation.
 
 Celery needs a broker for a queue and result storage.
-Will use [redis](https://redis.io/) in a Docker container as Celery broker, because it's simple to setup. Redis can be started with the following command
+We'll use [redis](https://redis.io/) in a Docker container as Celery broker, because it's simple to setup. Redis can be started with the following command
 
 ```{.awk #start-redis}
 docker run --rm -d -p 6379:6379 --name some-redis redis
 ```
 
-To use Celery we must install the redis flavoured version with
+To use Celery we must install the redis flavored version with
 
 ```{.awk #pip-celery}
 pip install celery[redis]
@@ -493,7 +493,7 @@ capp = Celery('tasks', broker='redis://localhost:6379', backend='redis://localho
 ```
 
 When a method is decorated with the Celery task decorator then it can be submitted to the Celery task queue.
-Will add some sleeps to demonstrate what would happen with a long running calculation. Will also tell Celery about in which step the calculation is, later we can display this step to the user.
+We'll add some sleeps to demonstrate what would happen with a long running calculation. We'll also tell Celery about in which step the calculation is, later we can display this step to the user.
 
 ```{.python file=src/py/tasks.py}
 import time
@@ -514,8 +514,7 @@ def calculate(self, epsilon, guess):
   return {'root': root, 'guess': guess, 'epsilon':epsilon}
 ```
 
-Instead of running the calculation when the submit button is pressed.
-We will submit the calculation task to the task queue by using the `.delay()` function.
+Instead of running the calculation when the submit button is pressed, we will submit the calculation task to the task queue by using the `.delay()` function.
 The submission will return a job identifier we can use later to get the status and result of the job. The web browser will redirect to a url with the job identifier in it.
 
 ```{.python #py-submit}
@@ -528,7 +527,7 @@ def submit():
   return redirect(url_for('result', jobid=job.id))
 ```
 
-The last method is to ask the Celery task queue what the status is of the job and return the result when it is succesfull.
+The last method is to ask the Celery task queue what the status is of the job and return the result when it is succesful.
 
 ```{.python #py-result}
 @app.route('/result/<jobid>')
@@ -572,9 +571,9 @@ Tasks will be run by the Celery worker. The worker can be started with
 celery worker --workdir src/py --app tasks
 ```
 
-To test web service
+To test the web service
 
-1. Goto [http://localhost:5000](http://localhost:5000),
+1. Go to [http://localhost:5000](http://localhost:5000),
 2. Submit form,
 3. Refresh result page until progress states are replaced with result.
 
