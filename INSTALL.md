@@ -49,28 +49,29 @@ pip-celery:
 pip-connexion:
 	<<pip-connexion>>
 
-newtonraphson.exe: cli-newtonraphson.cpp
+bin/newtonraphson.exe: src/cli-newtonraphson.cpp
 	<<build-cli>>
 
-test-cli: newtonraphson.exe
+test-cli: bin/newtonraphson.exe
 	<<test-cli>>
 
-cgi-bin/newtonraphson: cgi-newtonraphson.cpp
+apache2/cgi-bin/newtonraphson: src/cgi-newtonraphson.cpp
 	<<build-cgi>>
 
-test-cgi: cgi-bin/newtonraphson
+test-cgi: apache2/cgi-bin/newtonraphson
 	<<test-cgi>>
 
-newtonraphsonpy.*.so: py-newtonraphson.cpp
+src/py/newtonraphsonpy.*.so: src/py-newtonraphson.cpp
 	<<build-py>>
 
-test-py: src/py/example.py newtonraphsonpy.*.so
-	PYTHONPATH=${PWD} python src/py/example.py
+test-py: src/py/example.py src/py/newtonraphsonpy.*.so
+	python src/py/example.py
 
 test: test-cli test-cgi test-py test-webservice
 
+# Removes the compiled files
 clean:
-	$(RM) newtonraphson.exe newtonraphsonpy.*.so cgi-bin/newtonraphson
+	$(RM) bin/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson
 
 start-redis:
 	<<start-redis>>
@@ -78,21 +79,22 @@ start-redis:
 stop-redis:
 	<<stop-redis>>
 
-run-webapp: newtonraphsonpy.*.so
+run-webapp: src/py/newtonraphsonpy.*.so
 	<<run-webapp>>
 
-run-webservice: newtonraphsonpy.*.so
+run-webservice: src/py/newtonraphsonpy.*.so
 	<<run-webservice>>
 
 test-webservice:
 	<<test-webservice>>
 
 # Unable to get worker runnig correctly from Makefile, the newtonraphsonpy.*.so cannot be found
-run-celery-worker: newtonraphsonpy.*.so
+run-celery-worker: src/py/newtonraphsonpy.*.so
 	<<run-celery-worker>>
 
-run-celery-webapp: newtonraphsonpy.*.so
+run-celery-webapp: src/py/newtonraphsonpy.*.so
 	<<run-celery-webapp>>
+
 ```
 
 For example the Python dependencies can be installed with
