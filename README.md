@@ -24,6 +24,8 @@ The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton
 The interface would like
 
 ```{.cpp file=src/newtonraphson.hpp}
+// this C++ snippet is stored as src/newtonraphson.hpp
+
 #ifndef H_NEWTONRAPHSON_H
 #define H_NEWTONRAPHSON_H
 
@@ -45,6 +47,8 @@ namespace rootfinding {
 The implementation would look like
 
 ```{.cpp #algorithm}
+// this C++ code snippet is later referred to as <<algorithm>>
+
 #include "newtonraphson.hpp"
 
 namespace rootfinding
