@@ -30,8 +30,8 @@ src/py/newtonraphsonpy.*.so: src/py-newtonraphson.cpp
 	g++ -O3 -Wall -shared -std=c++14 -fPIC `python3 -m pybind11 --includes` \
 	src/py-newtonraphson.cpp -o src/py/newtonraphsonpy`python3-config --extension-suffix`
 
-test-py: src/py/example.py newtonraphsonpy.*.so
-	PYTHONPATH=${PWD} python src/py/example.py
+test-py: src/py/example.py src/py/newtonraphsonpy.*.so
+	python src/py/example.py
 
 test: test-cli test-cgi test-py test-webservice
 
@@ -54,16 +54,9 @@ run-webservice: src/py/newtonraphsonpy.*.so
 test-webservice:
 	curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 
-<<<<<<< HEAD
-run-celery-worker: newtonraphsonpy.*.so
-	celery worker --workdir src/py --app tasks
-
-run-celery-webapp: newtonraphsonpy.*.so
-	PYTHONPATH=${PWD} python src/py/webapp-celery.py
-=======
+# Unable to get worker runnig correctly from Makefile, the newtonraphsonpy.*.so cannot be found
 run-celery-worker: src/py/newtonraphsonpy.*.so
-	PYTHONPATH=$PWD/src/py celery worker -A tasks
+	celery worker --workdir src/py --app tasks
 
 run-celery-webapp: src/py/newtonraphsonpy.*.so
 	python src/py/webapp-celery.py
->>>>>>> origin/master
