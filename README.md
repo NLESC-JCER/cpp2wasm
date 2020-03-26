@@ -34,10 +34,10 @@ The interface would like
 namespace rootfinding {
   class NewtonRaphson {
     public:
-      NewtonRaphson(double epsilon);
+      NewtonRaphson(double tolerancein);
       double find(double xin);
     private:
-      double m_epsilon;
+      double tolerance;
   };
 }
 
@@ -66,19 +66,19 @@ double derivFunc(double x)
   return 3 * x * x - 2 * x;
 }
 
-NewtonRaphson::NewtonRaphson(double epsilon) : m_epsilon(epsilon) {}
+NewtonRaphson::NewtonRaphson(double tolerancein) : tolerance(tolerancein) {}
 
 // Function to find the root
 double NewtonRaphson::find(double xin)
 {
   double x = xin;
-  double h = func(x) / derivFunc(x);
-  while (abs(h) >= m_epsilon)
+  double delta_x = func(x) / derivFunc(x);
+  while (abs(delta_x) >= tolerance)
   {
-    h = func(x) / derivFunc(x);
+    delta_x = func(x) / derivFunc(x);
 
     // x(i+1) = x(i) - f(x) / f'(x)
-    x = x - h;
+    x = x - delta_x;
   }
   return x;
 };
