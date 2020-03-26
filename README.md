@@ -77,7 +77,7 @@ double NewtonRaphson::find(double xin)
   {
     delta_x = func(x) / derivFunc(x);
 
-    // x(i+1) = x(i) - f(x) / f'(x)
+    // x_new = x_old - f(x) / f'(x)
     x = x - delta_x;
   }
   return x;
