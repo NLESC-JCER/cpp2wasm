@@ -24,6 +24,8 @@ Document describing a way that a researcher with a C++ algorithm can make it ava
 * as a Python application via pybind11, Flask and Celery
 * in the web browser using web assembly and JavaScript
 
+We assume the operating system is Linux (We used Linux while writing this guide).
+
 The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton%27s_method) will be the use case.
 
 The interface would like
