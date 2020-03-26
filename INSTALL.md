@@ -65,7 +65,7 @@ src/py/newtonraphsonpy.*.so: src/py-newtonraphson.cpp
 	<<build-py>>
 
 test-py: src/py/example.py src/py/newtonraphsonpy.*.so
-	python src/py/example.py
+	<<test-py>>
 
 test: test-cli test-cgi test-py test-webservice
 

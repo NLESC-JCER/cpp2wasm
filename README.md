@@ -326,6 +326,17 @@ from newtonraphsonpy import NewtonRaphson
 finder = NewtonRaphson(epsilon=0.001)
 root = finder.find(guess=-20)
 print(root)
+```
+
+The Python example can be run with
+
+```{.awk #test-py}
+python src/py/example.py
+```
+
+It will output something like
+
+```shell
 -1.0000001181322415
 ```
 
