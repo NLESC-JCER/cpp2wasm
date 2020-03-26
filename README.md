@@ -50,8 +50,7 @@ The implementation would look like
 namespace rootfinding
 {
 
-// An example function whose solution is determined using
-// Bisection Method. The function is x^3 - x^2  + 2
+// An example function is x^3 - x^2  + 2
 double func(double x)
 {
   return x * x * x - x * x + 2;
