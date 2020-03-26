@@ -297,7 +297,7 @@ To use pybind11, it must installed with pip
 pip install pybind11
 ```
 
-Pybind11 requires a bindings to expose C++ constants/functions/enumerations/classes to Python. The bindings are implemented by using the C++ `PYBIND11_MODULE` macro to configure what will be exposed to Python. The bindings can be compiled to a shared library (eg. newtonraphsonpy*.so) which can be imported into Python.
+Pybind11 requires a bindings to expose C++ constants/functions/enumerations/classes to Python. The bindings are implemented by using the C++ `PYBIND11_MODULE` macro to configure what will be exposed to Python. The bindings can be compiled to a shared library called `newtonraphsonpy*.so` which can be imported into Python.
 
 For example the bindings of `newtonraphson.hpp:NewtonRaphson` class would look like:
 
