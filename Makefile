@@ -55,7 +55,7 @@ test-webservice:
 	curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 
 run-celery-worker: src/py/newtonraphsonpy.*.so
-	PYTHONPATH=$PWD/src/py celery worker -A tasks
+	PYTHONPATH=src/py celery worker -A tasks
 
 run-celery-webapp: src/py/newtonraphsonpy.*.so
 	python src/py/webapp-celery.py

@@ -18,12 +18,21 @@
 
 [![CI](https://github.com/NLESC-JCER/cpp2wasm/workflows/CI/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3ACI)
 
-Document describing a way that a scientist with a C++ algorithm can make it available as a web application.
-The [Newton raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton%27s_method) will be the use case.
+Document describing a way that a researcher with a C++ algorithm can make it available as a web application. We will host the C++ algorithm as an web application in several different ways: 
+
+* as a cgi script
+* as a Python application via pybind11, Flask and Celery
+* in the web browser using web assembly and JavaScript
+
+We assume the operating system is Linux (We used Linux while writing this guide).
+
+The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton%27s_method) will be the use case.
 
 The interface would like
 
 ```{.cpp file=src/newtonraphson.hpp}
+// this C++ snippet is stored as src/newtonraphson.hpp
+
 #ifndef H_NEWTONRAPHSON_H
 #define H_NEWTONRAPHSON_H
 
@@ -32,10 +41,10 @@ The interface would like
 namespace rootfinding {
   class NewtonRaphson {
     public:
-      NewtonRaphson(double epsilon);
+      NewtonRaphson(double tolerancein);
       double find(double xin);
     private:
-      double m_epsilon;
+      double tolerance;
   };
 }
 
@@ -45,13 +54,14 @@ namespace rootfinding {
 The implementation would look like
 
 ```{.cpp #algorithm}
+// this C++ code snippet is later referred to as <<algorithm>>
+
 #include "newtonraphson.hpp"
 
 namespace rootfinding
 {
 
-// An example function whose solution is determined using
-// Bisection Method. The function is x^3 - x^2  + 2
+// An example function is x^3 - x^2  + 2
 double func(double x)
 {
   return x * x * x - x * x + 2;
@@ -63,19 +73,19 @@ double derivFunc(double x)
   return 3 * x * x - 2 * x;
 }
 
-NewtonRaphson::NewtonRaphson(double epsilon) : m_epsilon(epsilon) {}
+NewtonRaphson::NewtonRaphson(double tolerancein) : tolerance(tolerancein) {}
 
 // Function to find the root
 double NewtonRaphson::find(double xin)
 {
   double x = xin;
-  double h = func(x) / derivFunc(x);
-  while (abs(h) >= m_epsilon)
+  double delta_x = func(x) / derivFunc(x);
+  while (abs(delta_x) >= tolerance)
   {
-    h = func(x) / derivFunc(x);
+    delta_x = func(x) / derivFunc(x);
 
-    // x(i+1) = x(i) - f(x) / f'(x)
-    x = x - h;
+    // x_new = x_old - f(x) / f'(x)
+    x = x - delta_x;
   }
   return x;
 };
@@ -137,7 +147,7 @@ The C++ code has the following characteristics:
 
 To make the same input and output reusable from either the command line or web service, the [JSON format](http://json.org/) was chosen. As the JSON format is easy read and write by human and machines.
 
-Compare with a binary format or comma seperated file it is more verbose, but is more self documenting. It is less verbose than [XML](https://en.wikipedia.org/wiki/XML) and like there is a [XML schema definition](https://en.wikipedia.org/wiki/XML_Schema_(W3C)) for validation of XML there is an equivalent for JSON called [JSON schema](https://json-schema.org/). JSON schema is used to describe the shape of a JSON document and make sure root finder consumers know how to provide the input and what to expect from the output. [YAML format](https://yaml.org/) was not chosen, because it is a superset of JSON and JSON is all expressiveness root finder required. YAML allows for comments while this is not supported in JSON. Also JSON is the lingua france for web services.
+Compared with a binary format or a comma separated file, JSON is more verbose, but is more self documenting. It is less verbose than [XML](https://en.wikipedia.org/wiki/XML), and just like there is an [XML schema definition](https://en.wikipedia.org/wiki/XML_Schema_(W3C)) for validation of XML, there is an equivalent for JSON called [JSON schema](https://json-schema.org/). JSON schema is used to describe the shape of a JSON document and make sure root finder consumers know how to provide the input and what to expect from the output. [YAML format](https://yaml.org/) was not chosen, because it is a superset of JSON and JSON has all the expressiveness root finder required. YAML allows for comments while this is not supported in JSON. Also JSON is the lingua franca for web services.
 
 An example of JSON schema:
 
@@ -165,10 +175,10 @@ And a valid document:
 
 ## CGI script
 
-The classic way to run programs when accessing an url is to use the Common Gateway Interface (CGI).
+The classic way to run programs when accessing a url is to use the Common Gateway Interface (CGI).
 In the [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.html) you can configure a directory as a ScriptAlias, when visiting a file inside that directory the file will be executed.
 The executable can read the request body from the stdin for and the response must be printed to the stdout.
-The response must first print the content type and then the content. A web service which accepts and returns JSON documents can for example look like:
+A response should consist of the content type such as ``application/json`` or ``text/html``, followed by the content itself. A web service which accepts and returns JSON documents can for example look like:
 
 ```{.cpp file=src/cgi-newtonraphson.cpp}
 #include <string>
@@ -201,7 +211,7 @@ int main(int argc, char *argv[])
 
 Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header only library to convert a JSON string to and from a data type.
 
-This can be compile with
+This can be compiled with
 
 ```{.awk #build-cgi}
 g++ -Ideps src/cgi-newtonraphson.cpp -o apache2/cgi-bin/newtonraphson
@@ -215,7 +225,7 @@ echo '{"guess":-20, "epsilon":0.001}' | apache2/cgi-bin/newtonraphson
 
 It should output
 
-```{.awk #test-cgi-output}
+```shell
 Content-type: application/json
 
 {
@@ -224,7 +234,7 @@ Content-type: application/json
 }
 ```
 
-Example Apache config file to host executables in `apache2/cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
+Example Apache config file to host executables in `./apache2/cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
 
 ```{.python file=apache2/apache2.conf}
 ServerName 127.0.0.1
@@ -241,8 +251,8 @@ ScriptAlias "/cgi-bin/" "cgi-bin/"
 
 Start Apache httpd web server using
 
-```{.shell #run-httpd}
-/usr/sbin/apache2 -X -d apache2
+```shell
+/usr/sbin/apache2 -X -d ./apache2
 ```
 
 And in another shell call CGI script using curl
@@ -267,7 +277,7 @@ The problem with CGI scripts is when the program does some initialization, you h
 
 ## Web framework
 
-A web framework is a abstraction layer for making web applications. It takes care of mapping a request on a certain url to an user defined function. And mapping the return of an user defined function to a response like a HTML page or error message.
+A web framework is an abstraction layer for making web applications. It takes care of mapping a request on a certain url to a user defined function. And mapping the return of a user defined function to a response like an HTML page or an error message.
 
 ## Python
 
@@ -279,7 +289,7 @@ Python packages can be installed using `pip` from the [Python Package Index](htt
 ### Accessing C++ function from Python
 
 To make a web application in Python, the C++ functions need to be called somehow.
-Python can call functions in a C++ library if it's functions use [Python.h datatypes](https://docs.python.org/3.7/extending/index.html). This requires a lot of boilerplate and conversions, several tools are out there that make the boilerplate/conversions much simpler. The tool we chose to use is [pybind11](https://github.com/pybind/pybind11) as it is currently (May 2019) activly maintained and is header only library.
+Python can call functions in a C++ library if its functions use [Python.h datatypes](https://docs.python.org/3.7/extending/index.html). This requires a lot of boilerplate and conversions, several tools are out there that make the boilerplate/conversions much simpler. The tool we chose to use is [pybind11](https://github.com/pybind/pybind11) as it is currently (May 2019) actively maintained and is a header-only library.
 
 To use pybind11, it must installed with pip
 
@@ -287,7 +297,7 @@ To use pybind11, it must installed with pip
 pip install pybind11
 ```
 
-Pybind11 requires a bindings (PYBIND11_MODULE macro) to expose C++ constants/functions/enumerations/classes to Python. The bindings can be compiled to a shared library (eg. pybubble.so) which can be imported into Python.
+Pybind11 requires a bindings to expose C++ constants/functions/enumerations/classes to Python. The bindings are implemented by using the C++ `PYBIND11_MODULE` macro to configure what will be exposed to Python. The bindings can be compiled to a shared library called `newtonraphsonpy*.so` which can be imported into Python.
 
 For example the bindings of `newtonraphson.hpp:NewtonRaphson` class would look like:
 
@@ -313,7 +323,7 @@ PYBIND11_MODULE(newtonraphsonpy, m) {
 
 Compile with
 
-```{.shell #build-py}
+```{.awk #build-py}
 g++ -O3 -Wall -shared -std=c++14 -fPIC `python3 -m pybind11 --includes` \
 src/py-newtonraphson.cpp -o src/py/newtonraphsonpy`python3-config --extension-suffix`
 ```
@@ -326,6 +336,17 @@ from newtonraphsonpy import NewtonRaphson
 finder = NewtonRaphson(epsilon=0.001)
 root = finder.find(guess=-20)
 print(root)
+```
+
+The Python example can be run with
+
+```{.awk #test-py}
+python src/py/example.py
+```
+
+It will output something like
+
+```shell
 -1.0000001181322415
 ```
 
@@ -467,24 +488,24 @@ python src/py/webapp.py
 
 To test we can visit [http://localhost:5001](http://localhost:5001) fill the form and press submit to get the result.
 
-### Long running tasks
+### Long-running tasks
 
-When performing a long calculation (more than 30 seconds), the end-user requires feedback of the progress. In a normal request/response cycle, feedback is only returned in the response. To give feedback during the calculation, the computation must be offloaded to a task queue. In Python the most used task queue is [celery](http://www.celeryproject.org/). While the calculation is running on some worker it is possible to have a progress page which can check in the queue what the progress is of the calculation.
+When performing a long calculation (more than 30 seconds), the end-user requires feedback of the progress. In a normal request/response cycle, feedback is only returned in the response. To give feedback during the calculation, the computation must be offloaded to a task queue. In Python, a commonly used task queue is [celery](http://www.celeryproject.org/). While the calculation is running on some worker it is possible to have a progress page which can check in the queue what the progress is of the calculation.
 
 Celery needs a broker for a queue and result storage.
-Will use [redis](https://redis.io/) in a Docker container as Celery broker, because it's simple to setup. Redis can be started with the following command
+We'll use [redis](https://redis.io/) in a Docker container as Celery broker, because it's simple to setup. Redis can be started with the following command
 
 ```{.awk #start-redis}
 docker run --rm -d -p 6379:6379 --name some-redis redis
 ```
 
-To use Celery we must install the redis flavoured version with
+To use Celery we must install the redis flavored version with
 
 ```{.awk #pip-celery}
 pip install celery[redis]
 ```
 
-Let's setup a method that can be submitted to the Celery task queue.
+Let's set up a method that can be submitted to the Celery task queue.
 First configure Celery to use the Redis database.
 
 ```{.python #celery-config}
@@ -493,7 +514,7 @@ capp = Celery('tasks', broker='redis://localhost:6379', backend='redis://localho
 ```
 
 When a method is decorated with the Celery task decorator then it can be submitted to the Celery task queue.
-Will add some sleeps to demonstrate what would happen with a long running calculation. Will also tell Celery about in which step the calculation is, later we can display this step to the user.
+We'll add some ``sleep``s to demonstrate what would happen with a long running calculation. We'll also tell Celery about in which step the calculation is; later, we can display this step to the user.
 
 ```{.python file=src/py/tasks.py}
 import time
@@ -514,8 +535,7 @@ def calculate(self, epsilon, guess):
   return {'root': root, 'guess': guess, 'epsilon':epsilon}
 ```
 
-Instead of running the calculation when the submit button is pressed.
-We will submit the calculation task to the task queue by using the `.delay()` function.
+Instead of running the calculation when the submit button is pressed, we will submit the calculation task to the task queue by using the `.delay()` function.
 The submission will return a job identifier we can use later to get the status and result of the job. The web browser will redirect to a url with the job identifier in it.
 
 ```{.python #py-submit}
@@ -528,7 +548,7 @@ def submit():
   return redirect(url_for('result', jobid=job.id))
 ```
 
-The last method is to ask the Celery task queue what the status is of the job and return the result when it is succesfull.
+The last method is to ask the Celery task queue what the status is of the job and return the result when it is succesful.
 
 ```{.python #py-result}
 @app.route('/result/<jobid>')
@@ -569,18 +589,18 @@ python src/py/webapp-celery.py
 Tasks will be run by the Celery worker. The worker can be started with
 
 ```{.awk #run-celery-worker}
-PYTHONPATH=$PWD/src/py celery worker -A tasks
+PYTHONPATH=src/py celery worker -A tasks
 ```
 
 (The PYTHONPATH environment variable is set so the Celery worker can find the `tasks.py` and `newtonraphsonpy.*.so` files in the `src/py/` directory)
 
-To test web service
+To test the web service
 
-1. Goto [http://localhost:5000](http://localhost:5000),
+1. Go to [http://localhost:5000](http://localhost:5000),
 2. Submit form,
 3. Refresh result page until progress states are replaced with result.
 
-The redis server can be shutdown with
+The redis server can be shut down with
 
 ```{.awk #stop-redis}
 docker stop some-redis
@@ -591,13 +611,13 @@ docker stop some-redis
 A web application is meant for consumption by humans and web service is meant for consumption by machines or other programs.
 So instead of returning HTML pages a web service will accept and return machine readable documents like JSON documents. A web service is an application programming interface (API) based on web technologies.
 
-A web service has a number of paths or urls to which a request can be sent and a response recieved.
+A web service has a number of paths or urls to which a request can be sent and a response received.
 The interface can be defined with [OpenAPI specification](https://github.com/OAI/OpenAPI-Specification) (previously known as [Swagger](https://swagger.io/)). The OpenAPI spec uses JSON schema to define request/response types. Making the JSON schema re-usable between the web service and command line interface.
-The OpenAPI specifiation can either be generated by the web service provider or be a static document or contract. The contract first approach allows for both consumer and provider to come to an agreement on the contract and work more or less independently on implementation. The contract first approach was used for the root finding web service.
+The OpenAPI specifiation can either be generated by the web service provider or be a static document or contract. The contract-first approach allows for both consumer and provider to come to an agreement on the contract and work more or less independently on implementation. The contract-first approach was used for the root finding web service.
 
 To make a web service which adheres to the OpenAPI specification contract, it is possible to generate a skeleton using the [generator](https://github.com/OpenAPITools/openapi-generator).
 Each time the contract changes the generator must be re-run. The generator uses the Python based web framework [Connexion](https://github.com/zalando/connexion).
-For the Python based root finding web service, Connexion was used as the web framework as it maps each path+method combination in the contract to a Python function and will handle the validation and serialization. The OpeAPI web service can be tested with [Swagger UI](https://swagger.io/tools/swagger-ui/), the UI allows browsing through the available paths, try them out by constructing a request and shows the curl command which can be used to call the web service. Swagger UI comes bundled with the Connexion framework.
+For the Python based root finding web service, Connexion was used as the web framework as it maps each path+method combination in the contract to a Python function and will handle the validation and serialization. The OpenAPI web service can be tested with [Swagger UI](https://swagger.io/tools/swagger-ui/), the UI allows browsing through the available paths, try them out by constructing a request and shows the curl command which can be used to call the web service. Swagger UI comes bundled with the Connexion framework.
 
 The OpenAPI specification for performing root finding would look like
 
@@ -653,7 +673,7 @@ components:
       additionalProperties: false
 ```
 
-The webservice consists of a single path with the POST method which recieves a response and sends a response.
+The webservice consists of a single path with the POST method which receives a request and returns a response.
 The request and response are in JSON format and adhere to their respective JSON schemas.
 
 The operation identifier (`operationId`) in the specification gets translated by Connexion to a Python method that will be called when the path is requested. Connexion calls the function with the JSON parsed request body.
@@ -691,7 +711,7 @@ python src/py/webservice.py
 ```
 
 We can try out the web service using the Swagger UI at [http://localhost:8080/ui/](http://localhost:8080/ui/).
-Or by running a curl command like
+Or by running a ``curl`` command like
 
 ```{.awk #test-webservice}
 curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
@@ -699,16 +719,16 @@ curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/j
 
 ## Javascript
 
-Javascript is the defacto programming language for web browsers.
+Javascript is the de facto programming language for web browsers.
 The Javascript engine in the Chrome browser called V8 has been wrapped in a runtime engine called Node.js which can execute Javascript code outside the browser.
 
 ### Accessing C++ function from Javascript in web browser
 
-For a long time web browsers could only execute code non-Javascript using plugins like Flash.
-Later tools where made that could transpile non-Javascript code to Javascript. The performance was less than running native code. To run code as fast as native code, the [WebAssembly](https://webassembly.org/) language was developed. Web assembly is a low-level assembly-like language with a compact binary format.
-The binary format is stored as a web assembly module or wasm file which can be loaded by all modern web browsers.
+For a long time web browsers could only execute non-Javascript code using plugins like Flash.
+Later tools where made that could transpile non-Javascript code to Javascript. The performance was less than running native code. To run code as fast as native code, the [WebAssembly](https://webassembly.org/) language was developed. WebAssembly is a low-level, [Assembly](https://en.wikipedia.org/wiki/Assembly_language)-like language with a compact binary format.
+The binary format is stored as a WebAssembly module or _wasm_ file, which can be loaded by all modern web browsers.
 
-Instead of writing code in the web assembly language there are compilers that can take C++/C or Rust code and compile it to wasm. [Emscripten](https://emscripten.org) is the most popular C++ to LLVM to wasm compiler. Emscripten has been successfully used to port game engines like the Unreal engine to the browser making it possible to have complex 3D games in the browser without needing to install anything else than the web browser. To call C++ code (which has been compiled to wasm) from Javascript, a binding is required. The binding will map C++ constructs to Javascript equivalent and back. The binding called [embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#embind) is declared in a C++ file which is included in the compilation.
+Instead of writing code in the WebAssembly language, there are compilers that can take C++/C or Rust code and compile it to wasm. [Emscripten](https://emscripten.org) is the most popular C++ to wasm compiler. Emscripten has been successfully used to port game engines like the Unreal engine to the browser making it possible to have complex 3D games in the browser without needing to install anything else than the web browser. To call C++ code (which has been compiled to wasm) from Javascript, a binding is required. The binding will map C++ constructs to their Javascript equivalent and back. The binding called [embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#embind) is declared in a C++ file which is included in the compilation.
 
 An example binding of a C++ classe would look like
 
@@ -724,9 +744,9 @@ EMSCRIPTEN_BINDINGS(my_class_example) {
 }
 ```
 
-The wasm file must be loaded into the web browser. Emscriptem will generate a html page and js file which will load the module.
+The wasm file must be loaded into the web browser. Emscriptem will generate an html page, as well as a JavaScript file that loads the WebAssembly module.
 
-The example class can than be called in Javascript with
+The example class can then be called in Javascript with
 
 ```js
 var instance = new Module.MyClass(10, "hello");
@@ -736,7 +756,7 @@ instance.x; // 11
 
 ### Executing long running methods in Javascript
 
-Executing a long running C++ method will block the browser from running any other code like updating the user interface. This is not very nice for the user. To run the method in the background, [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) have been defined. A web worker runs in it's own thread and can be interacted with from Javascript using messages.
+Executing a long running C++ method will block the browser from running any other code like updating the user interface. This is not very nice for the user. To run the method in the background, [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) have been defined. A web worker runs in its own thread and can be interacted with from Javascript using messages.
 
 Example of starting and interacting with a web worker
 
@@ -760,13 +780,15 @@ worker.postMessage({
 
 In the [Web application](#web_application) chapter a whole new page was rendered by the server even for a small change. With the advent of more powerful Javascript engines in browsers and Javascript methods to fetch JSON documents from a web service, it is possible to render the page with Javascript and fetch a small change from the web service and re-render a small part of the page with Javascript. The application running in the browser is called a [single page application](https://en.wikipedia.org/wiki/Single-page_application) or SPA.
 
-To make it easier write a SPA a number of frameworks have been developed. The most popular frontend web frameworks at the moment (July 2019) are:
+To make writing a SPA easier, a number of frameworks have been developed. The most popular frontend web frameworks at the moment (July 2019) are:
 
 - [React](https://reactjs.org/)
 - [Vue.js](https://vuejs.org/)
 - [Angular](https://angular.io/)
 
-The have their strengths and weaknesses which are summarized in the [NLeSC guide](https://guide.esciencecenter.nl/best_practices/language_guides/javascript.html#frameworks).
+They have their strengths and weaknesses which are summarized in the [NLeSC guide](https://guide.esciencecenter.nl/best_practices/language_guides/javascript.html#frameworks).
+
+<!-- Bubble below might need to be Newton-Raphson? -->
 
 For Bubble I picked React as it is light and functional, because I like the small api footprint and the functional programming paradigm.
 
