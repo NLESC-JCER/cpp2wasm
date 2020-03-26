@@ -215,7 +215,7 @@ echo '{"guess":-20, "epsilon":0.001}' | apache2/cgi-bin/newtonraphson
 
 It should output
 
-```{.awk #test-cgi-output}
+```shell
 Content-type: application/json
 
 {
@@ -241,7 +241,7 @@ ScriptAlias "/cgi-bin/" "cgi-bin/"
 
 Start Apache httpd web server using
 
-```{.shell #run-httpd}
+```shell
 /usr/sbin/apache2 -X -d apache2
 ```
 
