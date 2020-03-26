@@ -34,7 +34,6 @@ The interface would like
 
 ```{.cpp file=src/newtonraphson.hpp}
 // this C++ snippet is stored as src/newtonraphson.hpp
-
 #ifndef H_NEWTONRAPHSON_H
 #define H_NEWTONRAPHSON_H
 
@@ -99,6 +98,7 @@ double NewtonRaphson::find(double xin)
 A simple CLI program would look like
 
 ```{.cpp file=src/cli-newtonraphson.cpp}
+// this C++ snippet is stored as src/newtonraphson.cpp
 #include<bits/stdc++.h>
 
 <<algorithm>>
@@ -183,6 +183,7 @@ The executable can read the request body from the stdin for and the response mus
 A response should consist of the content type such as ``application/json`` or ``text/html``, followed by the content itself. A web service which accepts and returns JSON documents can for example look like:
 
 ```{.cpp file=src/cgi-newtonraphson.cpp}
+// this C++ snippet is stored as src/cgi-newtonraphson.hpp
 #include <string>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -239,6 +240,7 @@ Content-type: application/json
 Example Apache config file to host executables in `./apache2/cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
 
 ```{.python file=apache2/apache2.conf}
+# this C++ snippet is stored as apache2/apache2.conf
 ServerName 127.0.0.1
 Listen 8080
 LoadModule mpm_event_module /usr/lib/apache2/modules/mod_mpm_event.so
@@ -304,6 +306,8 @@ Pybind11 requires a bindings to expose C++ constants/functions/enumerations/clas
 For example the bindings of `newtonraphson.hpp:NewtonRaphson` class would look like:
 
 ```{.cpp file=src/py-newtonraphson.cpp}
+// this C++ snippet is stored as src/py-newtonraphson.cpp
+
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -333,6 +337,8 @@ src/py-newtonraphson.cpp -o src/py/newtonraphsonpy`python3-config --extension-su
 In Python it can be used:
 
 ```{.python file=src/py/example.py}
+# this Python snippet is stored as src/py/example.py
+
 from newtonraphsonpy import NewtonRaphson
 
 finder = NewtonRaphson(epsilon=0.001)
@@ -372,6 +378,8 @@ The web application has 3 kinds of pages:
 Each page is available on a different url. In flask the way urls are mapped to Python function is done by adding a route decorator to the function for example:
 
 ```{.python file=src/py/hello.py}
+# this Python snippet is stored as src/py/hello.py
+
 from flask import Flask
 app = Flask(__name__)
 
@@ -391,6 +399,7 @@ python src/py/hello.py
 The above route will just return the string "Hello World!" in the web browser when visiting [http://localhost:5000/](http://localhost:5000/). It is possible to return a html page as well, but to make it dynamic it soon becomes a mess of string concatenations. Template engines help to avoid the concatination mess. Flask is configured with the [Jinja2](https://jinja.palletsprojects.com/) template engine. A template for the above route could look like:
 
 ```{.html file=src/py/templates/hello.html}
+{# this Jinja2 template snippet is stored as src/py/templates/hello.html #}
 <!doctype html>
 <title>Hello from Flask</title>
 {% if name %}
@@ -403,6 +412,7 @@ The above route will just return the string "Hello World!" in the web browser wh
 and to render the template the function would look like:
 
 ```{.python file=src/py/hello-templated.py}
+# this Python snippet is stored as src/py/hello-templated.py
 from flask import Flask, render_template
 
 app = Flask(__name__)
@@ -429,6 +439,7 @@ Let's make the web application for our Newton raphson algorithm.
 The first thing we want is the web page with the form, the template that renders the form looks like
 
 ```{.html file=src/py/templates/form.html}
+{# this Jinja2 template snippet is stored as src/py/templates/form.html #}
 <!doctype html>
 <form method="POST">
   <label for="epsilon">Epsilon</label>
@@ -442,6 +453,7 @@ The first thing we want is the web page with the form, the template that renders
 The home page will render the form like so
 
 ```{.python #py-form}
+# this Python code snippet is later referred to as <<py-form>>
 @app.route('/', methods=['GET'])
 def form():
   return render_template('form.html')
@@ -450,6 +462,7 @@ def form():
 The result will be displayed on a html page with the following template
 
 ```{.html file=src/py/templates/result.html}
+{# this Jinja2 template snippet is stored as src/py/templates/result.html #}
 <!doctype html>
 <p>With epsilon of {{ epsilon }} and a guess of {{ guess }} the found root is {{ root }}.</p>
 ```
@@ -457,6 +470,7 @@ The result will be displayed on a html page with the following template
 The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result html page.
 
 ```{.python #py-calculate}
+# this Python code snippet is later referred to as <<py-calculate>>
 @app.route('/', methods=['POST'])
 def calculate():
   epsilon = float(request.form['epsilon'])
@@ -472,6 +486,7 @@ def calculate():
 Putting it all together in
 
 ```{.python file=src/py/webapp.py}
+# this Python snippet is stored as src/py/webapp.py
 from flask import Flask, render_template, request
 app = Flask(__name__)
 
@@ -511,6 +526,8 @@ Let's set up a method that can be submitted to the Celery task queue.
 First configure Celery to use the Redis database.
 
 ```{.python #celery-config}
+# this Python code snippet is later referred to as <<celery-config>>
+
 from celery import Celery
 capp = Celery('tasks', broker='redis://localhost:6379', backend='redis://localhost:6379')
 ```
@@ -519,6 +536,7 @@ When a method is decorated with the Celery task decorator then it can be submitt
 We'll add some ``sleep``s to demonstrate what would happen with a long running calculation. We'll also tell Celery about in which step the calculation is; later, we can display this step to the user.
 
 ```{.python file=src/py/tasks.py}
+# this Python snippet is stored as src/py/tasks.py
 import time
 
 <<celery-config>>
@@ -541,6 +559,7 @@ Instead of running the calculation when the submit button is pressed, we will su
 The submission will return a job identifier we can use later to get the status and result of the job. The web browser will redirect to a url with the job identifier in it.
 
 ```{.python #py-submit}
+# this Python code snippet is later referred to as <<py-submit>>
 @app.route('/', methods=['POST'])
 def submit():
   epsilon = float(request.form['epsilon'])
@@ -553,6 +572,7 @@ def submit():
 The last method is to ask the Celery task queue what the status is of the job and return the result when it is succesful.
 
 ```{.python #py-result}
+# this Python code snippet is later referred to as <<py-result>>
 @app.route('/result/<jobid>')
 def result(jobid):
   from tasks import capp
@@ -568,6 +588,7 @@ def result(jobid):
 Putting it all together
 
 ```{.python file=src/py/webapp-celery.py}
+# this Python snippet is stored as src/py/webapp-celery.py
 from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
@@ -624,6 +645,7 @@ For the Python based root finding web service, Connexion was used as the web fra
 The OpenAPI specification for performing root finding would look like
 
 ```{.yaml file=src/py/openapi.yaml}
+# this yaml snippet is stored as src/py/openapi.yaml
 openapi: 3.0.0
 info:
   title: Root finder
@@ -681,6 +703,7 @@ The request and response are in JSON format and adhere to their respective JSON 
 The operation identifier (`operationId`) in the specification gets translated by Connexion to a Python method that will be called when the path is requested. Connexion calls the function with the JSON parsed request body.
 
 ```{.python file=src/py/api.py}
+# this Python snippet is stored as src/py/api.py
 def calculate(body):
   epsilon = body['epsilon']
   guess = body['guess']
@@ -699,6 +722,7 @@ pip install connexion[swagger-ui]
 To run the web service we have to to tell Connexion which specification it should expose.
 
 ```{.python file=src/py/webservice.py}
+# this Python snippet is stored as src/py/webservice.py
 import connexion
 
 app = connexion.App(__name__)
