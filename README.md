@@ -56,7 +56,6 @@ The implementation would look like
 
 ```{.cpp #algorithm}
 // this C++ code snippet is later referred to as <<algorithm>>
-
 #include "newtonraphson.hpp"
 
 namespace rootfinding
@@ -240,7 +239,7 @@ Content-type: application/json
 Example Apache config file to host executables in `./apache2/cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
 
 ```{.python file=apache2/apache2.conf}
-# this C++ snippet is stored as apache2/apache2.conf
+# this Apache2 configuration snippet is stored as apache2/apache2.conf
 ServerName 127.0.0.1
 Listen 8080
 LoadModule mpm_event_module /usr/lib/apache2/modules/mod_mpm_event.so
@@ -307,7 +306,6 @@ For example the bindings of `newtonraphson.hpp:NewtonRaphson` class would look l
 
 ```{.cpp file=src/py-newtonraphson.cpp}
 // this C++ snippet is stored as src/py-newtonraphson.cpp
-
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -338,7 +336,6 @@ In Python it can be used:
 
 ```{.python file=src/py/example.py}
 # this Python snippet is stored as src/py/example.py
-
 from newtonraphsonpy import NewtonRaphson
 
 finder = NewtonRaphson(epsilon=0.001)
@@ -379,7 +376,6 @@ Each page is available on a different url. In flask the way urls are mapped to P
 
 ```{.python file=src/py/hello.py}
 # this Python snippet is stored as src/py/hello.py
-
 from flask import Flask
 app = Flask(__name__)
 
@@ -527,7 +523,6 @@ First configure Celery to use the Redis database.
 
 ```{.python #celery-config}
 # this Python code snippet is later referred to as <<celery-config>>
-
 from celery import Celery
 capp = Celery('tasks', broker='redis://localhost:6379', backend='redis://localhost:6379')
 ```
