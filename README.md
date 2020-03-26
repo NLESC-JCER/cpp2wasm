@@ -27,6 +27,7 @@ Document describing a way that a researcher with a C++ algorithm can make it ava
 We assume the operating system is Linux (We used Linux while writing this guide).
 
 The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton%27s_method) will be the use case.
+The algorithm is explained in [this video series](https://www.youtube.com/watch?v=cOmAk82cr9M).
 The code we are using came from [geeksforgeeks.org](https://www.geeksforgeeks.org/program-for-newton-raphson-method/).
 
 The interface would like
