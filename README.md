@@ -568,8 +568,10 @@ python src/py/webapp-celery.py
 Tasks will be run by the Celery worker. The worker can be started with
 
 ```{.awk #run-celery-worker}
-celery worker --workdir src/py --app tasks
+PYTHONPATH=src/py celery worker -A tasks
 ```
+
+(The PYTHONPATH environment variable is set so the Celery worker can find the `tasks.py` and `newtonraphsonpy.*.so` files in the `src/py/` directory)
 
 To test the web service
 

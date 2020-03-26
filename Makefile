@@ -54,9 +54,8 @@ run-webservice: src/py/newtonraphsonpy.*.so
 test-webservice:
 	curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 
-# Unable to get worker runnig correctly from Makefile, the newtonraphsonpy.*.so cannot be found
 run-celery-worker: src/py/newtonraphsonpy.*.so
-	celery worker --workdir src/py --app tasks
+	PYTHONPATH=src/py celery worker -A tasks
 
 run-celery-webapp: src/py/newtonraphsonpy.*.so
 	python src/py/webapp-celery.py
