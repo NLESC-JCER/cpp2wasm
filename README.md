@@ -227,7 +227,7 @@ Content-type: application/json
 }
 ```
 
-Example Apache config file to host executables in `apache2/cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
+Example Apache config file to host executables in `./apache2/cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
 
 ```{.python file=apache2/apache2.conf}
 ServerName 127.0.0.1
@@ -245,7 +245,7 @@ ScriptAlias "/cgi-bin/" "cgi-bin/"
 Start Apache httpd web server using
 
 ```shell
-/usr/sbin/apache2 -X -d apache2
+/usr/sbin/apache2 -X -d ./apache2
 ```
 
 And in another shell call CGI script using curl
