@@ -31,7 +31,7 @@ docker run --rm -ti --user $(id -u) -v ${PWD}:/data nlesc/pandoc-tangle README.m
 All the commands in the README.md can be captured in a Makefile like so:
 
 ```{.makefile file=Makefile}
-.PHONY: clean test entangle py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files
+.PHONY: clean test entangle py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files test-wasm
 
 py-deps: pip-pybind11 pip-flask pip-celery pip-connexion
 
@@ -99,6 +99,9 @@ src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm: src/wasm-newtonraphso
 
 host-files: build-wasm
 	<<host-files>>
+
+test-wasm:
+	<<test-wasm>>
 ```
 
 For example the Python dependencies can be installed with

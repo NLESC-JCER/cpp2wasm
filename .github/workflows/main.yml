@@ -111,4 +111,4 @@ jobs:
         run: make host-html &
 
       - name: Run tests
-        run: npx cypress run
+        run: make test-wasm
