@@ -108,7 +108,7 @@ jobs:
         run: make build-wasm
 
       - name: Start web server for hosting files in background
-        run: make host-html &
+        run: make host-files &
 
       - name: Run tests
         run: make test-wasm
