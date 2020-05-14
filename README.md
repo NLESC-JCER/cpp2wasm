@@ -18,15 +18,16 @@
 
 [![CI](https://github.com/NLESC-JCER/cpp2wasm/workflows/CI/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3ACI)
 
-Document describing a way that a researcher with a C++ algorithm can make it available as a web application. We will host the C++ algorithm as an web application in several different ways: 
+Document describing a way that a researcher with a C++ algorithm can make it available as a web application. We will host the C++ algorithm as an web application in several different ways:
 
-* as a cgi script
-* as a Python application via pybind11, Flask and Celery
-* in the web browser using web assembly and JavaScript
+- as a cgi script
+- as a Python application via pybind11, Flask and Celery
+- in the web browser using web assembly and JavaScript
 
 We assume the operating system is Linux (We used Linux while writing this guide).
 
 The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton%27s_method) will be the use case.
+The code we are using came from [geeksforgeeks.org](https://www.geeksforgeeks.org/program-for-newton-raphson-method/).
 
 The interface would like
 
