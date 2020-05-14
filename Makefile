@@ -1,4 +1,4 @@
-.PHONY: clean test entangle py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp
+.PHONY: clean test entangle py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files
 
 py-deps: pip-pybind11 pip-flask pip-celery pip-connexion
 
@@ -37,7 +37,7 @@ test: test-cli test-cgi test-py test-webservice
 
 # Removes the compiled files
 clean:
-	$(RM) bin/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson
+	$(RM) bin/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
 
 start-redis:
 	docker run --rm -d -p 6379:6379 --name some-redis redis
@@ -59,3 +59,11 @@ run-celery-worker: src/py/newtonraphsonpy.*.so
 
 run-celery-webapp: src/py/newtonraphsonpy.*.so
 	python src/py/webapp-celery.py
+
+build-wasm: src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm
+
+src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm: src/wasm-newtonraphson.cpp
+	emcc --bind -o src/js/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule src/wasm-newtonraphson.cpp
+
+host-files: build-wasm
+	python3 -m http.server 8000

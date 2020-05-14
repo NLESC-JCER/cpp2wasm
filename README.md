@@ -9,9 +9,9 @@
     - [Web application](#web-application)
     - [Long running tasks](#long-running-tasks)
     - [Web service](#web-service)
-  - [Javascript](#javascript)
-    - [Accessing C++ function from Javascript in web browser](#accessing-c-function-from-javascript-in-web-browser)
-    - [Executing long running methods in Javascript](#executing-long-running-methods-in-javascript)
+  - [JavaScript](#JavaScript)
+    - [Accessing C++ function from JavaScript in web browser](#accessing-c-function-from-JavaScript-in-web-browser)
+    - [Executing long running methods in JavaScript](#executing-long-running-methods-in-JavaScript)
     - [Single page application](#single-page-application)
     - [Form](#form)
     - [Visualization](#visualization)
@@ -738,46 +738,103 @@ Or by running a ``curl`` command like
 curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 ```
 
-## Javascript
+## JavaScript
 
-Javascript is the de facto programming language for web browsers.
-The Javascript engine in the Chrome browser called V8 has been wrapped in a runtime engine called Node.js which can execute Javascript code outside the browser.
+JavaScript is the de facto programming language for web browsers.
+The JavaScript engine in the Chrome browser called V8 has been wrapped in a runtime engine called Node.js which can execute JavaScript code outside the browser.
 
-### Accessing C++ function from Javascript in web browser
+### Accessing C++ function from JavaScript in web browser
 
-For a long time web browsers could only execute non-Javascript code using plugins like Flash.
-Later tools where made that could transpile non-Javascript code to Javascript. The performance was less than running native code. To run code as fast as native code, the [WebAssembly](https://webassembly.org/) language was developed. WebAssembly is a low-level, [Assembly](https://en.wikipedia.org/wiki/Assembly_language)-like language with a compact binary format.
-The binary format is stored as a WebAssembly module or _wasm_ file, which can be loaded by all modern web browsers.
+For a long time web browsers could only execute non-JavaScript code using plugins like Flash.
+Later tools where made that could transpile non-JavaScript code to JavaScript. The performance was less than running native code. To run code as fast as native code, the [WebAssembly](https://webassembly.org/) language was developed. WebAssembly is a low-level, [Assembly](https://en.wikipedia.org/wiki/Assembly_language)-like language with a compact binary format.
+The binary format is stored as a WebAssembly module or `*.wasm` file, which can be loaded by all modern web browsers.
 
-Instead of writing code in the WebAssembly language, there are compilers that can take C++/C or Rust code and compile it to wasm. [Emscripten](https://emscripten.org) is the most popular C++ to wasm compiler. Emscripten has been successfully used to port game engines like the Unreal engine to the browser making it possible to have complex 3D games in the browser without needing to install anything else than the web browser. To call C++ code (which has been compiled to wasm) from Javascript, a binding is required. The binding will map C++ constructs to their Javascript equivalent and back. The binding called [embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#embind) is declared in a C++ file which is included in the compilation.
+Instead of writing code in the WebAssembly language, there are compilers that can take C++/C code and compile it to wasm. [Emscripten](https://emscripten.org) is the most popular C++ to wasm compiler. Emscripten has been successfully used to port game engines like the Unreal engine to the browser making it possible to have complex 3D games in the browser without needing to install anything else than the web browser. To call C++ code (which has been compiled to wasm) from JavaScript, a binding is required. The binding will map C++ constructs to their JavaScript equivalent and back. The binding called [embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#embind) is declared in a C++ file which is included in the compilation.
 
-An example binding of a C++ classe would look like
+The binding of the algorithm will be
 
-```C++
-// Binding code
-EMSCRIPTEN_BINDINGS(my_class_example) {
-  class_<MyClass>("MyClass")
-    .constructor<int, std::string>()
-    .function("incrementX", &MyClass::incrementX)
-    .property("x", &MyClass::getX, &MyClass::setX)
-    .class_function("getStringFromInstance", &MyClass::getStringFromInstance)
+```{.cpp file=src/wasm-newtonraphson.cpp}
+// this C++ snippet is stored as src/wasm-newtonraphson.cpp
+#include <emscripten/bind.h>
+
+<<algorithm>>
+
+using namespace emscripten;
+
+EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
+  class_<rootfinding::NewtonRaphson>("NewtonRaphson")
+    .constructor<double>()
+    .function("find", &rootfinding::NewtonRaphson::find)
     ;
 }
 ```
 
-The wasm file must be loaded into the web browser. Emscriptem will generate an html page, as well as a JavaScript file that loads the WebAssembly module.
+The algorithm and binding can be compiled into a Web Assembly module with the Emscripten compiler called `emcc`.
+To make live easier we configure the compile command to generate a `src/js/newtonraphsonwasm.js` file which exports the `createModule` function.
 
-The example class can then be called in Javascript with
-
-```js
-var instance = new Module.MyClass(10, "hello");
-instance.incrementX();
-instance.x; // 11
+```{.awk #build-wasm}
+emcc --bind -o src/js/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule src/wasm-newtonraphson.cpp
 ```
 
-### Executing long running methods in Javascript
+The compilation also generates a `src/js/newtonraphsonwasm.wasm` file which will be loaded with the `createModule` function.
 
-Executing a long running C++ method will block the browser from running any other code like updating the user interface. This is not very nice for the user. To run the method in the background, [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) have been defined. A web worker runs in its own thread and can be interacted with from Javascript using messages.
+The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the promise to resolve.
+
+```{.js #wasmpromise}
+// this Javascript snippet is later referred to as wasmpromise
+createModule().then((module) => {
+  <<wasmcalc>>
+});
+```
+
+The `module` variable contains the `NewtonRaphson` class we defined in the binding above.
+
+The root finder can be called with.
+
+```{.js #wasmcalc}
+// this Javascript snippet is later referred to as wasmcalc
+const epsilon = 0.001;
+const finder = new module.NewtonRaphson(epsilon);
+const guess = -20;
+const root = finder.find(guess);
+```
+
+Append the root answer to the html page using [document manipulation functions](https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/append).
+
+```{.js #wasmcalc}
+const answer = document.createElement('span');
+answer.id = 'answer';
+answer.append(root);
+document.body.append(answer);
+```
+
+To run the JavaScript in a web browser a HTML page is needed.
+To get the `createModule` function we will import the `newtonraphsonwasm.js` with a script tag.
+
+```{.html file=src/js/example.html}
+<!doctype html>
+<!-- this HTML page is stored as src/js/example.html -->
+<html>
+  <script type="text/javascript" src="newtonraphsonwasm.js"></script>
+  <script>
+    <<wasmpromise>>
+  </script>
+</html>
+```
+
+The web browser can only load the `newtonraphsonwasm.js` file when hosted by a web server.
+Python ships with a built-in web server, we will use it to host the all files of the repository.
+
+```{.awk #host-files}
+python3 -m http.server 8000
+```
+
+Visit [http://localhost:8000/src/js/example.html](http://localhost:8000/src/js/example.html) to see the root answer.
+The root finding answer was calculated using the C++ algorithm compiled to a WebAssembly module, executed by some JavaScript and rendered on a HTML page.
+
+### Executing long running methods in JavaScript
+
+Executing a long running C++ method will block the browser from running any other code like updating the user interface. This is not very nice for the user. To run the method in the background, [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) have been defined. A web worker runs in its own thread and can be interacted with from JavaScript using messages.
 
 Example of starting and interacting with a web worker
 
@@ -799,7 +856,7 @@ worker.postMessage({
 
 ### Single page application
 
-In the [Web application](#web_application) chapter a whole new page was rendered by the server even for a small change. With the advent of more powerful Javascript engines in browsers and Javascript methods to fetch JSON documents from a web service, it is possible to render the page with Javascript and fetch a small change from the web service and re-render a small part of the page with Javascript. The application running in the browser is called a [single page application](https://en.wikipedia.org/wiki/Single-page_application) or SPA.
+In the [Web application](#web_application) chapter a whole new page was rendered by the server even for a small change. With the advent of more powerful JavaScript engines in browsers and JavaScript methods to fetch JSON documents from a web service, it is possible to render the page with JavaScript and fetch a small change from the web service and re-render a small part of the page with JavaScript. The application running in the browser is called a [single page application](https://en.wikipedia.org/wiki/Single-page_application) or SPA.
 
 To make writing a SPA easier, a number of frameworks have been developed. The most popular frontend web frameworks at the moment (July 2019) are:
 
@@ -807,7 +864,7 @@ To make writing a SPA easier, a number of frameworks have been developed. The mo
 - [Vue.js](https://vuejs.org/)
 - [Angular](https://angular.io/)
 
-They have their strengths and weaknesses which are summarized in the [NLeSC guide](https://guide.esciencecenter.nl/best_practices/language_guides/javascript.html#frameworks).
+They have their strengths and weaknesses which are summarized in the [NLeSC guide](https://guide.esciencecenter.nl/best_practices/language_guides/JavaScript.html#frameworks).
 
 <!-- Bubble below might need to be Newton-Raphson? -->
 

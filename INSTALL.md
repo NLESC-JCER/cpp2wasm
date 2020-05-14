@@ -1,7 +1,5 @@
 # Installation
 
-![CI](https://github.com/NLESC-JCER/cpp2wasm/workflows/CI/badge.svg)
-
 ## Dependencies
 
 To run the commands in the README.md the following items are required
@@ -33,7 +31,7 @@ docker run --rm -ti --user $(id -u) -v ${PWD}:/data nlesc/pandoc-tangle README.m
 All the commands in the README.md can be captured in a Makefile like so:
 
 ```{.makefile file=Makefile}
-.PHONY: clean test entangle py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp
+.PHONY: clean test entangle py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files
 
 py-deps: pip-pybind11 pip-flask pip-celery pip-connexion
 
@@ -71,7 +69,7 @@ test: test-cli test-cgi test-py test-webservice
 
 # Removes the compiled files
 clean:
-	$(RM) bin/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson
+	$(RM) bin/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
 
 start-redis:
 	<<start-redis>>
@@ -94,6 +92,13 @@ run-celery-worker: src/py/newtonraphsonpy.*.so
 run-celery-webapp: src/py/newtonraphsonpy.*.so
 	<<run-celery-webapp>>
 
+build-wasm: src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm
+
+src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm: src/wasm-newtonraphson.cpp
+	<<build-wasm>>
+
+host-files: build-wasm
+	<<host-files>>
 ```
 
 For example the Python dependencies can be installed with
@@ -103,3 +108,24 @@ make py-deps
 ```
 
 See [GitHub Actions workflow](.github/workflows/main.yml) for other usages of the Makefile.
+
+## Tests
+
+To test the WebAssembly module we will use the [cypress](https://www.cypress.io/) test framework.
+
+We want to test if visiting the example web page renders the answer `-1.00`.
+
+```{.js file=cypress/integration/example_spec.js}
+describe('src/js/example.html', () => {
+  it('should render -1.00', () => {
+    cy.visit('http://localhost:8000/src/js/example.html');
+    cy.get('#answer').contains('-1.00');
+  });
+});
+```
+
+The test can be run with
+
+```{.awk #test-wasm}
+npx cypress run --config-file false
+```

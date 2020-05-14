@@ -2,7 +2,7 @@
 
 name: CI
 
-# Controls when the action will run. Triggers the workflow on push or pull request 
+# Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
 on: [push, pull_request]
 
@@ -91,3 +91,24 @@ jobs:
         RESULT_URL=$(cat response.txt |grep Location |awk '{print $2}')
         sleep 2
         http --ignore-stdin $RESULT_URL
+  wasm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Should not be needed anymore when https://github.com/NLESC-JCER/cpp2wasm/issues/1 is fixed
+      - name: Generate source code
+        uses: docker://nlesc/pandoc-tangle
+        with:
+          args: README.md INSTALL.md
+
+      - uses: mymindstorm/setup-emsdk@v4
+
+      - name: Build WebAssembly module
+        run: make build-wasm
+
+      - name: Start web server for hosting files in background
+        run: make host-html &
+
+      - name: Run tests
+        run: npx cypress run
