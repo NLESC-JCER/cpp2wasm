@@ -865,7 +865,7 @@ onmessage = function(message) {
 Before we can handle the message we need to import the Web Assembly module.
 
 ```{.js file=src/js/worker.js}
-// this Python snippet is stored as src/py/api.py
+// this JavaScript snippet is stored as src/py/api.py
 importScripts('newtonraphsonwasm.js');
 
 <<worker-provider-onmessage>>
