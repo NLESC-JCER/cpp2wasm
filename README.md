@@ -837,7 +837,7 @@ The root finding answer was calculated using the C++ algorithm compiled to a Web
 
 Executing a long running C++ method will block the browser from running any other code like updating the user interface. This is not very nice for the user. To run the method in the background, [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) have been defined. A web worker runs in its own thread and can be interacted with from JavaScript using messages.
 
-We need to instantiate a web worker
+We need to instantiate a web worker which will implement later in `src/js/worker.js`.
 
 ```{.js #worker-consumer}
 // this JavaScript snippet is later referred to as worker-consumer
@@ -849,11 +849,11 @@ We need to send the worker a message with description for the work it should do.
 ```{.js #worker-consumer}
 worker.postMessage({
   type: 'CALCULATE',
-  data: {epsilon: 0.001, guess: -20}
+  data: { epsilon: 0.001, guess: -20 }
 });
 ```
 
-In the web worker we need to listen for messages.
+In the web worker we need to listen for incoming messages.
 
 ```{.js #worker-provider-onmessage}
 // this JavaScript snippet is later referred to as worker-provider-onmessage
@@ -883,7 +883,7 @@ if (message.data.type === 'CALCULATE') {
 }
 ```
 
-Let's find the root based on the data parameters in the message.
+Let's find the root based on the data parameters in the incoming message.
 
 ```{.js #perform-calc-in-worker}
 // this JavaScript snippet is before referred to as #perform-calc-in-worker
@@ -893,7 +893,7 @@ const guess = message.data.data.guess;
 const root = finder.find(guess);
 ```
 
-And send the result back to the web worker consumer.
+And send the result back to the web worker consumer as a outgoing message.
 
 ```{.js #post-result}
 // this JavaScript snippet is before referred to as #post-result
@@ -916,7 +916,7 @@ worker.onmessage = function(message) {
 }
 ```
 
-Like before we need a HTML page to run the JavaScript.
+Like before we need a HTML page to run the JavaScript, but now we don't need to import the `newtonraphsonwasm.js` file here as this is done in the `worker.js` file.
 
 ```{.html file=src/js/example-web-worker.html}
 <!doctype html>
@@ -935,7 +935,7 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example-web-worker.html](http://localhost:8000/src/js/example-web-worker.html) to see the root answer.
-The root finding answer was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker, executed by JavaScript with mesages to the web worker and rendered on a HTML page.
+The root finding answer was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (seperate thread), executed by JavaScript with mesages to/from the web worker and rendered on a HTML page.
 
 ### Single page application
 
