@@ -769,7 +769,7 @@ EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
 }
 ```
 
-The algorithm and binding can be compiled into a Web Assembly module with the Emscripten compiler called `emcc`.
+The algorithm and binding can be compiled into a WebAssembly module with the Emscripten compiler called `emcc`.
 To make live easier we configure the compile command to generate a `src/js/newtonraphsonwasm.js` file which exports the `createModule` function.
 
 ```{.awk #build-wasm}
@@ -863,7 +863,7 @@ onmessage = function(message) {
 };
 ```
 
-Before we can handle the message we need to import the Web Assembly module.
+Before we can handle the message we need to import the WebAssembly module.
 
 ```{.js file=src/js/worker.js}
 // this JavaScript snippet is stored as src/js/worker.js
@@ -872,7 +872,7 @@ importScripts('newtonraphsonwasm.js');
 <<worker-provider-onmessage>>
 ```
 
-We can handle the `CALCULATE` message only after the Web Assembly module is loaded and initialized.
+We can handle the `CALCULATE` message only after the WebAssembly module is loaded and initialized.
 
 ```{.js #handle-message}
 // this JavaScript snippet is before referred to as <<handle-message>>
