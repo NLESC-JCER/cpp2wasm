@@ -12,7 +12,7 @@
   - [JavaScript](#JavaScript)
     - [Accessing C++ function from JavaScript in web browser](#accessing-c-function-from-JavaScript-in-web-browser)
     - [Executing long running methods in JavaScript](#executing-long-running-methods-in-JavaScript)
-    - [Single page application](#single-page-application)
+  - [Single page web application](#single-page-web-application)
     - [Form](#form)
     - [Visualization](#visualization)
 
@@ -937,7 +937,7 @@ python3 -m http.server 8000
 Visit [http://localhost:8000/src/js/example-web-worker.html](http://localhost:8000/src/js/example-web-worker.html) to see the root answer.
 The root finding answer was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (seperate thread), executed by JavaScript with mesages to/from the web worker and rendered on a HTML page.
 
-### Single page application
+## Single page web application
 
 In the [Web application](#web_application) chapter a whole new page was rendered by the server even for a small change. With the advent of more powerful JavaScript engines in browsers and JavaScript methods to fetch JSON documents from a web service, it is possible to render the page with JavaScript and fetch a small change from the web service and re-render a small part of the page with JavaScript. The application running in the browser is called a [single page application](https://en.wikipedia.org/wiki/Single-page_application) or SPA.
 
@@ -951,9 +951,96 @@ They have their strengths and weaknesses which are summarized in the [NLeSC guid
 
 <!-- Bubble below might need to be Newton-Raphson? -->
 
-For Bubble I picked React as it is light and functional, because I like the small api footprint and the functional programming paradigm.
+For NewtonRaphson web application I picked React as it is light and functional, because I like the small api footprint and the functional programming paradigm.
 
-In Bubble the C++ is compiled to a wasm file using bindings. When a calculation form is submitted in the React application a web worker is started that loads the wasm file, starts the calculation, posts progress and lastly posts the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
+The C++ algorithm is compiled to a wasm file using bindings. When a calculation form is submitted in the React application a web worker is started that loads the wasm file, starts the calculation, posts progress and lastly posts the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
+
+### React component
+
+```{.jsx file=src/js/app.js}
+function Heading() {
+  return <h1>Root finding web application</h1>
+}
+
+function App() {
+  const [epsilon, setEpsilon] = React.useState(0.001);
+  const [guess, setGuess] = React.useState(-20);
+  const [root, setRoot] = React.useState(undefined);
+
+  function onEpsilonChange(event) {
+    setEpsilon(event.target.value);
+  }
+
+  function onGuessChange(event) {
+    setGuess(event.target.value);
+  }
+
+  function handleSubmit(event) {
+    event.preventDefault();
+
+    const worker = new Worker('worker.js');
+
+    worker.onmessage = function(message) {
+        if (message.data.type === 'RESULT') {
+          const root = message.data.data.root;
+          setRoot(root);
+          worker.terminate();
+      }
+    };
+
+    worker.postMessage({
+      type: 'CALCULATE',
+      data: { epsilon: 0.001, guess: -20 }
+    });
+  }
+
+  return (
+    <div>
+      <Heading/>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Epsilon:
+          <input type="number" value={epsilon} onChange={onEpsilonChange}/>
+        </label>
+        <label>
+          Initial guess:
+          <input type="number" value={guess} onChange={onGuessChange}/>
+        </label>
+        <input type="submit" value="Submit" />
+      </form>
+      <Result root={root}/>
+    </div>
+  );
+}
+
+function Result(props) {
+  const root = props.root;
+  let message = 'Not submitted';
+  if (root !== undefined) {
+    message = 'Root = ' + root;
+  }
+  return <div>{message}</div>;
+}
+
+ReactDOM.render(
+  <App/>,
+  document.getElementById('root')
+);
+```
+
+```{.html file=src/js/app.html}
+<!doctype html>
+<!-- this HTML page is stored as src/js/example-web-worker.html -->
+<html>
+  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+
+  <div id="root"></div>
+
+  <script type="text/babel" src="app.js"></script>
+</html>
+```
 
 ### Form
 
