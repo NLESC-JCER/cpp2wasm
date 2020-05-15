@@ -809,7 +809,7 @@ document.body.append(answer);
 ```
 
 To run the JavaScript in a web browser a HTML page is needed.
-To get the `createModule` function we will import the `newtonraphsonwasm.js` with a script tag.
+To be able to use the `createModule` function, we will import the `newtonraphsonwasm.js` with a script tag.
 
 ```{.html file=src/js/example.html}
 <!doctype html>
