@@ -1106,8 +1106,8 @@ When the worker is done it will send a message back to the app. The app needs to
 ```{.jsx #handle-submit}
 worker.onmessage = function(message) {
     if (message.data.type === 'RESULT') {
-      const root = message.data.data.root;
-      setRoot(root);
+      const result = message.data.payload.root;
+      setRoot(result);
       worker.terminate();
   }
 };
