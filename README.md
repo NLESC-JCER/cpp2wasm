@@ -1024,7 +1024,7 @@ To transform JSX we need to import Babel.
 
 The code supplied here should not be used in production as converting JSX in the web browser is slow. Better to use [Create React App](http://create-react-app.dev/) which gives you an infrastructure to perform the transformation offline.
 
-The web application should have a form with a `epsilon` and `guess` input field and a submit button.
+The web application in our example should have a form with a `epsilon` and `guess` input field and a submit button.
 The form in JSX can be written in the following way
 
 ```{.jsx #react-form}
