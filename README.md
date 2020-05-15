@@ -847,6 +847,7 @@ const worker = new Worker('worker.js');
 We need to send the worker a message with description for the work it should do.
 
 ```{.js #worker-consumer}
+// this JavaScript snippet is appended to worker-consumer
 worker.postMessage({
   type: 'CALCULATE',
   data: { epsilon: 0.001, guess: -20 }
@@ -908,6 +909,7 @@ postMessage({
 Listen for messages from worker and when a result message is received put the result in the HTML page like we did before.
 
 ```{.js #worker-consumer}
+// this JavaScript snippet is appended to worker-consumer
 worker.onmessage = function(message) {
   if (message.data.type === 'RESULT') {
     const root = message.data.data.root;
