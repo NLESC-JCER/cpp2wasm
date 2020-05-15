@@ -1031,7 +1031,7 @@ The web application in our example should have a form with a `epsilon` and `gues
 The form in JSX can be written in the following way:
 
 ```{.jsx #react-form}
-// this JavaScript snippet is later referred to as <<react-form>>
+{ /* this JavaScript snippet is later referred to as <<react-form>> */ }
 <form onSubmit={handleSubmit}>
   <label>
     Epsilon:
