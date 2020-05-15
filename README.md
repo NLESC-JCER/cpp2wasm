@@ -770,7 +770,7 @@ EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
 }
 ```
 
-The algorithm and binding can be compiled into a Web Assembly module with the Emscripten compiler called `emcc`.
+The algorithm and binding can be compiled into a WebAssembly module with the Emscripten compiler called `emcc`.
 To make live easier we configure the compile command to generate a `src/js/newtonraphsonwasm.js` file which exports the `createModule` function.
 
 ```{.awk #build-wasm}
@@ -782,7 +782,7 @@ The compilation also generates a `src/js/newtonraphsonwasm.wasm` file which will
 The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the JavaScript promise to resolve.
 
 ```{.js #wasm-promise}
-// this JavaScript snippet is later referred to as wasm-promise
+// this JavaScript snippet is later referred to as <<wasm-promise>>
 createModule().then((module) => {
   <<wasm-calculate>>
   <<render-answer>>
@@ -794,7 +794,7 @@ The `module` variable contains the `NewtonRaphson` class we defined in the bindi
 The root finder can be called with.
 
 ```{.js #wasm-calculate}
-// this JavaScript snippet is later referred to as wasm-calculate
+// this JavaScript snippet is later referred to as <<wasm-calculate>>
 const epsilon = 0.001;
 const finder = new module.NewtonRaphson(epsilon);
 const guess = -20;
@@ -838,32 +838,33 @@ The result of root finding was calculated using the C++ algorithm compiled to a 
 
 Executing a long running C++ method will block the browser from running any other code like updating the user interface. In order to avoid this, the method can be run in the background using [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers). A web worker runs in its own thread and can be interacted with from JavaScript using messages.
 
-We need to instantiate a web worker which will implement later in `src/js/worker.js`.
+We need to instantiate a web worker which we will implement later in `src/js/worker.js`.
 
 ```{.js #worker-consumer}
-// this JavaScript snippet is later referred to as worker-consumer
+// this JavaScript snippet is later referred to as <<worker-consumer>>
 const worker = new Worker('worker.js');
 ```
 
 We need to send the worker a message with description for the work it should do.
 
 ```{.js #worker-consumer}
+// this JavaScript snippet is appended to <<worker-consumer>>
 worker.postMessage({
   type: 'CALCULATE',
-  data: { epsilon: 0.001, guess: -20 }
+  payload: { epsilon: 0.001, guess: -20 }
 });
 ```
 
 In the web worker we need to listen for incoming messages.
 
 ```{.js #worker-provider-onmessage}
-// this JavaScript snippet is later referred to as worker-provider-onmessage
+// this JavaScript snippet is later referred to as <<worker-provider-onmessage>>
 onmessage = function(message) {
   <<handle-message>>
 };
 ```
 
-Before we can handle the message we need to import the Web Assembly module.
+Before we can handle the message we need to import the WebAssembly module.
 
 ```{.js file=src/js/worker.js}
 // this JavaScript snippet is stored as src/js/worker.js
@@ -872,10 +873,10 @@ importScripts('newtonraphsonwasm.js');
 <<worker-provider-onmessage>>
 ```
 
-We can only handle the `CALCULATE` message when the Web Assembly module is loaded and initialized.
+We can handle the `CALCULATE` message only after the WebAssembly module is loaded and initialized.
 
 ```{.js #handle-message}
-// this JavaScript snippet is before referred to as handle-message
+// this JavaScript snippet is before referred to as <<handle-message>>
 if (message.data.type === 'CALCULATE') {
   createModule().then((module) => {
     <<perform-calc-in-worker>>
@@ -884,23 +885,23 @@ if (message.data.type === 'CALCULATE') {
 }
 ```
 
-Let's find the root based on the data parameters in the incoming message.
+Let's calculate the result (root) based on the payload parameters in the incoming message.
 
 ```{.js #perform-calc-in-worker}
-// this JavaScript snippet is before referred to as #perform-calc-in-worker
-const epsilon = message.data.data.epsilon;
+// this JavaScript snippet is before referred to as <<perform-calc-in-worker>>
+const epsilon = message.data.payload.epsilon;
 const finder = new module.NewtonRaphson(epsilon);
-const guess = message.data.data.guess;
+const guess = message.data.payload.guess;
 const root = finder.find(guess);
 ```
 
 And send the result back to the web worker consumer as a outgoing message.
 
 ```{.js #post-result}
-// this JavaScript snippet is before referred to as #post-result
+// this JavaScript snippet is before referred to as <<post-result>>
 postMessage({
   type: 'RESULT',
-  data: {
+  payload: {
     root: root
   }
 });
@@ -909,15 +910,16 @@ postMessage({
 Listen for messages from worker and when a result message is received put the result in the HTML page like we did before.
 
 ```{.js #worker-consumer}
+// this JavaScript snippet is appended to <<worker-consumer>>
 worker.onmessage = function(message) {
   if (message.data.type === 'RESULT') {
-    const root = message.data.data.root;
+    const root = message.data.payload.root;
     <<render-answer>>
   }
 }
 ```
 
-Like before we need a HTML page to run the JavaScript, but now we don't need to import the `newtonraphsonwasm.js` file here as this is done in the `worker.js` file.
+Like before we need a HTML page to run the JavaScript, but now we don't need to import the `newtonraphsonwasm.js` file here as it is imported in the `worker.js` file.
 
 ```{.html file=src/js/example-web-worker.html}
 <!doctype html>
@@ -935,8 +937,8 @@ Like before we also need to host the files in a web server with
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example-web-worker.html](http://localhost:8000/src/js/example-web-worker.html) to see the root answer.
-The root finding answer was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (seperate thread), executed by JavaScript with mesages to/from the web worker and rendered on a HTML page.
+Visit [http://localhost:8000/src/js/example-web-worker.html](http://localhost:8000/src/js/example-web-worker.html) to see the result of the calculation.
+The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
 ## Single page web application
 
