@@ -950,7 +950,7 @@ To make writing a SPA easier, a number of frameworks have been developed. The mo
 - [Vue.js](https://vuejs.org/)
 - [Angular](https://angular.io/)
 
-They have their strengths and weaknesses which are summarized in the [NLeSC guide](https://guide.esciencecenter.nl/#/best_practices/language_guides/javascript?id=frameworks).
+They have their strengths and weaknesses which are summarized in the [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
 
 <!-- Bubble below might need to be Newton-Raphson? -->
 
