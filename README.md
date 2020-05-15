@@ -937,7 +937,7 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example-web-worker.html](http://localhost:8000/src/js/example-web-worker.html) to see the result of the calculation.
-The root finding answer was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (seperate thread), executed by JavaScript with mesages to/from the web worker and rendered on a HTML page.
+The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
 ### Single page application
 
