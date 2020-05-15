@@ -980,7 +980,7 @@ To use React we need to import the React library.
   <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
 ```
 
-A React application is constructed from React components. The simplest React component is a function which returns something which looks like a HTML snippet.
+A React application is constructed from React components. The simplest React component is a function which returns a HTML tag with a variable inside.
 
 ```{.jsx file=src/js/app.js}
 function Heading() {
