@@ -19,9 +19,9 @@ jobs:
 
     # Should not be needed anymore when https://github.com/NLESC-JCER/cpp2wasm/issues/1 is fixed
     - name: Generate source code
-      uses: docker://nlesc/pandoc-tangle
+      uses: docker://nlesc/pandoc-tangle:0.5.0
       with:
-        args: README.md INSTALL.md
+        args: --preserve-tabs README.md INSTALL.md
 
     - name: Run C++ examples
       run: make test-cli test-cgi
@@ -42,7 +42,7 @@ jobs:
     - name: Generate source code
       uses: docker://nlesc/pandoc-tangle
       with:
-        args: README.md INSTALL.md
+        args: --preserve-tabs README.md INSTALL.md
 
     - uses: actions/setup-python@v1
       with:
@@ -92,7 +92,7 @@ jobs:
       - name: Generate source code
         uses: docker://nlesc/pandoc-tangle
         with:
-          args: README.md INSTALL.md
+          args: --preserve-tabs README.md INSTALL.md
 
       - name: Install emscripten
         uses: mymindstorm/setup-emsdk@v4

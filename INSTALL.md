@@ -4,10 +4,11 @@
 
 To run the commands in the README.md the following items are required
 
-1. [Apache httpd server 2.4](http://httpd.apache.org/) with `sudo apt install -y apache2`
-1. Python devel with `sudo apt install -y python3-dev`
-1. [Emscriptem](https://emscripten.org/docs/getting_started/downloads.html)
-1. [Docker Engine](https://docs.docker.com/install/)
+1. GNU C++ compiler (`g++`) and `make`, install with `sudo apt install -y build-essential`
+1. [Apache httpd server 2.4](http://httpd.apache.org/), install with `sudo apt install -y apache2`
+1. Python development, install with `sudo apt install -y python3-dev`
+1. [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html)
+1. [Docker Engine](https://docs.docker.com/install/), setup so `docker` command can be run [without sudo](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
 
 ## Generating code from Markdown
 
@@ -23,7 +24,7 @@ entangled README.md INSTALL.md
 Or the [Entangled - Pandoc filters](https://github.com/entangled/filters) Docker image can be used
 
 ```shell
-docker run --rm -ti --user $(id -u) -v ${PWD}:/data nlesc/pandoc-tangle README.md INSTALL.md
+docker run --rm -ti --user $(id -u) -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs README.md INSTALL.md
 ```
 
 ## Command collection
@@ -102,6 +103,7 @@ host-files: build-wasm
 
 test-wasm:
 	<<test-wasm>>
+
 ```
 
 For example the Python dependencies can be installed with
@@ -114,11 +116,14 @@ See [GitHub Actions workflow](.github/workflows/main.yml) for other usages of th
 
 ## Tests
 
+To make sure WebAssembly module code snippets work we want have a tests for it.
 To test the WebAssembly module we will use the [cypress](https://www.cypress.io/) test framework.
+Cypress can simulate what a user would do and expect in a web browser.
 
 We want to test if visiting the example web page renders the answer `-1.00`.
 
 ```{.js file=cypress/integration/example_spec.js}
+// this JavaScript snippet is run by cypress and is stored as cypress/integration/example_spec.js
 describe('src/js/example.html', () => {
   it('should render -1.00', () => {
     cy.visit('http://localhost:8000/src/js/example.html');
@@ -141,3 +146,7 @@ The test can be run with
 ```{.awk #test-wasm}
 npx cypress run --config-file false
 ```
+
+The `npx` command ships with NodeJS which is included in the Emscripten SDK and can be used to run commands available on [npm repository](https://npmjs.com/).
+
+The tests will also be run in the [GH Action continous integration build](.github/workflows/main.yml).
