@@ -955,7 +955,7 @@ They have their strengths and weaknesses which are summarized in the [here](http
 
 For Newton-Raphson web application I picked React as it is light and functional, because I like the small API footprint and the functional programming paradigm.
 
-The C++ algorithm is compiled to a wasm file using bindings. When a calculation form is submitted in the React application a web worker is started that loads the wasm file, starts the calculation, posts progress and lastly posts the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
+The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
 
 ### React component
 
