@@ -829,7 +829,7 @@ Python ships with a built-in web server, we will use it to host the all files of
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example.html](http://localhost:8000/src/js/example.html) to see the root answer.
+Visit [http://localhost:8000/src/js/example.html](http://localhost:8000/src/js/example.html) to see the result of the calculation.
 The root finding answer was calculated using the C++ algorithm compiled to a WebAssembly module, executed by some JavaScript and rendered on a HTML page.
 
 ### Executing long running methods in JavaScript
