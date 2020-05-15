@@ -976,13 +976,15 @@ we implement the React application in the `app.js` file.
 To use React we need to import the React library.
 
 ```{.html #imports}
-  <script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+<!-- this HTML snippet is before and later referred to as <<imports>> -->
+<script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
 ```
 
 A React application is constructed from React components. The simplest React component is a function which returns a HTML tag with a variable inside.
 
 ```{.jsx file=src/js/app.js}
+// this JavaScript snippet is stored as src/js/app.js
 function Heading() {
   const title = 'Root finding web application';
   return <h1>{title}</h1>
@@ -1019,7 +1021,8 @@ JXS is syntactic sugar that makes React components easier to write and read. In 
 To transform JSX we need to import Babel.
 
 ```{.html #imports}
-  <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+<!-- this HTML snippet is appended to <<imports>> -->
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
 ```
 
 The code supplied here should not be used in production as converting JSX in the web browser is slow. Better to use [Create React App](http://create-react-app.dev/) which gives you an infrastructure to perform the transformation offline.
@@ -1028,6 +1031,7 @@ The web application in our example should have a form with a `epsilon` and `gues
 The form in JSX can be written in the following way:
 
 ```{.jsx #react-form}
+// this JavaScript snippet is later referred to as <<react-form>>
 <form onSubmit={handleSubmit}>
   <label>
     Epsilon:
@@ -1048,6 +1052,7 @@ Let's implement the `value` and `onChange` for the `epsilon` input.
 To store the value we will use the [React useState hook](https://reactjs.org/docs/hooks-state.html).
 
 ```{.js #react-state}
+// this JavaScript snippet is later referred to as <<react-state>>
 const [epsilon, setEpsilon] = React.useState(0.001);
 ```
 
@@ -1056,6 +1061,7 @@ The argument of the `useState` function is the initial value. The `epsilon` vari
 The input tag in the form will call the `onChange` function with a event object. We need to extract the user input from the event and pass it to `setEpsilon`.
 
 ```{.js #react-state}
+// this JavaScript snippet is appended to <<react-state>>
 function onEpsilonChange(event) {
   setEpsilon(event.target.value);
 }
@@ -1064,6 +1070,7 @@ function onEpsilonChange(event) {
 We will follow the same steps for the guess input as well.
 
 ```{.js #react-state}
+// this JavaScript snippet is appended to <<react-state>>
 const [guess, setGuess] = React.useState(-20);
 
 function onGuessChange(event) {
@@ -1076,18 +1083,21 @@ The function will get, similar to the onChange of the input tag, an event object
 Normally when you submit a form the form fields will be send to the server, but we want to perform the calculation in the browser so we have to disable the default action with.
 
 ```{.jsx #handle-submit}
+// this JavaScript snippet is later referred to as <<handle-submit>>
 event.preventDefault();
 ```
 
 Like we did in the previous chapter we have to construct a web worker.
 
 ```{.jsx #handle-submit}
+// this JavaScript snippet is appended to <<handle-submit>>
 const worker = new Worker('worker.js');
 ```
 
 We have to post a message to the worker with the values from the form.
 
 ```{.jsx #handle-submit}
+// this JavaScript snippet is appended to <<handle-submit>>
 worker.postMessage({
   type: 'CALCULATE',
   payload: { epsilon: epsilon, guess: guess }
@@ -1098,12 +1108,14 @@ We need a place to store the result of the calculation (`root` value), we will u
 The initial value of the result is set to `undefined` as the result is only known after the calculation has been completed.
 
 ```{.js #react-state}
+// this JavaScript snippet is appended to <<react-state>>
 const [root, setRoot] = React.useState(undefined);
 ```
 
 When the worker is done it will send a message back to the app. The app needs to store the result value (`root`) using `setRoot`. The worker will then be terminated because it did its job.
 
 ```{.jsx #handle-submit}
+// this JavaScript snippet is appended to <<handle-submit>>
 worker.onmessage = function(message) {
     if (message.data.type === 'RESULT') {
       const result = message.data.payload.root;
@@ -1118,6 +1130,7 @@ When the calculation has not been done yet, it will render `Not submitted`.
 When the `root` property value is set then we will show it.
 
 ```{.jsx file=src/js/app.js}
+// this JavaScript snippet stored as src/js/app.js
 function Result(props) {
   const root = props.root;
   let message = 'Not submitted';
@@ -1131,6 +1144,7 @@ function Result(props) {
 We can combine the heading, form and result components and all the states and handleSubmit function into the `App` React component.
 
 ```{.jsx file=src/js/app.js}
+// this JavaScript snippet appenended to src/js/app.js
 function App() {
   <<react-state>>
 
@@ -1151,6 +1165,7 @@ function App() {
 Finally we can render the `App` component to the HTML container with `container` as identifier.
 
 ```{.jsx file=src/js/app.js}
+// this JavaScript snippet appenended to src/js/app.js
 ReactDOM.render(
   <App/>,
   document.getElementById('container')
@@ -1172,4 +1187,4 @@ The most popular JSON schema form for React is [react-jsonschema-form](https://g
 
 ### Visualization
 
-The plots in Bubble are made using [vega-lite](https://vega.github.io/vega-lite/). Vega-lite is a JS library which accepts a JSON document describing the plot and generates interactive graphics.
+The plots in web apllicatoin can be made using [vega-lite](https://vega.github.io/vega-lite/). Vega-lite is a JS library which accepts a JSON document describing the plot and generates interactive graphics.
