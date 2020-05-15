@@ -940,7 +940,7 @@ python3 -m http.server 8000
 Visit [http://localhost:8000/src/js/example-web-worker.html](http://localhost:8000/src/js/example-web-worker.html) to see the result of the calculation.
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
-## Single page web application
+## Single page application
 
 In the [Web application](#web_application) chapter, a whole new page was rendered by the server even for a small change. With the advent of more powerful JavaScript engines in browsers and JavaScript methods to fetch JSON documents from a web service, it is possible to prevent that. [Single Page Applications](https://en.wikipedia.org/wiki/Single-page_application)(SPA) can render the page and fetch a small change from the web service and re-render a small part of the page with JavaScript.
 
