@@ -114,7 +114,9 @@ See [GitHub Actions workflow](.github/workflows/main.yml) for other usages of th
 
 ## Tests
 
+To make sure WebAssembly module code snippets work we want have a tests for it.
 To test the WebAssembly module we will use the [cypress](https://www.cypress.io/) test framework.
+Cypress can simulate what a user would do and expect in a web browser.
 
 We want to test if visiting the example web page renders the answer `-1.00`.
 
@@ -132,3 +134,5 @@ The test can be run with
 ```{.awk #test-wasm}
 npx cypress run --config-file false
 ```
+
+The tests will also be run in the [GH Action continous integration build](.github/workflows/main.yml).
