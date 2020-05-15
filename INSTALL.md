@@ -23,7 +23,7 @@ entangled README.md INSTALL.md
 Or the [Entangled - Pandoc filters](https://github.com/entangled/filters) Docker image can be used
 
 ```shell
-docker run --rm -ti --user $(id -u) -v ${PWD}:/data nlesc/pandoc-tangle README.md INSTALL.md
+docker run --rm -ti --user $(id -u) -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs README.md INSTALL.md
 ```
 
 ## Command collection

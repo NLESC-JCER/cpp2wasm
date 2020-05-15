@@ -19,9 +19,9 @@ jobs:
 
     # Should not be needed anymore when https://github.com/NLESC-JCER/cpp2wasm/issues/1 is fixed
     - name: Generate source code
-      uses: docker://nlesc/pandoc-tangle
+      uses: docker://nlesc/pandoc-tangle:0.5.0
       with:
-        args: README.md INSTALL.md
+        args: --preserve-tabs README.md INSTALL.md
 
     # Should not be needed anymore when https://github.com/entangled/filters/issues/2 is fixed
     - name: Correct Makefile
