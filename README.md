@@ -850,7 +850,7 @@ We need to send the worker a message with description for the work it should do.
 // this JavaScript snippet is appended to worker-consumer
 worker.postMessage({
   type: 'CALCULATE',
-  data: { epsilon: 0.001, guess: -20 }
+  payload: { epsilon: 0.001, guess: -20 }
 });
 ```
 
@@ -884,13 +884,13 @@ if (message.data.type === 'CALCULATE') {
 }
 ```
 
-Let's calculate the result (root) based on the data parameters in the incoming message.
+Let's calculate the result (root) based on the payload parameters in the incoming message.
 
 ```{.js #perform-calc-in-worker}
 // this JavaScript snippet is before referred to as #perform-calc-in-worker
-const epsilon = message.data.data.epsilon;
+const epsilon = message.data.payload.epsilon;
 const finder = new module.NewtonRaphson(epsilon);
-const guess = message.data.data.guess;
+const guess = message.data.payload.guess;
 const root = finder.find(guess);
 ```
 
@@ -900,7 +900,7 @@ And send the result back to the web worker consumer as a outgoing message.
 // this JavaScript snippet is before referred to as #post-result
 postMessage({
   type: 'RESULT',
-  data: {
+  payload: {
     root: root
   }
 });
@@ -912,7 +912,7 @@ Listen for messages from worker and when a result message is received put the re
 // this JavaScript snippet is appended to worker-consumer
 worker.onmessage = function(message) {
   if (message.data.type === 'RESULT') {
-    const root = message.data.data.root;
+    const root = message.data.payload.root;
     <<render-answer>>
   }
 }
