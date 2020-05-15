@@ -872,7 +872,7 @@ importScripts('newtonraphsonwasm.js');
 <<worker-provider-onmessage>>
 ```
 
-We can only handle the `CALCULATE` message when the Web Assembly module is loaded and initialized.
+We can handle the `CALCULATE` message only after the Web Assembly module is loaded and initialized.
 
 ```{.js #handle-message}
 // this JavaScript snippet is before referred to as handle-message
