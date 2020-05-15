@@ -918,7 +918,7 @@ worker.onmessage = function(message) {
 }
 ```
 
-Like before we need a HTML page to run the JavaScript, but now we don't need to import the `newtonraphsonwasm.js` file here as this is done in the `worker.js` file.
+Like before we need a HTML page to run the JavaScript, but now we don't need to import the `newtonraphsonwasm.js` file here as it is imported in the `worker.js` file.
 
 ```{.html file=src/js/example-web-worker.html}
 <!doctype html>
