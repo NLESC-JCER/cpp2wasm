@@ -12,7 +12,7 @@
   - [JavaScript](#JavaScript)
     - [Accessing C++ function from JavaScript in web browser](#accessing-c-function-from-JavaScript-in-web-browser)
     - [Executing long running methods in JavaScript](#executing-long-running-methods-in-JavaScript)
-  - [Single page web application](#single-page-web-application)
+  - [Single page application](#single-page-application)
     - [React component](#react-component)
     - [Form](#form)
     - [Visualization](#visualization)
