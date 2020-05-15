@@ -751,7 +751,7 @@ The binary format is stored as a WebAssembly module or `*.wasm` file, which can 
 
 Instead of writing code in the WebAssembly language, there are compilers that can take C++/C code and compile it to wasm. [Emscripten](https://emscripten.org) is the most popular C++ to wasm compiler. Emscripten has been successfully used to port game engines like the Unreal engine to the browser making it possible to have complex 3D games in the browser without needing to install anything else than the web browser. To call C++ code (which has been compiled to wasm) from JavaScript, a binding is required. The binding will map C++ constructs to their JavaScript equivalent and back. The binding called [embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#embind) is declared in a C++ file which is included in the compilation.
 
-The binding of the algorithm will be
+The binding of the C++ code will be
 
 ```{.cpp file=src/wasm-newtonraphson.cpp}
 // this C++ snippet is stored as src/wasm-newtonraphson.cpp
