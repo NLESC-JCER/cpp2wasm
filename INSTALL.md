@@ -4,8 +4,9 @@
 
 To run the commands in the README.md the following items are required
 
-1. [Apache httpd server 2.4](http://httpd.apache.org/) with `sudo apt install -y apache2`
-1. Python devel with `sudo apt install -y python3-dev`
+1. GNU C++ compiler (`g++`) and `make`, install with `sudo apt install -y build-essential`
+1. [Apache httpd server 2.4](http://httpd.apache.org/), install with `sudo apt install -y apache2`
+1. Python development, install with `sudo apt install -y python3-dev`
 1. [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html)
 1. [Docker Engine](https://docs.docker.com/install/)
 
