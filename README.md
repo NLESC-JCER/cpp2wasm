@@ -1001,7 +1001,7 @@ ReactDOM.render(
 The `Heading` React component would render to the following HTML.
 
 ```html
-<h1>Root finding web application</h1>
+<h1>Root finding web application</h1>;
 ```
 
 The `<h1>{title}</h1>` looks like HTML, but is actually called [JSX](https://reactjs.org/docs/introducing-jsx.html).
