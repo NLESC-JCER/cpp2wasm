@@ -1014,7 +1014,7 @@ function Heading() {
 }
 ```
 
-JXS is syntactic sugar that makes React components easier to write and read. So will use JSX going forward.
+JXS is syntactic sugar that makes React components easier to write and read. In the rest of the chapter, we will use JSX.
 
 To transform JSX we need to import Babel.
 
