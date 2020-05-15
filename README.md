@@ -884,7 +884,7 @@ if (message.data.type === 'CALCULATE') {
 }
 ```
 
-Let's find the root based on the data parameters in the incoming message.
+Let's calculate the result (root) based on the data parameters in the incoming message.
 
 ```{.js #perform-calc-in-worker}
 // this JavaScript snippet is before referred to as #perform-calc-in-worker
