@@ -781,7 +781,7 @@ The compilation also generates a `src/js/newtonraphsonwasm.wasm` file which will
 The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the JavaScript promise to resolve.
 
 ```{.js #wasm-promise}
-// this JavaScript snippet is later referred to as wasm-promise
+// this JavaScript snippet is later referred to as <<wasm-promise>>
 createModule().then((module) => {
   <<wasm-calculate>>
   <<render-answer>>
@@ -793,7 +793,7 @@ The `module` variable contains the `NewtonRaphson` class we defined in the bindi
 The root finder can be called with.
 
 ```{.js #wasm-calculate}
-// this JavaScript snippet is later referred to as wasm-calculate
+// this JavaScript snippet is later referred to as <<wasm-calculate>>
 const epsilon = 0.001;
 const finder = new module.NewtonRaphson(epsilon);
 const guess = -20;
@@ -840,14 +840,14 @@ Executing a long running C++ method will block the browser from running any othe
 We need to instantiate a web worker which we will implement later in `src/js/worker.js`.
 
 ```{.js #worker-consumer}
-// this JavaScript snippet is later referred to as worker-consumer
+// this JavaScript snippet is later referred to as <<worker-consumer>>
 const worker = new Worker('worker.js');
 ```
 
 We need to send the worker a message with description for the work it should do.
 
 ```{.js #worker-consumer}
-// this JavaScript snippet is appended to worker-consumer
+// this JavaScript snippet is appended to <<worker-consumer>>
 worker.postMessage({
   type: 'CALCULATE',
   payload: { epsilon: 0.001, guess: -20 }
@@ -857,7 +857,7 @@ worker.postMessage({
 In the web worker we need to listen for incoming messages.
 
 ```{.js #worker-provider-onmessage}
-// this JavaScript snippet is later referred to as worker-provider-onmessage
+// this JavaScript snippet is later referred to as <<worker-provider-onmessage>>
 onmessage = function(message) {
   <<handle-message>>
 };
@@ -875,7 +875,7 @@ importScripts('newtonraphsonwasm.js');
 We can handle the `CALCULATE` message only after the Web Assembly module is loaded and initialized.
 
 ```{.js #handle-message}
-// this JavaScript snippet is before referred to as handle-message
+// this JavaScript snippet is before referred to as <<handle-message>>
 if (message.data.type === 'CALCULATE') {
   createModule().then((module) => {
     <<perform-calc-in-worker>>
@@ -887,7 +887,7 @@ if (message.data.type === 'CALCULATE') {
 Let's calculate the result (root) based on the payload parameters in the incoming message.
 
 ```{.js #perform-calc-in-worker}
-// this JavaScript snippet is before referred to as #perform-calc-in-worker
+// this JavaScript snippet is before referred to as <<perform-calc-in-worker>>
 const epsilon = message.data.payload.epsilon;
 const finder = new module.NewtonRaphson(epsilon);
 const guess = message.data.payload.guess;
@@ -897,7 +897,7 @@ const root = finder.find(guess);
 And send the result back to the web worker consumer as a outgoing message.
 
 ```{.js #post-result}
-// this JavaScript snippet is before referred to as #post-result
+// this JavaScript snippet is before referred to as <<post-result>>
 postMessage({
   type: 'RESULT',
   payload: {
@@ -909,7 +909,7 @@ postMessage({
 Listen for messages from worker and when a result message is received put the result in the HTML page like we did before.
 
 ```{.js #worker-consumer}
-// this JavaScript snippet is appended to worker-consumer
+// this JavaScript snippet is appended to <<worker-consumer>>
 worker.onmessage = function(message) {
   if (message.data.type === 'RESULT') {
     const root = message.data.payload.root;
