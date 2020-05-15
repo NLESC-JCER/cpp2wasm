@@ -752,7 +752,7 @@ The binary format is stored as a WebAssembly module or `*.wasm` file, which can 
 
 Instead of writing code in the WebAssembly language, there are compilers that can take C++/C code and compile it to wasm. [Emscripten](https://emscripten.org) is the most popular C++ to wasm compiler. Emscripten has been successfully used to port game engines like the Unreal engine to the browser making it possible to have complex 3D games in the browser without needing to install anything else than the web browser. To call C++ code (which has been compiled to wasm) from JavaScript, a binding is required. The binding will map C++ constructs to their JavaScript equivalent and back. The binding called [embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#embind) is declared in a C++ file which is included in the compilation.
 
-The binding of the algorithm will be
+The binding of the C++ code will be
 
 ```{.cpp file=src/wasm-newtonraphson.cpp}
 // this C++ snippet is stored as src/wasm-newtonraphson.cpp
@@ -779,7 +779,7 @@ emcc --bind -o src/js/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=create
 
 The compilation also generates a `src/js/newtonraphsonwasm.wasm` file which will be loaded with the `createModule` function.
 
-The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the promise to resolve.
+The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the JavaScript promise to resolve.
 
 ```{.js #wasm-promise}
 // this JavaScript snippet is later referred to as wasm-promise
@@ -811,7 +811,7 @@ document.body.append(answer);
 ```
 
 To run the JavaScript in a web browser a HTML page is needed.
-To get the `createModule` function we will import the `newtonraphsonwasm.js` with a script tag.
+To be able to use the `createModule` function, we will import the `newtonraphsonwasm.js` with a script tag.
 
 ```{.html file=src/js/example.html}
 <!doctype html>
@@ -825,18 +825,18 @@ To get the `createModule` function we will import the `newtonraphsonwasm.js` wit
 ```
 
 The web browser can only load the `newtonraphsonwasm.js` file when hosted by a web server.
-Python ships with a built-in web server, we will use it to host the all files of the repository.
+Python ships with a built-in web server, we will use it to host the all files of the repository on port 8000.
 
 ```{.awk #host-files}
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example.html](http://localhost:8000/src/js/example.html) to see the root answer.
-The root finding answer was calculated using the C++ algorithm compiled to a WebAssembly module, executed by some JavaScript and rendered on a HTML page.
+Visit [http://localhost:8000/src/js/example.html](http://localhost:8000/src/js/example.html) to see the result of the calculation.
+The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, executed by some JavaScript and rendered on a HTML page.
 
 ### Executing long running methods in JavaScript
 
-Executing a long running C++ method will block the browser from running any other code like updating the user interface. This is not very nice for the user. To run the method in the background, [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers) have been defined. A web worker runs in its own thread and can be interacted with from JavaScript using messages.
+Executing a long running C++ method will block the browser from running any other code like updating the user interface. In order to avoid this, the method can be run in the background using [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers). A web worker runs in its own thread and can be interacted with from JavaScript using messages.
 
 We need to instantiate a web worker which will implement later in `src/js/worker.js`.
 
@@ -940,7 +940,7 @@ The root finding answer was calculated using the C++ algorithm compiled to a Web
 
 ## Single page web application
 
-In the [Web application](#web_application) chapter a whole new page was rendered by the server even for a small change. With the advent of more powerful JavaScript engines in browsers and JavaScript methods to fetch JSON documents from a web service, it is possible to render the page with JavaScript and fetch a small change from the web service and re-render a small part of the page with JavaScript. The application running in the browser is called a [single page application](https://en.wikipedia.org/wiki/Single-page_application) or SPA.
+In the [Web application](#web_application) chapter, a whole new page was rendered by the server even for a small change. With the advent of more powerful JavaScript engines in browsers and JavaScript methods to fetch JSON documents from a web service, it is possible to prevent that. [Single Page Applications](https://en.wikipedia.org/wiki/Single-page_application)(SPA) can render the page and fetch a small change from the web service and re-render a small part of the page with JavaScript.
 
 To make writing a SPA easier, a number of frameworks have been developed. The most popular frontend web frameworks at the moment (July 2019) are:
 
