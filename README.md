@@ -1114,7 +1114,7 @@ worker.onmessage = function(message) {
 
 To render the result we can use a React Component which has `root` as a property.
 When the calculation has not be done yet will render `Not submitted`.
-When the `root` value is set to we will show it.
+When the `root` value is set then we will show it.
 
 ```{.jsx file=src/js/app.js}
 function Result(props) {
