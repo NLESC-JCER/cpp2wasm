@@ -856,7 +856,7 @@ worker.postMessage({
 
 ### Single page application
 
-In the [Web application](#web_application) chapter a whole new page was rendered by the server even for a small change. With the advent of more powerful JavaScript engines in browsers and JavaScript methods to fetch JSON documents from a web service, it is possible to render the page with JavaScript and fetch a small change from the web service and re-render a small part of the page with JavaScript. The application running in the browser is called a [single page application](https://en.wikipedia.org/wiki/Single-page_application) or SPA.
+In the [Web application](#web_application) chapter, a whole new page was rendered by the server even for a small change. With the advent of more powerful JavaScript engines in browsers and JavaScript methods to fetch JSON documents from a web service, it is possible to prevent that. [Single Page Applications](https://en.wikipedia.org/wiki/Single-page_application)(SPA) can render the page and fetch a small change from the web service and re-render a small part of the page with JavaScript.
 
 To make writing a SPA easier, a number of frameworks have been developed. The most popular frontend web frameworks at the moment (July 2019) are:
 
