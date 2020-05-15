@@ -1090,7 +1090,7 @@ We have to post a message to the worker with the values from the form.
 ```{.jsx #handle-submit}
 worker.postMessage({
   type: 'CALCULATE',
-  data: { epsilon: epsilon, guess: guess }
+  payload: { epsilon: epsilon, guess: guess }
 });
 ```
 
