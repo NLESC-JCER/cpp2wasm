@@ -1041,11 +1041,11 @@ The form in JSX can be written in the following way:
 </form>
 ```
 
-The form tag has a `handleSubmit` variable, which is a function that will handle the form submission.
-The input tag will render the `value` and when the user changes the value the `onChange` function will be called.
+The form tag has a `onSubmit` property, which is set to a function (`handleSubmit`) that will handle the form submission.
+The input tag has a `value` property to set the variable (`epsilon` and `guess`) and it also has `onChange` property to set the function (`onEpsilonChange` and `onGuessChange`) which will be triggered when the user changes the value.
 
-Let's implement the value and onChange for the epsilon input.
-To store the value will use the [React useState hook](https://reactjs.org/docs/hooks-state.html).
+Let's implement the `value` and `onChange` for the `epsilon` input.
+To store the value we will use the [React useState hook](https://reactjs.org/docs/hooks-state.html).
 
 ```{.js #react-state}
 const [epsilon, setEpsilon] = React.useState(0.001);
@@ -1053,7 +1053,7 @@ const [epsilon, setEpsilon] = React.useState(0.001);
 
 The argument of the `useState` function is the initial value. The `epsilon` variable contains the current value for epsilon and `setEpsilon` is a function to set epsilon to a new value.
 
-The input tag in the form will call the onChange function with a event object. We need to dig the user supplied new value out of the event and pass it to `setEpsilon`.
+The input tag in the form will call the `onChange` function with a event object. We need to extract the user input from the event and pass it to `setEpsilon`.
 
 ```{.js #react-state}
 function onEpsilonChange(event) {
@@ -1061,7 +1061,7 @@ function onEpsilonChange(event) {
 }
 ```
 
-The guess input will be given the same treatment.
+We will follow the same steps for the guess input as well.
 
 ```{.js #react-state}
 const [guess, setGuess] = React.useState(-20);
@@ -1071,7 +1071,7 @@ function onGuessChange(event) {
 }
 ```
 
-We are ready to implement the `handleSubmit` function.
+We are ready to implement the `handleSubmit` function which will process the form data.
 The function will get, similar to the onChange of the input tag, an event object.
 Normally when you submit a form the form fields will be send to the server, but we want to perform the calculation in the browser so we have to disable the default action with.
 
@@ -1094,14 +1094,14 @@ worker.postMessage({
 });
 ```
 
-We need a place to store the resulting `root` value, we will use `useState` function again.
-The initial value is set to `undefined` as the `root` value is only known after the calculation has been completed.
+We need a place to store the result of the calculation (`root` value), we will use `useState` function again.
+The initial value of the result is set to `undefined` as the result is only known after the calculation has been completed.
 
 ```{.js #react-state}
 const [root, setRoot] = React.useState(undefined);
 ```
 
-When the worker is done it will send a message back to the app. The app needs to store the `root` result value. The worker can then be terminated because it did its job.
+When the worker is done it will send a message back to the app. The app needs to store the result value (`root`) using `setRoot`. The worker will then be terminated because it did its job.
 
 ```{.jsx #handle-submit}
 worker.onmessage = function(message) {
@@ -1114,8 +1114,8 @@ worker.onmessage = function(message) {
 ```
 
 To render the result we can use a React Component which has `root` as a property.
-When the calculation has not be done yet will render `Not submitted`.
-When the `root` value is set then we will show it.
+When the calculation has not been done yet, it will render `Not submitted`.
+When the `root` property value is set then we will show it.
 
 ```{.jsx file=src/js/app.js}
 function Result(props) {
