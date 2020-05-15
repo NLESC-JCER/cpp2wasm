@@ -123,6 +123,7 @@ Cypress can simulate what a user would do and expect in a web browser.
 We want to test if visiting the example web page renders the answer `-1.00`.
 
 ```{.js file=cypress/integration/example_spec.js}
+// this JavaScript snippet is run by cypress and is stored as cypress/integration/example_spec.js
 describe('src/js/example.html', () => {
   it('should render -1.00', () => {
     cy.visit('http://localhost:8000/src/js/example.html');

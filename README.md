@@ -778,7 +778,7 @@ emcc --bind -o src/js/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=create
 
 The compilation also generates a `src/js/newtonraphsonwasm.wasm` file which will be loaded with the `createModule` function.
 
-The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the promise to resolve.
+The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the JavaScript promise to resolve.
 
 ```{.js #wasmpromise}
 // this Javascript snippet is later referred to as wasmpromise
@@ -823,7 +823,7 @@ To get the `createModule` function we will import the `newtonraphsonwasm.js` wit
 ```
 
 The web browser can only load the `newtonraphsonwasm.js` file when hosted by a web server.
-Python ships with a built-in web server, we will use it to host the all files of the repository.
+Python ships with a built-in web server, we will use it to host the all files of the repository on port 8000.
 
 ```{.awk #host-files}
 python3 -m http.server 8000
