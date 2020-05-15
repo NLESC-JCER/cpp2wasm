@@ -12,7 +12,8 @@
   - [JavaScript](#JavaScript)
     - [Accessing C++ function from JavaScript in web browser](#accessing-c-function-from-JavaScript-in-web-browser)
     - [Executing long running methods in JavaScript](#executing-long-running-methods-in-JavaScript)
-    - [Single page application](#single-page-application)
+  - [Single page application](#single-page-application)
+    - [React component](#react-component)
     - [Form](#form)
     - [Visualization](#visualization)
 
@@ -939,7 +940,7 @@ python3 -m http.server 8000
 Visit [http://localhost:8000/src/js/example-web-worker.html](http://localhost:8000/src/js/example-web-worker.html) to see the result of the calculation.
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
-### Single page application
+## Single page application
 
 In the [Web application](#web_application) chapter, a whole new page was rendered by the server even for a small change. With the advent of more powerful JavaScript engines in browsers and JavaScript methods to fetch JSON documents from a web service, it is possible to prevent that. [Single Page Applications](https://en.wikipedia.org/wiki/Single-page_application)(SPA) can render the page and fetch a small change from the web service and re-render a small part of the page with JavaScript.
 
@@ -949,19 +950,241 @@ To make writing a SPA easier, a number of frameworks have been developed. The mo
 - [Vue.js](https://vuejs.org/)
 - [Angular](https://angular.io/)
 
-They have their strengths and weaknesses which are summarized in the [NLeSC guide](https://guide.esciencecenter.nl/best_practices/language_guides/JavaScript.html#frameworks).
+They have their strengths and weaknesses which are summarized in the [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
 
-<!-- Bubble below might need to be Newton-Raphson? -->
 
-For Bubble I picked React as it is light and functional, because I like the small api footprint and the functional programming paradigm.
+For Newton-Raphson web application I picked React as it is light and functional, because I like the small API footprint and the functional programming paradigm.
 
-In Bubble the C++ is compiled to a wasm file using bindings. When a calculation form is submitted in the React application a web worker is started that loads the wasm file, starts the calculation, posts progress and lastly posts the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
+The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
 
-### Form
+### React component
+
+To render the React application we need a HTML tag as a container. We will give it the identifier `container` which will use later when
+we implement the React application in the `app.js` file.
+
+```{.html file=src/js/example-app.html}
+<!doctype html>
+<!-- this HTML page is stored as src/js/example-app.html -->
+<html>
+  <<imports>>
+  <div id="container"></div>
+
+  <script type="text/babel" src="app.js"></script>
+</html>
+```
+
+To use React we need to import the React library.
+
+```{.html #imports}
+<!-- this HTML snippet is before and later referred to as <<imports>> -->
+<script src="https://unpkg.com/react@16/umd/react.development.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@16/umd/react-dom.development.js" crossorigin></script>
+```
+
+A React application is constructed from React components. The simplest React component is a function which returns a HTML tag with a variable inside.
+
+```{.jsx file=src/js/app.js}
+// this JavaScript snippet is stored as src/js/app.js
+function Heading() {
+  const title = 'Root finding web application';
+  return <h1>{title}</h1>
+}
+```
+
+A component can be rendered using
+
+```jsx
+ReactDOM.render(
+  <Heading/>,
+  document.getElementById('container')
+);
+```
+
+The `Heading` React component would render to the following HTML.
+
+```html
+<h1>Root finding web application</h1>;
+```
+
+The `<h1>{title}</h1>` looks like HTML, but is actually called [JSX](https://reactjs.org/docs/introducing-jsx.html).
+A transformer like [Babel](https://babeljs.io/docs/en/next/babel-standalone.html) can convert JSX to valid JavaScript code. The transformed Heading component will look like.
+
+```js
+function Heading() {
+  const title = 'Root finding web application';
+  return React.createElement('h1', null, `{title}`);
+}
+```
+
+JXS is syntactic sugar that makes React components easier to write and read. In the rest of the chapter, we will use JSX.
+
+To transform JSX we need to import Babel.
+
+```{.html #imports}
+<!-- this HTML snippet is appended to <<imports>> -->
+<script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>
+```
+
+The code supplied here should not be used in production as converting JSX in the web browser is slow. Better to use [Create React App](http://create-react-app.dev/) which gives you an infrastructure to perform the transformation offline.
+
+The web application in our example should have a form with a `epsilon` and `guess` input field and a submit button.
+The form in JSX can be written in the following way:
+
+```{.jsx #react-form}
+{ /* this JavaScript snippet is later referred to as <<react-form>> */ }
+<form onSubmit={handleSubmit}>
+  <label>
+    Epsilon:
+    <input name="epsilon" type="number" value={epsilon} onChange={onEpsilonChange}/>
+  </label>
+  <label>
+    Initial guess:
+    <input name="guess" type="number" value={guess} onChange={onGuessChange}/>
+  </label>
+  <input type="submit" value="Submit" />
+</form>
+```
+
+The form tag has a `onSubmit` property, which is set to a function (`handleSubmit`) that will handle the form submission.
+The input tag has a `value` property to set the variable (`epsilon` and `guess`) and it also has `onChange` property to set the function (`onEpsilonChange` and `onGuessChange`) which will be triggered when the user changes the value.
+
+Let's implement the `value` and `onChange` for the `epsilon` input.
+To store the value we will use the [React useState hook](https://reactjs.org/docs/hooks-state.html).
+
+```{.js #react-state}
+// this JavaScript snippet is later referred to as <<react-state>>
+const [epsilon, setEpsilon] = React.useState(0.001);
+```
+
+The argument of the `useState` function is the initial value. The `epsilon` variable contains the current value for epsilon and `setEpsilon` is a function to set epsilon to a new value.
+
+The input tag in the form will call the `onChange` function with a event object. We need to extract the user input from the event and pass it to `setEpsilon`.
+
+```{.js #react-state}
+// this JavaScript snippet is appended to <<react-state>>
+function onEpsilonChange(event) {
+  setEpsilon(event.target.value);
+}
+```
+
+We will follow the same steps for the guess input as well.
+
+```{.js #react-state}
+// this JavaScript snippet is appended to <<react-state>>
+const [guess, setGuess] = React.useState(-20);
+
+function onGuessChange(event) {
+  setGuess(event.target.value);
+}
+```
+
+We are ready to implement the `handleSubmit` function which will process the form data.
+The function will get, similar to the onChange of the input tag, an event object.
+Normally when you submit a form the form fields will be send to the server, but we want to perform the calculation in the browser so we have to disable the default action with.
+
+```{.jsx #handle-submit}
+// this JavaScript snippet is later referred to as <<handle-submit>>
+event.preventDefault();
+```
+
+Like we did in the previous chapter we have to construct a web worker.
+
+```{.jsx #handle-submit}
+// this JavaScript snippet is appended to <<handle-submit>>
+const worker = new Worker('worker.js');
+```
+
+We have to post a message to the worker with the values from the form.
+
+```{.jsx #handle-submit}
+// this JavaScript snippet is appended to <<handle-submit>>
+worker.postMessage({
+  type: 'CALCULATE',
+  payload: { epsilon: epsilon, guess: guess }
+});
+```
+
+We need a place to store the result of the calculation (`root` value), we will use `useState` function again.
+The initial value of the result is set to `undefined` as the result is only known after the calculation has been completed.
+
+```{.js #react-state}
+// this JavaScript snippet is appended to <<react-state>>
+const [root, setRoot] = React.useState(undefined);
+```
+
+When the worker is done it will send a message back to the app. The app needs to store the result value (`root`) using `setRoot`. The worker will then be terminated because it did its job.
+
+```{.jsx #handle-submit}
+// this JavaScript snippet is appended to <<handle-submit>>
+worker.onmessage = function(message) {
+    if (message.data.type === 'RESULT') {
+      const result = message.data.payload.root;
+      setRoot(result);
+      worker.terminate();
+  }
+};
+```
+
+To render the result we can use a React Component which has `root` as a property.
+When the calculation has not been done yet, it will render `Not submitted`.
+When the `root` property value is set then we will show it.
+
+```{.jsx file=src/js/app.js}
+// this JavaScript snippet stored as src/js/app.js
+function Result(props) {
+  const root = props.root;
+  let message = 'Not submitted';
+  if (root !== undefined) {
+    message = 'Root = ' + root;
+  }
+  return <div id="answer">{message}</div>;
+}
+```
+
+We can combine the heading, form and result components and all the states and handleSubmit function into the `App` React component.
+
+```{.jsx file=src/js/app.js}
+// this JavaScript snippet appenended to src/js/app.js
+function App() {
+  <<react-state>>
+
+  function handleSubmit(event) {
+    <<handle-submit>>
+  }
+
+  return (
+    <div>
+      <Heading/>
+      <<react-form>>
+      <Result root={root}/>
+    </div>
+  );
+}
+```
+
+Finally we can render the `App` component to the HTML container with `container` as identifier.
+
+```{.jsx file=src/js/app.js}
+// this JavaScript snippet appenended to src/js/app.js
+ReactDOM.render(
+  <App/>,
+  document.getElementById('container')
+);
+```
+
+Like before we also need to host the files in a web server with
+
+```shell
+python3 -m http.server 8000
+```
+
+Visit [http://localhost:8000/src/js/example-app.html](http://localhost:8000/src/js/example-app.html) to see the root answer.
+
+### JSON schema powered form
 
 The JSON schema can be used to generate a form. The form submission will be validated against the schema.
 The most popular JSON schema form for React is [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema-form).
 
 ### Visualization
 
-The plots in Bubble are made using [vega-lite](https://vega.github.io/vega-lite/). Vega-lite is a JS library which accepts a JSON document describing the plot and generates interactive graphics.
+The plots in web apllicatoin can be made using [vega-lite](https://vega.github.io/vega-lite/). Vega-lite is a JS library which accepts a JSON document describing the plot and generates interactive graphics.
