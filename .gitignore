@@ -1,3 +1,6 @@
 httpd.pid
 httpd_error_log
 __pycache__/
+cypress/plugins
+cypress/support
+cypress/videos
