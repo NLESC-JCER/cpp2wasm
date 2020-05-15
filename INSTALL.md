@@ -6,7 +6,7 @@ To run the commands in the README.md the following items are required
 
 1. [Apache httpd server 2.4](http://httpd.apache.org/) with `sudo apt install -y apache2`
 1. Python devel with `sudo apt install -y python3-dev`
-1. [Emscriptem](https://emscripten.org/docs/getting_started/downloads.html)
+1. [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html)
 1. [Docker Engine](https://docs.docker.com/install/)
 
 ## Generating code from Markdown
@@ -134,5 +134,7 @@ The test can be run with
 ```{.awk #test-wasm}
 npx cypress run --config-file false
 ```
+
+The `npx` command ships with NodeJS which is included in the Emscripten SDK and can be used to run commands available on [npm repository](https://npmjs.com/).
 
 The tests will also be run in the [GH Action continous integration build](.github/workflows/main.yml).
