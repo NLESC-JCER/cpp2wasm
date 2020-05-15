@@ -960,7 +960,7 @@ The C++ algorithm is compiled to a wasm file using bindings. When a calculation 
 
 ### React component
 
-To render the React application we need a HTML tag as a container. We will give it the identifier `root` which will use later when
+To render the React application we need a HTML tag as a container. We will give it the identifier `container` which will use later when
 we implement the React application in the `app.js` file.
 
 ```{.html file=src/js/example-app.html}
@@ -968,7 +968,7 @@ we implement the React application in the `app.js` file.
 <!-- this HTML page is stored as src/js/example-app.html -->
 <html>
   <<imports>>
-  <div id="root"></div>
+  <div id="container"></div>
 
   <script type="text/babel" src="app.js"></script>
 </html>
@@ -995,7 +995,7 @@ A component can be rendered using
 ```jsx
 ReactDOM.render(
   <Heading/>,
-  document.getElementById('root')
+  document.getElementById('container')
 );
 ```
 
@@ -1149,12 +1149,12 @@ function App() {
 }
 ```
 
-Finally we can render the `App` component to the HTML container with `root` as identifier.
+Finally we can render the `App` component to the HTML container with `container` as identifier.
 
 ```{.jsx file=src/js/app.js}
 ReactDOM.render(
   <App/>,
-  document.getElementById('root')
+  document.getElementById('container')
 );
 ```
 
