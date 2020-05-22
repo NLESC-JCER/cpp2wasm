@@ -1,4 +1,4 @@
-.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files test-wasm
+.PHONY: clean clean-compiled clean-entangled test all check entangle entangle-list py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files test-wasm
 
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
@@ -95,3 +95,6 @@ test-wasm:
 init-git-hook:
 	chmod +x .githooks/pre-commit
 	git config --local core.hooksPath .githooks
+
+check: entangle
+	git diff-index --quiet HEAD --

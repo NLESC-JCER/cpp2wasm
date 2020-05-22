@@ -68,7 +68,7 @@ git config --local core.hooksPath .githooks
 All the commands in the README.md can be captured in a Makefile like so:
 
 ```{.makefile file=Makefile}
-.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files test-wasm
+.PHONY: clean clean-compiled clean-entangled test all check entangle entangle-list py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files test-wasm
 
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
@@ -164,6 +164,9 @@ test-wasm:
 init-git-hook:
 	<<hook-permission>>
 	<<init-git-hook>>
+
+check: entangle
+	git diff-index --quiet HEAD --
 ```
 
 For example the Python dependencies can be installed with
