@@ -2,11 +2,11 @@
 
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
-ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' README.md INSTALL.md | grep -v Makefile | sort -u)
+ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' *.md | grep -v Makefile | sort -u)
 COMPILED := bin/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
 
-entangle: README.md INSTALL.md
-	docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs README.md INSTALL.md
+entangle: *.md
+	docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md
 
 $(ENTANGLED): entangle
 
