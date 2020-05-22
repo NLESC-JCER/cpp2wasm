@@ -140,6 +140,7 @@ The pre-commit hook script runs entangle using Docker and adds newly written fil
 
 ```{.awk file=.githooks/pre-commit}
 #!/bin/sh
+# this shell script is stored as .githooks/pre-commit
 
 UID=$(id -u)
 

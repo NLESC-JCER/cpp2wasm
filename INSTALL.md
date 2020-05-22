@@ -16,6 +16,7 @@ To run the commands in the README.md the following items are required
 All the commands in the [README.md](README.md) and [CONTRIBUTING.md](CONTRIBUTING.md) can be captured in a [Makefile](https://en.wikipedia.org/wiki/Makefile) like so:
 
 ```{.makefile file=Makefile}
+# this Makefile snippet is stored as Makefile
 .PHONY: clean clean-compiled clean-entangled test all check entangle entangle-list py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files test-wasm
 
 UID := $(shell id -u)

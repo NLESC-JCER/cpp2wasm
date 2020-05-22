@@ -1,4 +1,5 @@
 #!/bin/sh
+# this shell script is stored as .githooks/pre-commit
 
 UID=$(id -u)
 

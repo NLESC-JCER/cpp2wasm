@@ -1,3 +1,4 @@
+# this Makefile snippet is stored as Makefile
 .PHONY: clean clean-compiled clean-entangled test all check entangle entangle-list py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files test-wasm
 
 UID := $(shell id -u)
