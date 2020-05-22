@@ -38,16 +38,13 @@ The hook script runs entangle using Docker and adds newly written files to the c
 
 UID=$(id -u)
 
-echo Entangling
+echo 'Check entangled files are up to date'
 
 FILES=$(docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs README.md INSTALL.md 2>&1 > /dev/null | perl -ne 'print $1,"\n" if /^Writing \`(.*)\`./')
-[ -z "$FILES" ] && exit 0
 echo $FILES
 
 echo 'Adding written files to commit'
 echo $FILES | xargs git add
-
-exit 0
 ```
 
 The hook must be made executable with
