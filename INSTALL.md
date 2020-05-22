@@ -27,6 +27,43 @@ Or the [Entangled - Pandoc filters](https://github.com/entangled/filters) Docker
 docker run --rm -ti --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs README.md INSTALL.md
 ```
 
+Or automatic generation during a commit.
+
+We will use a pre-commit git hook to generate code.
+
+The hook script runs entangle using Docker and adds newly written files to the current git commit.
+
+```{.awk file=.githooks/pre-commit}
+#!/bin/sh
+
+UID=$(id -u)
+
+echo Entangling
+
+FILES=$(docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs README.md INSTALL.md 2>&1 > /dev/null | perl -ne 'print $1,"\n" if /^Writing \`(.*)\`./')
+[ -z "$FILES" ] && exit 0
+echo $FILES
+
+echo 'Adding written files to commit'
+echo $FILES | xargs git add
+
+exit 0
+```
+
+The hook must be made executable with
+
+```{.awk #hook-permission}
+chmod +x .githooks/pre-commit
+```
+
+The git hook can be enabled with
+
+```{.awk #init-git-hook}
+git config --local core.hooksPath .githooks
+```
+
+(`core.hooksPath` config is available in git version >= 2.9)
+
 ## Command collection
 
 All the commands in the README.md can be captured in a Makefile like so:
@@ -125,6 +162,9 @@ host-files: build-wasm
 test-wasm:
 	<<test-wasm>>
 
+init-git-hook:
+	<<hook-permission>>
+	<<init-git-hook>>
 ```
 
 For example the Python dependencies can be installed with
@@ -189,3 +229,4 @@ npx cypress run --config-file false
 The `npx` command ships with NodeJS which is included in the Emscripten SDK and can be used to run commands available on [npm repository](https://npmjs.com/).
 
 The tests will also be run in the [GH Action continous integration build](.github/workflows/main.yml).
+
