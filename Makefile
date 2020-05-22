@@ -1,4 +1,17 @@
-.PHONY: clean test entangle py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files test-wasm
+.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files test-wasm
+
+UID := $(shell id -u)
+# Exclude Makefile
+ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' README.md INSTALL.md | grep -v Makefile | sort -u)
+COMPILED := bin/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
+
+entangle: README.md INSTALL.md
+	docker run --rm -ti --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs README.md INSTALL.md
+
+$(ENTANGLED): entangle
+
+entangled-list:
+	@echo $(ENTANGLED)
 
 py-deps: pip-pybind11 pip-flask pip-celery pip-connexion
 
@@ -35,9 +48,17 @@ test-py: src/py/example.py src/py/newtonraphsonpy.*.so
 
 test: test-cli test-cgi test-py test-webservice
 
+all: $(ENTANGLED) $(COMPILED)
+
+clean: clean-compiled clean-entangled
+
 # Removes the compiled files
-clean:
-	$(RM) bin/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
+clean-compiled:
+	$(RM) $(COMPILED)
+
+# Removed the entangled files
+clean-entangled:
+	$(RM) $(ENTANGLED)
 
 start-redis:
 	docker run --rm -d -p 6379:6379 --name some-redis redis
