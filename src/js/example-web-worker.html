@@ -1,0 +1,23 @@
+<!doctype html>
+<!-- this HTML page is stored as src/js/example-web-worker.html -->
+<html>
+  <script>
+    // this JavaScript snippet is later referred to as <<worker-consumer>>
+    const worker = new Worker('worker.js');
+    // this JavaScript snippet is appended to <<worker-consumer>>
+    worker.postMessage({
+      type: 'CALCULATE',
+      payload: { epsilon: 0.001, guess: -20 }
+    });
+    // this JavaScript snippet is appended to <<worker-consumer>>
+    worker.onmessage = function(message) {
+      if (message.data.type === 'RESULT') {
+        const root = message.data.payload.root;
+        const answer = document.createElement('span');
+        answer.id = 'answer';
+        answer.append(root);
+        document.body.append(answer);
+      }
+    }
+  </script>
+</html>

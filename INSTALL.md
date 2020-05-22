@@ -226,4 +226,3 @@ npx cypress run --config-file false
 The `npx` command ships with NodeJS which is included in the Emscripten SDK and can be used to run commands available on [npm repository](https://npmjs.com/).
 
 The tests will also be run in the [GH Action continous integration build](.github/workflows/main.yml).
-
