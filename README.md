@@ -952,7 +952,6 @@ To make writing a SPA easier, a number of frameworks have been developed. The mo
 
 They have their strengths and weaknesses which are summarized in the [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
 
-
 For Newton-Raphson web application I picked React as it is light and functional, because I like the small API footprint and the functional programming paradigm.
 
 The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
@@ -1319,3 +1318,182 @@ If you enter a negative number in the `epsilon` field the form will be invalid a
 ### Visualization
 
 The plots in web apllicatoin can be made using [vega-lite](https://vega.github.io/vega-lite/). Vega-lite is a JS library which accepts a JSON document describing the plot and generates interactive graphics.
+
+To make an interesting plot we need more than one result. We are going to do a parameter sweep and measure how long each calculation takes.
+
+Let us make a new JSON schema in which we can set a max, min and step for epsilon.
+
+```{.js #plot-app}
+// this JavaScript snippet is later referred to as <<jsonschema-app>>
+const schema = {
+  "type": "object",
+  "properties": {
+    "epsilon": {
+      "title": "Epsilon",
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.0001
+        },
+        "max": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.001
+        },
+        "step": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.0001
+        }
+      },
+      "required": ["min", "max", "step"],
+      "additionalProperties": false
+    },
+    "guess": {
+      "title": "Initial guess",
+      "type": "number",
+      "default": -20
+    }
+  },
+  "required": ["epsilon", "guess"],
+  "additionalProperties": false
+}
+```
+
+```{.js #plot-app}
+const Form = JSONSchemaForm.default;
+```
+
+```{.js file=src/js/worker-sweep.js}
+// this JavaScript snippet stored as src/js/worker-sweep.js
+importScripts('newtonraphsonwasm.js');
+
+onmessage = function(message) {
+  if (message.data.type === 'CALCULATE') {
+    createModule().then((module) => {
+      const {min,max,step} = message.data.payload.epsilon;
+      const guess = message.data.payload.guess;
+      const roots = [];
+      for (let epsilon = min; epsilon <= max; epsilon += step) {
+        const t0 = performance.now();
+        const finder = new module.NewtonRaphson(epsilon);
+        const root = finder.find(guess);
+        const t1 = performance.now();
+        roots.push({
+          epsilon,
+          guess,
+          root,
+          duration: t1 - t0
+        });
+      }
+      postMessage({
+        type: 'RESULT',
+        payload: {
+          roots
+        }
+      });
+    });
+  }
+};
+```
+
+```{.js #plot-app}
+// this JavaScript snippet is appended to <<plot-app>>
+const [roots, setRoots] = React.useState([]);
+
+function handleSubmit({formData}, event) {
+  event.preventDefault();
+  const worker = new Worker('worker-sweep.js');
+  worker.postMessage({
+    type: 'CALCULATE',
+    payload: { epsilon: formData.epsilon, guess: formData.guess }
+  });
+  worker.onmessage = function(message) {
+      if (message.data.type === 'RESULT') {
+        const result = message.data.payload.roots;
+        setRoots(result);
+        worker.terminate();
+    }
+  };
+}
+```
+
+```{.html #imports}
+<script src="https://cdn.jsdelivr.net/npm/vega@5.12.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.12.2"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+```
+
+```{.jsx #plot-component}
+// this JavaScript snippet is later referred to as <<plot-component>>
+
+function Plot({data}) {
+  const container = React.useRef(null);
+  React.useEffect(() => {
+    if (container === null || data.length === 0) {
+      return;
+    }
+    console.log(data);
+    const spec = {
+      "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
+      "description": "A scatterplot showing of root finding with different epsilons versus the calculation duration",
+      "data": {"values": data},
+      "mark": "point",
+      "encoding": {
+        "x": {"field": "epsilon", "type": "quantitative"},
+        "y": {"field": "duration", "type": "quantitative"}
+      },
+      "width": 800,
+      "height": 600
+    };
+    vegaEmbed(container.current, spec);
+  }, [container, data]);
+
+  return <div ref={container}/>;
+}
+```
+
+The App component can be defined and rendered with.
+
+```{.jsx file=src/js/plot-app.js}
+// this JavaScript snippet stored as src/js/plot-app.js
+<<heading-component>>
+
+<<plot-component>>
+
+function App() {
+  <<plot-app>>
+
+  return (
+    <div>
+      <Heading/>
+      <<jsonschema-form>>
+      <Plot data={roots}/>
+    </div>
+  );
+}
+
+ReactDOM.render(
+  <App/>,
+  document.getElementById('container')
+);
+```
+
+The `Heading` and `Result` React component can be reused.
+
+```{.jsx file=src/js/plot-app.js}
+// this JavaScript snippet appended to src/js/plot-app.js
+```
+
+```{.html file=src/js/example-plot.html}
+<!doctype html>
+<!-- this HTML page is stored as src/js/plot-form.html -->
+<html>
+  <<imports>>
+  <div id="container"></div>
+
+  <script type="text/babel" src="plot-app.js"></script>
+</html>
+```
