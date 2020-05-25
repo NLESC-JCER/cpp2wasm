@@ -7,13 +7,13 @@ function App() {
       "epsilon": {
         "title": "Epsilon",
         "type": "number",
-        "minimum": 0,
-        "default": 0.001
+        "minimum": 0
       },
       "guess": {
         "title": "Initial guess",
-        "type": "number",
-        "default": -20
+        "type": "integer",
+        "minimum": -100,
+        "maximum": 100
       }
     },
     "required": ["epsilon", "guess"],
@@ -21,6 +21,20 @@ function App() {
   }
   // this JavaScript snippet is appended to <<jsonschema-app>>
   const Form = JSONSchemaForm.default;
+  const uiSchema = {
+    "guess": {
+      "ui:widget": "range"
+    }
+  }
+  // this JavaScript snippet is appended to <<jsonschema-app>>
+  const [formData, setFormData] = React.useState({
+    epsilon: 0.001,
+    guess: -20
+  });
+
+  function handleChange(event) {
+    setFormData(event.formData);
+  }
   // this JavaScript snippet is appended to <<jsonschema-app>>
   const [root, setRoot] = React.useState(undefined);
 
@@ -44,7 +58,13 @@ function App() {
     <div>
       <Heading/>
       { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
-      <Form schema={schema} onSubmit={handleSubmit}/>
+      <Form
+        uiSchema={uiSchema}
+        schema={schema}
+        formData={formData}
+        onChange={handleChange}
+        onSubmit={handleSubmit}
+      />
       <Result root={root}/>
     </div>
   );
