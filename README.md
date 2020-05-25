@@ -952,7 +952,6 @@ To make writing a SPA easier, a number of frameworks have been developed. The mo
 
 They have their strengths and weaknesses which are summarized in the [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
 
-
 For Newton-Raphson web application I picked React as it is light and functional, because I like the small API footprint and the functional programming paradigm.
 
 The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
@@ -1198,13 +1197,13 @@ const schema = {
     "epsilon": {
       "title": "Epsilon",
       "type": "number",
-      "minimum": 0,
-      "default": 0.001
+      "minimum": 0
     },
     "guess": {
       "title": "Initial guess",
-      "type": "number",
-      "default": -20
+      "type": "integer",
+      "minimum": -100,
+      "maximum": 100
     }
   },
   "required": ["epsilon", "guess"],
@@ -1246,11 +1245,41 @@ The form component is exported as `JSONSchemaForm.default` and can be aliases wi
 const Form = JSONSchemaForm.default;
 ```
 
+The react-jsonschema-form component normally renders an integer with a updown selector. To use a range slider instead we configure a [user interface schema](https://react-jsonschema-form.readthedocs.io/en/latest/quickstart/#form-uischema).
+
+```{.js #jsonschema-app}
+const uiSchema = {
+  "guess": {
+    "ui:widget": "range"
+  }
+}
+```
+
+The values in the form must be initialized and updated whenever the form changes.
+
+```{.js #jsonschema-app}
+// this JavaScript snippet is appended to <<jsonschema-app>>
+const [formData, setFormData] = React.useState({
+  epsilon: 0.001,
+  guess: -20
+});
+
+function handleChange(event) {
+  setFormData(event.formData);
+}
+```
+
 The form can be rendered with
 
 ```{.jsx #jsonschema-form}
 { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
-<Form schema={schema} onSubmit={handleSubmit}/>
+<Form
+  uiSchema={uiSchema}
+  schema={schema}
+  formData={formData}
+  onChange={handleChange}
+  onSubmit={handleSubmit}
+/>
 ```
 
 The `handleSubmit` function recieves the form input values and use the web worker we created earlier to perform the calculation and render the result.
