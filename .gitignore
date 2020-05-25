@@ -4,3 +4,10 @@ __pycache__/
 cypress/plugins
 cypress/support
 cypress/videos
+
+# Ignore compiled files
+bin/newtonraphson.exe
+src/py/newtonraphsonpy.*.so
+apache2/cgi-bin/newtonraphson
+src/js/newtonraphsonwasm.js
+src/js/newtonraphsonwasm.wasm
