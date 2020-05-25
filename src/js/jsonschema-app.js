@@ -2,6 +2,8 @@
 function App() {
   // this JavaScript snippet is later referred to as <<jsonschema-app>>
   const schema = {
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "https://nlesc-jcer.github.io/cpp2wasm/NNRequest.json",
     "type": "object",
     "properties": {
       "epsilon": {

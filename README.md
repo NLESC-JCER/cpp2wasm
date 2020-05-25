@@ -156,13 +156,23 @@ An example of JSON schema:
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://example.com/schemas/person.json",
+  "$id": "https://nlesc-jcer.github.io/cpp2wasm/NNRequest.json",
   "type": "object",
   "properties": {
-    "name": { "type": "string" },
-    "age": { "type": "number", "minimum": 0 }
+    "epsilon": {
+      "title": "Epsilon",
+      "type": "number",
+      "minimum": 0
+    },
+    "guess": {
+      "title": "Initial guess",
+      "type": "integer",
+      "minimum": -100,
+      "maximum": 100
+    }
   },
-  "required": [ "name" ]
+  "required": ["epsilon", "guess"],
+  "additionalProperties": false
 }
 ```
 
@@ -170,8 +180,8 @@ And a valid document:
 
 ```json
 {
-  "name": "me",
-  "age": 42
+  "epsilon": 0.001,
+  "guess": -20
 }
 ```
 
@@ -1192,6 +1202,8 @@ In the [Web service](#web-service) an OpenAPI specification was used to specify 
 ```{.js #jsonschema-app}
 // this JavaScript snippet is later referred to as <<jsonschema-app>>
 const schema = {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nlesc-jcer.github.io/cpp2wasm/NNRequest.json",
   "type": "object",
   "properties": {
     "epsilon": {
