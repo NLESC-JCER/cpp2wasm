@@ -31,20 +31,36 @@ describe('src/js/example-web-worker.html', () => {
 });
 ```
 
-And lastly a test for the full React/form/Web worker/WebAssembly combination.
+And a test for the full React/form/Web worker/WebAssembly combination.
+Let us also change the guess value.
 
 ```{.js file=cypress/integration/example-app_spec.js}
 describe('src/js/example-app.html', () => {
   it('should render -1.00', () => {
     cy.visit('http://localhost:8000/src/js/example-app.html');
     cy.get('input[name=guess]').type('-30');
+    cy.get('input[id=root_guess]').contains('-30');
     cy.contains('Submit').click();
     cy.get('#answer').contains('-1.00');
   });
 });
 ```
 
-The test can be run with
+And another test for the full application, but now with JSON schema powered form.
+
+```{.js file=cypress/integration/example-jsonschema-form_spec.js}
+describe('src/js/example-jsonschema-form.html', () => {
+  it('should render -1.00', () => {
+    cy.visit('http://localhost:8000/src/js/example-jsonschema-form.html');
+    cy.get('input[id=root_guess]').type('-30');
+    cy.get('input[id=root_guess]').contains('-30');
+    cy.contains('Submit').click();
+    cy.get('#answer').contains('-1.00');
+  });
+});
+```
+
+The tests can be run with
 
 ```{.awk #test-wasm}
 npx cypress run --config-file false
