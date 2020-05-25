@@ -1384,6 +1384,8 @@ const schema = {
     "guess": {
       "title": "Initial guess",
       "type": "number",
+      "minimum": -100,
+      "maximum": 100,
       "default": -20
     }
   },
@@ -1394,6 +1396,16 @@ const schema = {
 
 ```{.js #plot-app}
 const Form = JSONSchemaForm.default;
+const uiSchema = {
+  "guess": {
+    "ui:widget": "range"
+  }
+}
+const [formData, setFormData] = React.useState({});
+
+function handleChange(event) {
+  setFormData(event.formData);
+}
 ```
 
 ```{.js file=src/js/worker-sweep.js}
