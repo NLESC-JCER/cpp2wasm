@@ -6,33 +6,48 @@ function Heading() {
 }
 
 // this JavaScript snippet is later referred to as <<plot-component>>
-
-function Plot({data}) {
+function Plot({roots}) {
   const container = React.useRef(null);
-  React.useEffect(() => {
-    if (container === null || data.length === 0) {
+
+  function didUpdate() {
+    if (container.current === null) {
       return;
     }
-    console.log(data);
+    // this JavaScript snippet is later referred to as <<vega-lite-spec>>
     const spec = {
       "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
-      "description": "A scatterplot showing of root finding with different epsilons versus the calculation duration",
-      "data": {"values": data},
+      "data": { "values": roots },
       "mark": "point",
       "encoding": {
-        "x": {"field": "epsilon", "type": "quantitative"},
-        "y": {"field": "duration", "type": "quantitative"}
+        "x": { "field": "epsilon", "type": "quantitative" },
+        "y": { "field": "duration", "type": "quantitative", "title": "Duration (ms)" }
       },
       "width": 800,
       "height": 600
     };
     vegaEmbed(container.current, spec);
-  }, [container, data]);
+  }
+  const dependencies = [container, roots];
+  React.useEffect(didUpdate, dependencies);
 
   return <div ref={container}/>;
 }
 
 function App() {
+  const Form = JSONSchemaForm.default;
+  const uiSchema = {
+    "guess": {
+      "ui:widget": "range"
+    }
+  }
+  const [formData, setFormData] = React.useState({
+
+  });
+
+  function handleChange(event) {
+    setFormData(event.formData);
+  }
+
   // this JavaScript snippet is later referred to as <<jsonschema-app>>
   const schema = {
     "type": "object",
@@ -71,17 +86,6 @@ function App() {
     "required": ["epsilon", "guess"],
     "additionalProperties": false
   }
-  const Form = JSONSchemaForm.default;
-  const uiSchema = {
-    "guess": {
-      "ui:widget": "range"
-    }
-  }
-  const [formData, setFormData] = React.useState({});
-
-  function handleChange(event) {
-    setFormData(event.formData);
-  }
   // this JavaScript snippet is appended to <<plot-app>>
   const [roots, setRoots] = React.useState([]);
 
@@ -90,7 +94,7 @@ function App() {
     const worker = new Worker('worker-sweep.js');
     worker.postMessage({
       type: 'CALCULATE',
-      payload: { epsilon: formData.epsilon, guess: formData.guess }
+      payload: formData
     });
     worker.onmessage = function(message) {
         if (message.data.type === 'RESULT') {
@@ -112,7 +116,7 @@ function App() {
         onChange={handleChange}
         onSubmit={handleSubmit}
       />
-      <Plot data={roots}/>
+      <Plot roots={roots}/>
     </div>
   );
 }
@@ -121,4 +125,3 @@ ReactDOM.render(
   <App/>,
   document.getElementById('container')
 );
-// this JavaScript snippet appended to src/js/plot-app.js
