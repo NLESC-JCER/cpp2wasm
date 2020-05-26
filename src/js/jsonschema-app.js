@@ -45,7 +45,7 @@ function App() {
     const worker = new Worker('worker.js');
     worker.postMessage({
       type: 'CALCULATE',
-      payload: { epsilon: formData.epsilon, guess: formData.guess }
+      payload: formData
     });
     worker.onmessage = function(message) {
         if (message.data.type === 'RESULT') {
