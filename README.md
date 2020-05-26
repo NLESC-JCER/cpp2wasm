@@ -1067,12 +1067,12 @@ const [epsilon, setEpsilon] = React.useState(0.001);
 
 The argument of the `useState` function is the initial value. The `epsilon` variable contains the current value for epsilon and `setEpsilon` is a function to set epsilon to a new value.
 
-The input tag in the form will call the `onChange` function with a event object. We need to extract the user input from the event and pass it to `setEpsilon`.
+The input tag in the form will call the `onChange` function with a event object. We need to extract the user input from the event and pass it to `setEpsilon`. The value should be a number, so we use `*1` to cast the string from the event to a number.
 
 ```{.js #react-state}
 // this JavaScript snippet is appended to <<react-state>>
 function onEpsilonChange(event) {
-  setEpsilon(event.target.value);
+  setEpsilon(event.target.value*1);
 }
 ```
 
@@ -1083,7 +1083,7 @@ We will follow the same steps for the guess input as well.
 const [guess, setGuess] = React.useState(-20);
 
 function onGuessChange(event) {
-  setGuess(event.target.value);
+  setGuess(event.target.value*1);
 }
 ```
 

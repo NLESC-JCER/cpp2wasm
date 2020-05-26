@@ -19,13 +19,13 @@ function App() {
   const [epsilon, setEpsilon] = React.useState(0.001);
   // this JavaScript snippet is appended to <<react-state>>
   function onEpsilonChange(event) {
-    setEpsilon(event.target.value);
+    setEpsilon(event.target.value*1);
   }
   // this JavaScript snippet is appended to <<react-state>>
   const [guess, setGuess] = React.useState(-20);
 
   function onGuessChange(event) {
-    setGuess(event.target.value);
+    setGuess(event.target.value*1);
   }
   // this JavaScript snippet is appended to <<react-state>>
   const [root, setRoot] = React.useState(undefined);

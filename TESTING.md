@@ -38,8 +38,8 @@ Let us also change the guess value.
 describe('src/js/example-app.html', () => {
   it('should render -1.00', () => {
     cy.visit('http://localhost:8000/src/js/example-app.html');
-    cy.get('input[name=guess]').type('-30');
-    cy.get('input[id=root_guess]').contains('-30');
+    cy.get('input[name=guess]').type('0');
+    // TODO assert value is set
     cy.contains('Submit').click();
     cy.get('#answer').contains('-1.00');
   });
@@ -52,8 +52,8 @@ And another test for the full application, but now with JSON schema powered form
 describe('src/js/example-jsonschema-form.html', () => {
   it('should render -1.00', () => {
     cy.visit('http://localhost:8000/src/js/example-jsonschema-form.html');
-    cy.get('input[id=root_guess]').type('-30');
-    cy.get('input[id=root_guess]').contains('-30');
+    cy.get('input[id=root_epsilon]').type('{selectall}0.1');
+    // TODO assert value is set
     cy.contains('Submit').click();
     cy.get('#answer').contains('-1.00');
   });
