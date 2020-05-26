@@ -1250,7 +1250,7 @@ The form by default uses the [Bootstrap 3](https://getbootstrap.com/docs/3.4/) t
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 ```
 
-The form component is exported as `JSONSchemaForm.default` and can be aliases with
+The form component is exported as `JSONSchemaForm.default` for easy use we alias it to `Form` with
 
 ```{.js #jsonschema-app}
 // this JavaScript snippet is appended to <<jsonschema-app>>
