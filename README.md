@@ -1194,8 +1194,8 @@ Visit [http://localhost:8000/src/js/example-app.html](http://localhost:8000/src/
 
 ### JSON schema powered form
 
-The JSON schema can be used to generate a form. The form submission will be validated against the schema.
-The most popular JSON schema form for React is [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema-form).
+The JSON schema can be used to generate a form. The form values will be validated against the schema.
+The most popular JSON schema form for React is [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema-form) so we will write a web application with it.
 
 In the [Web service](#web-service) an OpenAPI specification was used to specify the request and response schema. For the form we need the request schema in JSON format which is
 
@@ -1236,28 +1236,28 @@ To render the application we need a HTML page. We will reuse the imports we did 
 </html>
 ```
 
-To use the `react-jsonschema-form` React component we need to import it.
+To use the [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema-form) React component we need to import it.
 
 ```{.html #imports}
 <!-- this HTML snippet is appended to <<imports>>  -->
 <script src="https://unpkg.com/@rjsf/core/dist/react-jsonschema-form.js"></script>
 ```
 
-The form by default uses the [Bootstrap 3](https://getbootstrap.com/docs/3.4/) theme, to use theme we need to import the Bootstrap CSS file.
-
-```{.html #imports}
-<!-- this HTML snippet is appended to <<imports>>  -->
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
-```
-
-The form component is exported as `JSONSchemaForm.default` for easy use we alias it to `Form` with
+The form component is exported as `JSONSchemaForm.default` and can be aliases to `Form` for easy use with
 
 ```{.js #jsonschema-app}
 // this JavaScript snippet is appended to <<jsonschema-app>>
 const Form = JSONSchemaForm.default;
 ```
 
-The react-jsonschema-form component normally renders an integer with a updown selector. To use a range slider instead we configure a [user interface schema](https://react-jsonschema-form.readthedocs.io/en/latest/quickstart/#form-uischema).
+The form [by default](https://react-jsonschema-form.readthedocs.io/en/latest/usage/themes/) uses the [Bootstrap 3](https://getbootstrap.com/docs/3.4/) theme. The theme injects class names into the HTML tags. The styles associated with the class names must be imported from the Bootstrap CSS file.
+
+```{.html #imports}
+<!-- this HTML snippet is appended to <<imports>>  -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+```
+
+The react-jsonschema-form component normally renders an integer with a updown selector. To use a range slider instead configure a [user interface schema](https://react-jsonschema-form.readthedocs.io/en/latest/quickstart/#form-uischema).
 
 ```{.js #jsonschema-app}
 const uiSchema = {
@@ -1305,7 +1305,7 @@ function handleSubmit({formData}, event) {
   const worker = new Worker('worker.js');
   worker.postMessage({
     type: 'CALCULATE',
-    payload: { epsilon: formData.epsilon, guess: formData.guess }
+    payload: formData
   });
   worker.onmessage = function(message) {
       if (message.data.type === 'RESULT') {
@@ -1355,7 +1355,7 @@ python3 -m http.server 8000
 
 Visit [http://localhost:8000/src/js/example-jsonschema-form.html](http://localhost:8000/src/js/example-jsonschema-form.html) to see the root answer.
 
-If you enter a negative number in the `epsilon` field the form will be invalid and refuse to submit.
+If you enter a negative number in the `epsilon` field the form will become invalid with a error message.
 
 ### Visualization
 
