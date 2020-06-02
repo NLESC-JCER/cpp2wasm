@@ -1635,6 +1635,6 @@ Like before we also need to host the files in a web server with
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example-plot.html](http://localhost:8000/src/js/example-plot.html) to see the epislon/duration plot.
+Visit [http://localhost:8000/src/js/example-plot.html](http://localhost:8000/src/js/example-plot.html) to see the epsilon/duration plot.
 
 After the submit button is pressed the plot should show that the first calculation took a bit longer then the rest.
