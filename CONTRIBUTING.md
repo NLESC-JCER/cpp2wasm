@@ -123,7 +123,7 @@ Each time a source code file is changed the code blocks in the Markdown files wi
 2. Run entangled daemon with
 
 ```shell
-entangled *.md
+entangled daemon
 ```
 
 ### Generate code from Markdown on commit
