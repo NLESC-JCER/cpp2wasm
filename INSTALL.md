@@ -18,7 +18,7 @@ Entangled is used to convert code blocks in Markdown to source code files.
 2. Run entangled daemon with
 
 ```shell
-entangled daemon README.md INSTALL.md
+entangled daemon
 ```
 
 Or the [Entangled - Pandoc filters](https://github.com/entangled/filters) Docker image can be used
