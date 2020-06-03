@@ -375,93 +375,20 @@ The web application has 3 kinds of pages:
 
 Each page is available on a different url. In flask the way urls are mapped to Python function is done by adding a route decorator to the function for example:
 
-```{.python file=src/py/hello.py}
-# this Python snippet is stored as src/py/hello.py
-from flask import Flask
-app = Flask(__name__)
-
-@app.route("/")
-def hello():
-    return "Hello World!"
-
-app.run()
-```
-
-Run with
-
-```{.awk #py-hello}
-python src/py/hello.py
-```
-
-The above route will just return the string "Hello World!" in the web browser when visiting [http://localhost:5000/](http://localhost:5000/). It is possible to return a html page as well, but to make it dynamic it soon becomes a mess of string concatenations. Template engines help to avoid the concatination mess. Flask is configured with the [Jinja2](https://jinja.palletsprojects.com/) template engine. A template for the above route could look like:
-
-```{.html file=src/py/templates/hello.html}
-{# this Jinja2 template snippet is stored as src/py/templates/hello.html #}
-<!doctype html>
-<title>Hello from Flask</title>
-{% if name %}
-  <h1>Hello {{ name }}!</h1>
-{% else %}
-  <h1>Hello, World!</h1>
-{% endif %}
-```
-
-and to render the template the function would look like:
-
-```{.python file=src/py/hello-templated.py}
-# this Python snippet is stored as src/py/hello-templated.py
-from flask import Flask, render_template
-
-app = Flask(__name__)
-
-@app.route('/hello/<name>')
-def hello_name(name=None):
-    return render_template('hello.html', name=name)
-
-app.run()
-```
-
-Where `name` is a variable which gets combined with template to render into a html page.
-
-The web application can be started with
-
-```{.awk #py-hello-templated}
-python src/py/hello-templated.py
-```
-
-In a web browser you can visit [http://localhost:5000/hello/yourname](http://localhost:5000/hello/yourname) to the web application.
-
-Let's make the web application for our Newton raphson algorithm.
-
-The first thing we want is the web page with the form, the template that renders the form looks like
-
-```{.html file=src/py/templates/form.html}
-{# this Jinja2 template snippet is stored as src/py/templates/form.html #}
-<!doctype html>
-<form method="POST">
-  <label for="epsilon">Epsilon</label>
-  <input type="number" name="epsilon" value="0.001">
-  <label for="guess">Guess</label>
-  <input type="number" name="guess" value="-20">
-  <button type="submit">Submit</button>
-</form>
-```
-
-The home page will render the form like so
+The starting page will render the form like so
 
 ```{.python #py-form}
 # this Python code snippet is later referred to as <<py-form>>
 @app.route('/', methods=['GET'])
 def form():
-  return render_template('form.html')
-```
-
-The result will be displayed on a html page with the following template
-
-```{.html file=src/py/templates/result.html}
-{# this Jinja2 template snippet is stored as src/py/templates/result.html #}
-<!doctype html>
-<p>With epsilon of {{ epsilon }} and a guess of {{ guess }} the found root is {{ root }}.</p>
+  return '''<!doctype html>
+    <form method="POST">
+      <label for="epsilon">Epsilon</label>
+      <input type="number" name="epsilon" value="0.001">
+      <label for="guess">Guess</label>
+      <input type="number" name="guess" value="-20">
+      <button type="submit">Submit</button>
+    </form>'''
 ```
 
 The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result html page.
@@ -477,7 +404,12 @@ def calculate():
   finder = NewtonRaphson(epsilon)
   root = finder.find(guess)
 
-  return render_template('result.html', epsilon=epsilon, guess=guess, root=root)
+  return f'''<!doctype html>
+    <p>With epsilon of {epsilon} and a guess of {guess} the found root is {root}.</p>'''
+```
+
+```{.python #py-calculate}
+  # this Python code snippet is appended to <<py-calculate>>
 ```
 
 Putting it all together in
@@ -576,9 +508,14 @@ def result(jobid):
   job.maybe_throw()
   if job.successful():
     result = job.get()
-    return render_template('result.html', epsilon=result['epsilon'], guess=result['guess'], root=result['root'])
+    epsilon = result['epsilon']
+    guess = result['guess']
+    root = result['root']
+    return f'''<!doctype html>
+      <p>With epsilon of {epsilon} and a guess of {guess} the found root is {root}.</p>'''
   else:
-    return job.status
+    return f'''<!doctype html>
+      <p>{job.status}<p>'''
 ```
 
 Putting it all together
