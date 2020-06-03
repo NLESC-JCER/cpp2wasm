@@ -448,7 +448,7 @@ docker run --rm -d -p 6379:6379 --name some-redis redis
 To use Celery we must install the redis flavored version with
 
 ```{.awk #pip-celery}
-pip install celery[redis]
+pip install celery[redis]==4.4.3
 ```
 
 Let's set up a method that can be submitted to the Celery task queue.
