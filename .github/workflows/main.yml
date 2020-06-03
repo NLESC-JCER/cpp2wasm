@@ -56,13 +56,13 @@ jobs:
         run: http --ignore-stdin -f localhost:5001 epsilon=0.001 guess=-20
 
       - name: Start web service in background
-        run: make run-webservice &
+        run: make run-webservice > ./run-webapp.log 2>&1 &
 
       - name: Test web service
         run: make test-webservice
 
       - name: Start Celery web app in background
-        run: make run-celery-webapp &
+        run: make run-celery-webapp > ./run-celery-webapp.log 2>&1 &
 
       - name: Start Celery worker in background
         run: |
@@ -77,6 +77,12 @@ jobs:
           RESULT_URL=$(cat response.txt |grep Location |awk '{print $2}')
           sleep 2
           http --ignore-stdin $RESULT_URL
+
+      - name: Upload log of services
+        uses: actions/upload-artifact@v2
+        with:
+          name: service-logs
+          path: ./run-*.log
   wasm:
     runs-on: ubuntu-latest
     steps:
@@ -89,7 +95,13 @@ jobs:
         run: make build-wasm
 
       - name: Start web server for hosting files in background
-        run: make host-files &
+        run: make host-files > ./web-server.log &
 
       - name: Run tests
         run: make test-wasm
+
+      - name: Upload log of web server
+        uses: actions/upload-artifact@v2
+        with:
+          name: web-server-log
+          path: ./web-server.log
