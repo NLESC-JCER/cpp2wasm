@@ -17,7 +17,6 @@
       }
    ], 
    "description": "Guide to make C++ available as a web application", 
-   "doi": "10.0000/FIXME", 
    "keywords": [
       "C++", 
       "Web Assembly", 
@@ -27,7 +26,5 @@
    "license": {
       "id": "Apache-2.0"
    }, 
-   "publication_date": "2020-06-03", 
-   "title": "cpp2wasm", 
-   "version": "0.1.0"
+   "title": "cpp2wasm"
 }
