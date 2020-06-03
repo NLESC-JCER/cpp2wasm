@@ -7,7 +7,7 @@ echo 'Check entangled files are up to date'
 
 # Entangle Markdown to source code and store the output
 LOG=$(docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md 2>&1 > /dev/null)
-# Parse filenames from output
+# Parse which filenames have been written from output
 FILES=$(echo $LOG | perl -ne 'print $1,"\n" if /^Writing \`(.*)\`./')
 [ -z "$FILES" ] && exit 0
 echo $FILES
