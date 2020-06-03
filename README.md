@@ -497,7 +497,7 @@ def submit():
   return redirect(url_for('result', jobid=job.id))
 ```
 
-The last method is to ask the Celery task queue what the status is of the job and return the result when it is succesful.
+The last method is to ask the Celery task queue what the status is of the job and return the result when it is succesful. To construct the returned html we use [f-strings](https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals) to replace the variable names with the variable values.
 
 ```{.python #py-result}
 # this Python code snippet is later referred to as <<py-result>>
