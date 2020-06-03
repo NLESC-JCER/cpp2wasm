@@ -27,7 +27,12 @@ jobs:
         run: make test-cli test-cgi
   python:
     # The type of runner that the job will run on
+    name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+      fail-fast: true
     # Redis is needed for Celery
     services:
       redis:
@@ -38,10 +43,14 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-python@v1
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
         with:
-          python-version: "3.8" # Version range or exact version of a Python version to use, using SemVer's version range syntax
-          architecture: "x64" # optional x64 or x86. Defaults to x64 if not specified
+          python-version: ${{ matrix.python-version }}
+          architecture: "x64"
+
+      - name: Which Python
+        run: which python
 
       - name: Install Python dependencies
         run: make py-deps && pip install httpie
