@@ -50,13 +50,13 @@ jobs:
         run: make test-py
 
       - name: Start web application in background
-        run: make run-webapp &
+        run: make run-webapp ./run-webapp.log 2>&1 &
 
       - name: Test web application
         run: http --ignore-stdin -f localhost:5001 epsilon=0.001 guess=-20
 
       - name: Start web service in background
-        run: make run-webservice > ./run-webapp.log 2>&1 &
+        run: make run-webservice > ./run-webservice.log 2>&1 &
 
       - name: Test web service
         run: make test-webservice
@@ -79,6 +79,7 @@ jobs:
           http --ignore-stdin $RESULT_URL
 
       - name: Upload log of services
+        if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
           name: service-logs
@@ -101,6 +102,7 @@ jobs:
         run: make test-wasm
 
       - name: Upload log of web server
+        if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
           name: web-server-log
