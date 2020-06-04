@@ -11,3 +11,6 @@ src/py/newtonraphsonpy.*.so
 apache2/cgi-bin/newtonraphson
 src/js/newtonraphsonwasm.js
 src/js/newtonraphsonwasm.wasm
+
+# Ignore entangled db
+.entangled/db.sqlite

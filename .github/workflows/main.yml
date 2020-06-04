@@ -27,7 +27,12 @@ jobs:
         run: make test-cli test-cgi
   python:
     # The type of runner that the job will run on
+    name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+      fail-fast: true
     # Redis is needed for Celery
     services:
       redis:
@@ -38,10 +43,14 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - uses: actions/setup-python@v1
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
         with:
-          python-version: "3.x" # Version range or exact version of a Python version to use, using SemVer's version range syntax
-          architecture: "x64" # optional x64 or x86. Defaults to x64 if not specified
+          python-version: ${{ matrix.python-version }}
+          architecture: "x64"
+
+      - name: Which Python
+        run: which python
 
       - name: Install Python dependencies
         run: make py-deps && pip install httpie
@@ -50,24 +59,24 @@ jobs:
         run: make test-py
 
       - name: Start web application in background
-        run: make run-webapp &
+        run: make run-webapp 2>&1 | tee ./run-webapp.log &
 
       - name: Test web application
         run: http --ignore-stdin -f localhost:5001 epsilon=0.001 guess=-20
 
       - name: Start web service in background
-        run: make run-webservice &
+        run: make run-webservice 2>&1 | tee ./run-webservice.log &
 
       - name: Test web service
         run: make test-webservice
 
       - name: Start Celery web app in background
-        run: make run-celery-webapp &
+        run: make run-celery-webapp 2>&1 | tee ./run-celery-webapp.log  &
 
       - name: Start Celery worker in background
         run: |
           cd src/py
-          PYTHONPATH=$PWD/../.. celery -A tasks worker &
+          PYTHONPATH=$PWD/../.. celery -A tasks worker 2>&1 | tee ./run-celery-worker.log &
           cd ../..
 
       - name: Test Celery web app
@@ -77,6 +86,13 @@ jobs:
           RESULT_URL=$(cat response.txt |grep Location |awk '{print $2}')
           sleep 2
           http --ignore-stdin $RESULT_URL
+
+      - name: Upload log of services
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: service-logs
+          path: ./run-*.log
   wasm:
     runs-on: ubuntu-latest
     steps:
@@ -89,7 +105,14 @@ jobs:
         run: make build-wasm
 
       - name: Start web server for hosting files in background
-        run: make host-files &
+        run: make host-files 2>&1 | tee ./web-server.log &
 
       - name: Run tests
         run: make test-wasm
+
+      - name: Upload log of web server
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: web-server-log
+          path: ./web-server.log
