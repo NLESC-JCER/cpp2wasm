@@ -81,7 +81,13 @@ Ready to contribute? Here's how to set up `cpp2wasm` for local development.
     make entangle
     ```
 
-7. Commit your changes and push your branch to GitHub::
+7. When `src/js/newtonraphsonwasm.js` changes, the WebAssembly module also has to be rebuilt. This will require [emscripten](README.md#accessing-c-function-from-JavaScript-in-web-browser). To rebuild the WebAssembly module run:
+
+    ```shell
+    make build-wasm
+    ```
+
+8. Commit your changes and push your branch to GitHub::
 
     ```shell
     git add .
@@ -89,7 +95,7 @@ Ready to contribute? Here's how to set up `cpp2wasm` for local development.
     git push origin name-of-your-bugfix-or-feature
     ```
 
-8. Submit a pull request through the GitHub website.
+9. Submit a pull request through the GitHub website.
 
 ## Pull Request Guidelines
 

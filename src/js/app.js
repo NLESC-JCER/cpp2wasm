@@ -1,9 +1,9 @@
-// this JavaScript snippet is stored as src/js/app.js
+// this JavaScript snippet is later referred to as <<heading-component>>
 function Heading() {
   const title = 'Root finding web application';
   return <h1>{title}</h1>
 }
-// this JavaScript snippet stored as src/js/app.js
+// this JavaScript snippet is later referred to as <<result-component>>
 function Result(props) {
   const root = props.root;
   let message = 'Not submitted';
@@ -12,19 +12,20 @@ function Result(props) {
   }
   return <div id="answer">{message}</div>;
 }
+
 // this JavaScript snippet appenended to src/js/app.js
 function App() {
   // this JavaScript snippet is later referred to as <<react-state>>
   const [epsilon, setEpsilon] = React.useState(0.001);
   // this JavaScript snippet is appended to <<react-state>>
   function onEpsilonChange(event) {
-    setEpsilon(event.target.value);
+    setEpsilon(Number(event.target.value));
   }
   // this JavaScript snippet is appended to <<react-state>>
   const [guess, setGuess] = React.useState(-20);
 
   function onGuessChange(event) {
-    setGuess(event.target.value);
+    setGuess(Number(event.target.value));
   }
   // this JavaScript snippet is appended to <<react-state>>
   const [root, setRoot] = React.useState(undefined);
