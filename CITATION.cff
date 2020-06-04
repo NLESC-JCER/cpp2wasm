@@ -1,7 +1,7 @@
 # YAML 1.2
 ---
 abstract: "Guide to make C++ available as a web application"
-authors: 
+authors:
   -
     affiliation: "Netherlands eScience Center"
     family-names: Verhoeven
@@ -19,8 +19,8 @@ authors:
     orcid: "https://orcid.org/0000-0002-0989-929X"
 cff-version: "1.1.0"
 date-released: 2020-06-03
-doi: "10.0000/FIXME"
-keywords: 
+doi: "10.5281/zenodo.3876112"
+keywords:
   - "C++"
   - "Web Assembly"
   - guide
@@ -31,4 +31,3 @@ repository-code: "https://github.com/NLESC-JCER/cpp2wasm"
 title: cpp2wasm
 version: "0.1.0"
 ...
-
