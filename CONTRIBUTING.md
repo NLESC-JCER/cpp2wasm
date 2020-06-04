@@ -75,7 +75,7 @@ Ready to contribute? Here's how to set up `cpp2wasm` for local development.
 
 5. Write tests where possible. Writing tests should be done in a literate way in [TESTING.md](TESTING.md)
 
-6. When you're done making changes, make sure the Markdown and source code files are entangled with.
+6. When you're done making changes, make sure the Markdown and source code files are entangled with
 
     ```shell
     make entangle
@@ -102,12 +102,13 @@ Ready to contribute? Here's how to set up `cpp2wasm` for local development.
 Before you submit a pull request, check that it meets these guidelines:
 
 1. The pull request should include tests.
-2. If the pull request adds functionality, the docs should be updated. Put
+1. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 3.5, 3.6, 3.7 and 3.8, and for PyPy. Check
-   https://travis-ci.com/{{ cookiecutter.github_username }}/cpp2wasm/pull_requests
-   and make sure that the tests pass for all supported Python versions.
+1. Update the [CHANGELOG](CHANGELOG.md) in accordance with the nature of your Pull Request.
+1. The pull request should work for C++, emscripten, web browser, Python 3.6, 3.7 and 3.8. A continuous integration job will run tests for you. Check
+   green check mark on https://github.com/NLESC-JCER/cpp2wasm/pulls
+   and make sure that the tests pass.
 
 ## Tips
 
@@ -182,5 +183,7 @@ git config --local core.hooksPath .githooks
 A reminder for the maintainers on how to create a new release.
 
 1. Make sure all your changes are committed.
+1. Verify that [``CHANGELOG.md``](CHANGELOG.md) has all the relevant changes. Visit [releases page](https://github.com/NLESC-JCER/cpp2wasm/releases) and click on the `?? commits to master since this release` link in the latest release to see the diff between the latest release and ``master``.
+1. Verify that the authors list in [``CITATION.cff``](CITATION.cff) is up to date
+1. If needed, generate updated Zenodo metadata using the [cffconvert web service](https://us-central1-cffconvert.cloudfunctions.net/cffconvert?url=https://github.com/NLESC-JCER/cpp2wasm/tree/master/&outputformat=zenodo&ignore_suspect_keys), then use its result to update [``.zenodo.json``](.zenodo.json).
 1. Create a GitHub release
-1. Check and fix author list on Zenodo
