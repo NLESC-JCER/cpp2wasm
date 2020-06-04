@@ -374,7 +374,7 @@ The web application has 3 kinds of pages:
 2. a page to show the progress of the calculation
 3. and a page which shows the result of the calculation. Each calculation will have it's own submit and result page.
 
-Each page is available on a different url. In flask the way urls are mapped to Python function is done by adding a route decorator (`@app.route`) to the function.
+Each page is available on a different url. In Flask the way urls are mapped to Python function is done by adding a [route decorator](https://flask.palletsprojects.com/en/1.1.x/quickstart/#routing) (`@app.route`) to the function.
 
 The first page with the form and submit button is defined as a function returning a HTML form.
 
@@ -392,7 +392,7 @@ def form():
     </form>'''
 ```
 
-The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result html page. To get the submitted values we use the [Flask global `request` object](https://flask.palletsprojects.com/en/1.1.x/api/#flask.request). To construct the returned html we use [f-strings](https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals) to replace the variable names with the variable values.
+The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result html page. To get the submitted values we use the Flask global [request](https://flask.palletsprojects.com/en/1.1.x/quickstart/#accessing-request-data) object. To construct the returned html we use [f-strings](https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals) to replace the variable names with the variable values.
 
 ```{.python #py-calculate}
 # this Python code snippet is later referred to as <<py-calculate>>
