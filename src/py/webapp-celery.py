@@ -6,7 +6,14 @@ app = Flask(__name__)
 # this Python code snippet is later referred to as <<py-form>>
 @app.route('/', methods=['GET'])
 def form():
-  return render_template('form.html')
+  return '''<!doctype html>
+    <form method="POST">
+      <label for="epsilon">Epsilon</label>
+      <input type="number" name="epsilon" value="0.001">
+      <label for="guess">Guess</label>
+      <input type="number" name="guess" value="-20">
+      <button type="submit">Submit</button>
+    </form>'''
 
 # this Python code snippet is later referred to as <<py-submit>>
 @app.route('/', methods=['POST'])
@@ -25,9 +32,14 @@ def result(jobid):
   job.maybe_throw()
   if job.successful():
     result = job.get()
-    return render_template('result.html', epsilon=result['epsilon'], guess=result['guess'], root=result['root'])
+    epsilon = result['epsilon']
+    guess = result['guess']
+    root = result['root']
+    return f'''<!doctype html>
+      <p>With epsilon of {epsilon} and a guess of {guess} the found root is {root}.</p>'''
   else:
-    return job.status
+    return f'''<!doctype html>
+      <p>{job.status}<p>'''
 
 if __name__ == '__main__':
   app.run(port=5000)
