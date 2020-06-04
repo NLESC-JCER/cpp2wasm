@@ -1591,4 +1591,8 @@ python3 -m http.server 8000
 
 Visit [http://localhost:8000/src/js/example-plot.html](http://localhost:8000/src/js/example-plot.html) to see the epsilon/duration plot.
 
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-plot.html)
+
+<iframe width="100%" height="1450" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-plot.html" /></iframe>
+
 After the submit button is pressed the plot should show that the first calculation took a bit longer then the rest.
