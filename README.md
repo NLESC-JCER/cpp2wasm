@@ -14,7 +14,7 @@
     - [Executing long running methods in JavaScript](#executing-long-running-methods-in-JavaScript)
   - [Single page application](#single-page-application)
     - [React component](#react-component)
-    - [Form](#form)
+    - [JSON schema powered form](#json-schema-powered-form)
     - [Visualization](#visualization)
 
 [![CI](https://github.com/NLESC-JCER/cpp2wasm/workflows/CI/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3ACI)
@@ -157,13 +157,23 @@ An example of JSON schema:
 ```json
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://example.com/schemas/person.json",
+  "$id": "https://nlesc-jcer.github.io/cpp2wasm/NNRequest.json",
   "type": "object",
   "properties": {
-    "name": { "type": "string" },
-    "age": { "type": "number", "minimum": 0 }
+    "epsilon": {
+      "title": "Epsilon",
+      "type": "number",
+      "minimum": 0
+    },
+    "guess": {
+      "title": "Initial guess",
+      "type": "integer",
+      "minimum": -100,
+      "maximum": 100
+    }
   },
-  "required": [ "name" ]
+  "required": ["epsilon", "guess"],
+  "additionalProperties": false
 }
 ```
 
@@ -171,8 +181,8 @@ And a valid document:
 
 ```json
 {
-  "name": "me",
-  "age": 42
+  "epsilon": 0.001,
+  "guess": -20
 }
 ```
 
@@ -920,8 +930,8 @@ To use React we need to import the React library.
 
 A React application is constructed from React components. The simplest React component is a function which returns a HTML tag with a variable inside.
 
-```{.jsx file=src/js/app.js}
-// this JavaScript snippet is stored as src/js/app.js
+```{.jsx #heading-component}
+// this JavaScript snippet is later referred to as <<heading-component>>
 function Heading() {
   const title = 'Root finding web application';
   return <h1>{title}</h1>
@@ -995,12 +1005,12 @@ const [epsilon, setEpsilon] = React.useState(0.001);
 
 The argument of the `useState` function is the initial value. The `epsilon` variable contains the current value for epsilon and `setEpsilon` is a function to set epsilon to a new value.
 
-The input tag in the form will call the `onChange` function with a event object. We need to extract the user input from the event and pass it to `setEpsilon`.
+The input tag in the form will call the `onChange` function with a event object. We need to extract the user input from the event and pass it to `setEpsilon`. The value should be a number, so we use `Number()` to cast the string from the event to a number.
 
 ```{.js #react-state}
 // this JavaScript snippet is appended to <<react-state>>
 function onEpsilonChange(event) {
-  setEpsilon(event.target.value);
+  setEpsilon(Number(event.target.value));
 }
 ```
 
@@ -1011,7 +1021,7 @@ We will follow the same steps for the guess input as well.
 const [guess, setGuess] = React.useState(-20);
 
 function onGuessChange(event) {
-  setGuess(event.target.value);
+  setGuess(Number(event.target.value));
 }
 ```
 
@@ -1066,8 +1076,8 @@ To render the result we can use a React Component which has `root` as a property
 When the calculation has not been done yet, it will render `Not submitted`.
 When the `root` property value is set then we will show it.
 
-```{.jsx file=src/js/app.js}
-// this JavaScript snippet stored as src/js/app.js
+```{.jsx #result-component}
+// this JavaScript snippet is later referred to as <<result-component>>
 function Result(props) {
   const root = props.root;
   let message = 'Not submitted';
@@ -1081,6 +1091,9 @@ function Result(props) {
 We can combine the heading, form and result components and all the states and handleSubmit function into the `App` React component.
 
 ```{.jsx file=src/js/app.js}
+<<heading-component>>
+<<result-component>>
+
 // this JavaScript snippet appenended to src/js/app.js
 function App() {
   <<react-state>>
@@ -1119,8 +1132,168 @@ Visit [http://localhost:8000/src/js/example-app.html](http://localhost:8000/src/
 
 ### JSON schema powered form
 
-The JSON schema can be used to generate a form. The form submission will be validated against the schema.
-The most popular JSON schema form for React is [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema-form).
+The JSON schema can be used to generate a form. The form values will be validated against the schema.
+The most popular JSON schema form for React is [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema-form) so we will write a web application with it.
+
+In the [Web service](#web-service) an OpenAPI specification was used to specify the request and response schema. For the form we need the request schema in JSON format which is
+
+```{.js #jsonschema-app}
+// this JavaScript snippet is later referred to as <<jsonschema-app>>
+const schema = {
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://nlesc-jcer.github.io/cpp2wasm/NNRequest.json",
+  "type": "object",
+  "properties": {
+    "epsilon": {
+      "title": "Epsilon",
+      "type": "number",
+      "minimum": 0
+    },
+    "guess": {
+      "title": "Initial guess",
+      "type": "integer",
+      "minimum": -100,
+      "maximum": 100
+    }
+  },
+  "required": ["epsilon", "guess"],
+  "additionalProperties": false
+}
+```
+
+To render the application we need a HTML page. We will reuse the imports we did in the previous chapter.
+
+```{.html file=src/js/example-jsonschema-form.html}
+<!doctype html>
+<!-- this HTML page is stored as src/jsexample-jsonschema-form.html -->
+<html>
+  <<imports>>
+  <div id="container"></div>
+
+  <script type="text/babel" src="jsonschema-app.js"></script>
+</html>
+```
+
+To use the [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema-form) React component we need to import it.
+
+```{.html #imports}
+<!-- this HTML snippet is appended to <<imports>>  -->
+<script src="https://unpkg.com/@rjsf/core/dist/react-jsonschema-form.js"></script>
+```
+
+The form component is exported as `JSONSchemaForm.default` and can be aliases to `Form` with
+
+```{.js #jsonschema-app}
+// this JavaScript snippet is appended to <<jsonschema-app>>
+const Form = JSONSchemaForm.default;
+```
+
+The form [by default](https://react-jsonschema-form.readthedocs.io/en/latest/usage/themes/) uses the [Bootstrap 3](https://getbootstrap.com/docs/3.4/) theme. The theme injects class names into the HTML tags. The styles associated with the class names must be imported from the Bootstrap CSS file.
+
+```{.html #imports}
+<!-- this HTML snippet is appended to <<imports>>  -->
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
+```
+
+The react-jsonschema-form component normally renders an integer with a updown selector. To use a range slider instead configure a [user interface schema](https://react-jsonschema-form.readthedocs.io/en/latest/quickstart/#form-uischema).
+
+```{.js #jsonschema-app}
+const uiSchema = {
+  "guess": {
+    "ui:widget": "range"
+  }
+}
+```
+
+The values in the form must be initialized and updated whenever the form changes.
+
+```{.js #jsonschema-app}
+// this JavaScript snippet is appended to <<jsonschema-app>>
+const [formData, setFormData] = React.useState({
+  epsilon: 0.001,
+  guess: -20
+});
+
+function handleChange(event) {
+  setFormData(event.formData);
+}
+```
+
+The form can be rendered with
+
+```{.jsx #jsonschema-form}
+{ /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
+<Form
+  uiSchema={uiSchema}
+  schema={schema}
+  formData={formData}
+  onChange={handleChange}
+  onSubmit={handleSubmit}
+/>
+```
+
+The `handleSubmit` function recieves the form input values and use the web worker we created earlier to perform the calculation and render the result.
+
+```{.js #jsonschema-app}
+// this JavaScript snippet is appended to <<jsonschema-app>>
+const [root, setRoot] = React.useState(undefined);
+
+function handleSubmit({formData}, event) {
+  event.preventDefault();
+  const worker = new Worker('worker.js');
+  worker.postMessage({
+    type: 'CALCULATE',
+    payload: formData
+  });
+  worker.onmessage = function(message) {
+      if (message.data.type === 'RESULT') {
+        const result = message.data.payload.root;
+        setRoot(result);
+        worker.terminate();
+    }
+  };
+}
+```
+
+The App component can be defined and rendered with.
+
+```{.jsx file=src/js/jsonschema-app.js}
+// this JavaScript snippet stored as src/js/jsonschema-app.js
+function App() {
+  <<jsonschema-app>>
+
+  return (
+    <div>
+      <Heading/>
+      <<jsonschema-form>>
+      <Result root={root}/>
+    </div>
+  );
+}
+
+ReactDOM.render(
+  <App/>,
+  document.getElementById('container')
+);
+```
+
+The `Heading` and `Result` React component can be reused.
+
+```{.jsx file=src/js/jsonschema-app.js}
+// this JavaScript snippet appended to src/js/jsonschema-app.js
+<<heading-component>>
+<<result-component>>
+```
+
+Like before we also need to host the files in a web server with
+
+```shell
+python3 -m http.server 8000
+```
+
+Visit [http://localhost:8000/src/js/example-jsonschema-form.html](http://localhost:8000/src/js/example-jsonschema-form.html) to see the root answer.
+
+If you enter a negative number in the `epsilon` field the form will become invalid with a error message.
 
 ### Visualization
 
