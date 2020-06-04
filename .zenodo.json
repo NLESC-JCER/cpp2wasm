@@ -1,30 +1,30 @@
 {
    "creators": [
       {
-         "affiliation": "Netherlands eScience Center", 
-         "name": "Verhoeven, Stefan", 
+         "affiliation": "Netherlands eScience Center",
+         "name": "Verhoeven, Stefan",
          "orcid": "0000-0002-5821-2060"
-      }, 
+      },
       {
-         "affiliation": "Netherlands eScience Center", 
-         "name": "Spaaks, Jurriaan H.", 
+         "affiliation": "Netherlands eScience Center",
+         "name": "Spaaks, Jurriaan H.",
          "orcid": "0000-0002-7064-4069"
-      }, 
+      },
       {
-         "affiliation": "Netherlands eScience Center", 
-         "name": "Diblen, Faruk", 
+         "affiliation": "Netherlands eScience Center",
+         "name": "Diblen, Faruk",
          "orcid": "0000-0002-0989-929X"
       }
-   ], 
-   "description": "Guide to make C++ available as a web application", 
+   ],
+   "description": "Guide to make C++ available as a web application",
    "keywords": [
-      "C++", 
-      "Web Assembly", 
-      "guide", 
+      "C++",
+      "Web Assembly",
+      "guide",
       "web application"
-   ], 
+   ],
    "license": {
       "id": "Apache-2.0"
-   }, 
+   },
    "title": "cpp2wasm"
 }
