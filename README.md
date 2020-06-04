@@ -119,13 +119,13 @@ int main()
 
 Compile with
 
-```{.awk #build-cli}
+```{.shell #build-cli}
 g++ src/cli-newtonraphson.cpp -o bin/newtonraphson.exe
 ```
 
 Run with
 
-```{.awk #test-cli}
+```{.shell #test-cli}
 ./bin/newtonraphson.exe
 ```
 
@@ -227,13 +227,13 @@ Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header onl
 
 This can be compiled with
 
-```{.awk #build-cgi}
+```{.shell #build-cgi}
 g++ -Ideps src/cgi-newtonraphson.cpp -o apache2/cgi-bin/newtonraphson
 ```
 
 The CGI script can be tested directly with
 
-```{.awk #test-cgi}
+```{.shell #test-cgi}
 echo '{"guess":-20, "epsilon":0.001}' | apache2/cgi-bin/newtonraphson
 ```
 
@@ -308,7 +308,7 @@ Python can call functions in a C++ library if its functions use [Python.h dataty
 
 To use pybind11, it must installed with pip
 
-```{.awk #pip-pybind11}
+```{.shell #pip-pybind11}
 pip install pybind11
 ```
 
@@ -339,7 +339,7 @@ PYBIND11_MODULE(newtonraphsonpy, m) {
 
 Compile with
 
-```{.awk #build-py}
+```{.shell #build-py}
 g++ -O3 -Wall -shared -std=c++14 -fPIC `python3 -m pybind11 --includes` \
 src/py-newtonraphson.cpp -o src/py/newtonraphsonpy`python3-config --extension-suffix`
 ```
@@ -357,7 +357,7 @@ print(root)
 
 The Python example can be run with
 
-```{.awk #test-py}
+```{.shell #test-py}
 python src/py/example.py
 ```
 
@@ -374,7 +374,7 @@ To assist in making a web application a web framework needs to be picked. The [F
 
 The Flask Python library can be installed with
 
-```{.awk #pip-flask}
+```{.shell #pip-flask}
 pip install flask
 ```
 
@@ -439,7 +439,7 @@ app.run(port=5001)
 
 And running it with
 
-```{.awk #run-webapp}
+```{.shell #run-webapp}
 python src/py/webapp.py
 ```
 
@@ -452,13 +452,13 @@ When performing a long calculation (more than 30 seconds), the end-user requires
 Celery needs a broker for a queue and result storage.
 We'll use [redis](https://redis.io/) in a Docker container as Celery broker, because it's simple to setup. Redis can be started with the following command
 
-```{.awk #start-redis}
+```{.shell #start-redis}
 docker run --rm -d -p 6379:6379 --name some-redis redis
 ```
 
 To use Celery we must install the redis flavored version with
 
-```{.awk #pip-celery}
+```{.shell #pip-celery}
 pip install celery[redis]==4.4.3
 ```
 
@@ -549,13 +549,13 @@ if __name__ == '__main__':
 
 Start the web application like before with
 
-```{.awk #run-celery-webapp}
+```{.shell #run-celery-webapp}
 python src/py/webapp-celery.py
 ```
 
 Tasks will be run by the Celery worker. The worker can be started with
 
-```{.awk #run-celery-worker}
+```{.shell #run-celery-worker}
 PYTHONPATH=src/py celery worker -A tasks
 ```
 
@@ -569,7 +569,7 @@ To test the web service
 
 The redis server can be shut down with
 
-```{.awk #stop-redis}
+```{.shell #stop-redis}
 docker stop some-redis
 ```
 
@@ -659,7 +659,7 @@ def calculate(body):
 
 To provide the `calculate` method as a web service we must install Connexion Python library (with the Swagger UI for later testing)
 
-```{.awk #pip-connexion}
+```{.shell #pip-connexion}
 pip install connexion[swagger-ui]
 ```
 
@@ -676,14 +676,14 @@ app.run(port=8080)
 
 The web service can be started with
 
-```{.awk #run-webservice}
+```{.shell #run-webservice}
 python src/py/webservice.py
 ```
 
 We can try out the web service using the Swagger UI at [http://localhost:8080/ui/](http://localhost:8080/ui/).
 Or by running a ``curl`` command like
 
-```{.awk #test-webservice}
+```{.shell #test-webservice}
 curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 ```
 
@@ -721,7 +721,7 @@ EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
 The algorithm and binding can be compiled into a WebAssembly module with the Emscripten compiler called `emcc`.
 To make live easier we configure the compile command to generate a `src/js/newtonraphsonwasm.js` file which exports the `createModule` function.
 
-```{.awk #build-wasm}
+```{.shell #build-wasm}
 emcc --bind -o src/js/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule src/wasm-newtonraphson.cpp
 ```
 
@@ -775,7 +775,7 @@ To be able to use the `createModule` function, we will import the `newtonraphson
 The web browser can only load the `newtonraphsonwasm.js` file when hosted by a web server.
 Python ships with a built-in web server, we will use it to host the all files of the repository on port 8000.
 
-```{.awk #host-files}
+```{.shell #host-files}
 python3 -m http.server 8000
 ```
 

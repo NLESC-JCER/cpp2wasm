@@ -6,6 +6,7 @@ let jsxinlineComment = entangled.Comment.Block { start = "{ /*", end = "*/ }" }
 let languages = entangled.languages #
     [ { name = "jsx", identifiers = ["jsx"], comment = entangled.comments.cppStyle }
      ,{ name = "jsxinline", identifiers = ["jsxinline"], comment = jsxinlineComment }
+     ,{ name = "Bash", identifiers = ["bash", "sh", "shell"], comment = entangled.comments.hash }
     ]
 
 in { entangled = entangled.Config :: { database = Some ".entangled/db.sqlite"

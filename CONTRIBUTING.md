@@ -115,7 +115,7 @@ Before you submit a pull request, check that it meets these guidelines:
 
 The [Entangled](https://github.com/entangled/entangled) Docker image can be used to generate source code files from the Markdown files.
 
-```{.awk #entangled-tangle}
+```{.shell #entangled-tangle}
 rm -r .entangled
 docker run --rm --user ${UID} -v ${PWD}:/data nlesc/entangled insert -s *.md
 docker run --rm --user ${UID} -v ${PWD}:/data nlesc/entangled tangle -a
@@ -146,7 +146,7 @@ The rest of this section describes how the git hook works.
 
 The pre-commit hook script runs entangle using Docker and adds newly written files to the current git commit.
 
-```{.awk file=.githooks/pre-commit}
+```{.shell file=.githooks/pre-commit}
 #!/bin/sh
 # this shell script is stored as .githooks/pre-commit
 
@@ -167,13 +167,13 @@ echo $FILES | xargs git add
 
 The hook must be made executable with
 
-```{.awk #hook-permission}
+```{.shell #hook-permission}
 chmod +x .githooks/pre-commit
 ```
 
 The git hook can be enabled with
 
-```{.awk #init-git-hook}
+```{.shell #init-git-hook}
 git config --local core.hooksPath .githooks
 ```
 
