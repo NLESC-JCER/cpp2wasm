@@ -4,5 +4,5 @@ def calculate(body):
   guess = body['guess']
   from newtonraphsonpy import NewtonRaphson
   finder = NewtonRaphson(epsilon)
-  root = finder.find(guess)
+  root = finder.solve(guess)
   return {'root': root}

@@ -9,7 +9,7 @@
       const epsilon = 0.001;
       const finder = new module.NewtonRaphson(epsilon);
       const guess = -20;
-      const root = finder.find(guess);
+      const root = finder.solve(guess);
       const answer = document.createElement('span');
       answer.id = 'answer';
       answer.append(root);

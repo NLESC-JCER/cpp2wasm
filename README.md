@@ -45,7 +45,7 @@ namespace rootfinding {
   class NewtonRaphson {
     public:
       NewtonRaphson(double tolerancein);
-      double find(double xin);
+      double solve(double xin);
     private:
       double tolerance;
   };
@@ -64,13 +64,13 @@ namespace rootfinding
 {
 
 // An example function is x^3 - x^2  + 2
-double func(double x)
+double equation(double x)
 {
   return x * x * x - x * x + 2;
 }
 
 // Derivative of the above function which is 3*x^x - 2*x
-double derivFunc(double x)
+double derivative(double x)
 {
   return 3 * x * x - 2 * x;
 }
@@ -78,13 +78,13 @@ double derivFunc(double x)
 NewtonRaphson::NewtonRaphson(double tolerancein) : tolerance(tolerancein) {}
 
 // Function to find the root
-double NewtonRaphson::find(double xin)
+double NewtonRaphson::solve(double xin)
 {
   double x = xin;
-  double delta_x = func(x) / derivFunc(x);
+  double delta_x = equation(x) / derivative(x);
   while (abs(delta_x) >= tolerance)
   {
-    delta_x = func(x) / derivFunc(x);
+    delta_x = equation(x) / derivative(x);
 
     // x_new = x_old - f(x) / f'(x)
     x = x - delta_x;
@@ -110,7 +110,7 @@ int main()
   double x0 = -20; // Initial values assumed
   double epsilon = 0.001;
   rootfinding::NewtonRaphson finder(epsilon);
-  double x1 = finder.find(x0);
+  double x1 = finder.solve(x0);
 
   std::cout << "The value of the root is : " << x1 << std::endl;
   return 0;
@@ -202,7 +202,7 @@ int main(int argc, char *argv[])
 
   // Find root
   rootfinding::NewtonRaphson finder(epsilon);
-  double root = finder.find(guess);
+  double root = finder.solve(guess);
 
   // Assemble response
   nlohmann::json response;
@@ -341,7 +341,7 @@ In Python it can be used:
 from newtonraphsonpy import NewtonRaphson
 
 finder = NewtonRaphson(epsilon=0.001)
-root = finder.find(guess=-20)
+root = finder.solve(guess=-20)
 print(root)
 ```
 
@@ -403,7 +403,7 @@ def calculate():
 
   from newtonraphsonpy import NewtonRaphson
   finder = NewtonRaphson(epsilon)
-  root = finder.find(guess)
+  root = finder.solve(guess)
 
   return f'''<!doctype html>
     <p>With epsilon of {epsilon} and a guess of {guess} the found root is {root}.</p>'''
@@ -480,7 +480,7 @@ def calculate(self, epsilon, guess):
   if not self.request.called_directly:
     self.update_state(state='FINDING')
   time.sleep(5)
-  root = finder.find(guess)
+  root = finder.solve(guess)
   return {'root': root, 'guess': guess, 'epsilon':epsilon}
 ```
 
@@ -643,7 +643,7 @@ def calculate(body):
   guess = body['guess']
   from newtonraphsonpy import NewtonRaphson
   finder = NewtonRaphson(epsilon)
-  root = finder.find(guess)
+  root = finder.solve(guess)
   return {'root': root}
 ```
 
@@ -736,7 +736,7 @@ The root finder can be called with.
 const epsilon = 0.001;
 const finder = new module.NewtonRaphson(epsilon);
 const guess = -20;
-const root = finder.find(guess);
+const root = finder.solve(guess);
 ```
 
 Append the root answer to the html page using [document manipulation functions](https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/append).
@@ -830,7 +830,7 @@ Let's calculate the result (root) based on the payload parameters in the incomin
 const epsilon = message.data.payload.epsilon;
 const finder = new module.NewtonRaphson(epsilon);
 const guess = message.data.payload.guess;
-const root = finder.find(guess);
+const root = finder.solve(guess);
 ```
 
 And send the result back to the web worker consumer as a outgoing message.

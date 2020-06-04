@@ -22,7 +22,7 @@ def calculate():
 
   from newtonraphsonpy import NewtonRaphson
   finder = NewtonRaphson(epsilon)
-  root = finder.find(guess)
+  root = finder.solve(guess)
 
   return f'''<!doctype html>
     <p>With epsilon of {epsilon} and a guess of {guess} the found root is {root}.</p>'''

@@ -10,7 +10,7 @@ onmessage = function(message) {
       const epsilon = message.data.payload.epsilon;
       const finder = new module.NewtonRaphson(epsilon);
       const guess = message.data.payload.guess;
-      const root = finder.find(guess);
+      const root = finder.solve(guess);
       // this JavaScript snippet is before referred to as <<post-result>>
       postMessage({
         type: 'RESULT',
