@@ -185,5 +185,5 @@ A reminder for the maintainers on how to create a new release.
 1. Make sure all your changes are committed.
 1. Verify that [``CHANGELOG.md``](CHANGELOG.md) has all the relevant changes. Visit [this link](https://github.com/NLESC-JCER/cpp2wasm/compare/v0.1.0...master) to see the diff between a released version and ``master``.
 1. Verify that the authors list in [``CITATION.cff``](CITATION.cff) is up to date
-    1. If needed generate updated Zenodo metadata using the [cffconvert web service](https://us-central1-cffconvert.cloudfunctions.net/cffconvert?url=https://github.com/NLESC-JCER/cpp2wasm&outputformat=zenodo&ignore_suspect_keys), then use its result to update ``.zenodo.json``.
+1. If needed generate updated Zenodo metadata using the [cffconvert web service](https://us-central1-cffconvert.cloudfunctions.net/cffconvert?url=https://github.com/NLESC-JCER/cpp2wasm&outputformat=zenodo&ignore_suspect_keys), then use its result to update [``.zenodo.json``](.zenodo.json).
 1. Create a GitHub release
