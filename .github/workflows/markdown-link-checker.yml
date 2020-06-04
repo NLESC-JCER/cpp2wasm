@@ -16,8 +16,8 @@ jobs:
     steps:
     - uses: actions/checkout@master
     - uses: gaurav-nelson/github-action-markdown-link-check@v1
-      # with:
+      with:
       #   use-quiet-mode: 'yes'
       #   use-verbose-mode: 'yes'
-      #   config-file: 'mlc_config.json'
+        config-file: '.mlc-config.json'
       #   folder-path: 'docs/markdown_files'
