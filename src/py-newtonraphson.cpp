@@ -4,21 +4,12 @@
 
 // this C++ code snippet is later referred to as <<algorithm>>
 #include "newtonraphson.hpp"
+#include "algebra.hpp"
+
+using namespace algebra;
 
 namespace rootfinding
 {
-
-// An example function is x^3 - x^2  + 2
-double equation(double x)
-{
-  return x * x * x - x * x + 2;
-}
-
-// Derivative of the above function which is 3*x^x - 2*x
-double derivative(double x)
-{
-  return 3 * x * x - 2 * x;
-}
 
 NewtonRaphson::NewtonRaphson(double tolerancein) : tolerance(tolerancein) {}
 

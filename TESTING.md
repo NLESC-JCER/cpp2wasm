@@ -32,12 +32,28 @@ describe('src/js/example-web-worker.html', () => {
 ```
 
 And lastly, a test for the React/form/Web worker/WebAssembly combination.
+Let us also change the guess value.
 
 ```{.js file=cypress/integration/example-app_spec.js}
 describe('src/js/example-app.html', () => {
   it('should render -1.00', () => {
     cy.visit('http://localhost:8000/src/js/example-app.html');
-    cy.get('input[name=guess]').type('-30');
+    cy.get('input[name=guess]').type('0');
+    // TODO assert value is set
+    cy.contains('Submit').click();
+    cy.get('#answer').contains('-1.00');
+  });
+});
+```
+
+And another test for the full application, but now with JSON schema powered form.
+
+```{.js file=cypress/integration/example-jsonschema-form_spec.js}
+describe('src/js/example-jsonschema-form.html', () => {
+  it('should render -1.00', () => {
+    cy.visit('http://localhost:8000/src/js/example-jsonschema-form.html');
+    cy.get('input[id=root_epsilon]').type('{selectall}0.1');
+    // TODO assert value is set
     cy.contains('Submit').click();
     cy.get('#answer').contains('-1.00');
   });
