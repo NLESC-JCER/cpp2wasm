@@ -25,7 +25,7 @@ ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' *.md | g
 COMPILED := bin/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
 
 entangle: *.md
-	<<pandoc-tangle>>
+	<<entangled-tangle>>
 
 $(ENTANGLED): entangle
 

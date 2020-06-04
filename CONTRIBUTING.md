@@ -113,10 +113,12 @@ Before you submit a pull request, check that it meets these guidelines:
 
 ## Generating code from Markdown
 
-The [Entangled - Pandoc filters](https://github.com/entangled/filters) Docker image can be used to generate source code files from the Markdown files.
+The [Entangled](https://github.com/entangled/entangled) Docker image can be used to generate source code files from the Markdown files.
 
-```{.awk #pandoc-tangle}
-docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md
+```{.awk #entangled-tangle}
+rm -r .entangled
+docker run --rm --user ${UID} -v ${PWD}:/data nlesc/entangled insert -s *.md
+docker run --rm --user ${UID} -v ${PWD}:/data nlesc/entangled tangle -a
 ```
 
 ## Generate code from Markdown and vice versa

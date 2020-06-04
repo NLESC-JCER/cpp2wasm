@@ -977,7 +977,7 @@ The code supplied here should not be used in production as converting JSX in the
 The web application in our example should have a form with a `epsilon` and `guess` input field and a submit button.
 The form in JSX can be written in the following way:
 
-```{.jsx #react-form}
+```{.jsxinline #react-form}
 { /* this JavaScript snippet is later referred to as <<react-form>> */ }
 <form onSubmit={handleSubmit}>
   <label>
@@ -1221,7 +1221,7 @@ function handleChange(event) {
 
 The form can be rendered with
 
-```{.jsx #jsonschema-form}
+```{.jsxinline #jsonschema-form}
 { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
 <Form
   uiSchema={uiSchema}
