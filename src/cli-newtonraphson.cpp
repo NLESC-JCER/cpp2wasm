@@ -1,6 +1,9 @@
+// ~\~ language=C++ filename=src/cli-newtonraphson.cpp
+// ~\~ begin <<README.md|src/cli-newtonraphson.cpp>>[0]
 // this C++ snippet is stored as src/newtonraphson.cpp
 #include<bits/stdc++.h>
 
+// ~\~ begin <<README.md|algorithm>>[0]
 // this C++ code snippet is later referred to as <<algorithm>>
 #include "newtonraphson.hpp"
 
@@ -38,6 +41,7 @@ double NewtonRaphson::find(double xin)
 
 
 } // namespace rootfinding
+// ~\~ end
 
 // Driver program to test above
 int main()
@@ -50,3 +54,4 @@ int main()
   std::cout << "The value of the root is : " << x1 << std::endl;
   return 0;
 }
+// ~\~ end

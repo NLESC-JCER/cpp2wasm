@@ -1,23 +1,34 @@
+<!-- ~\~ language=HTML filename=src/js/example-web-worker.html -->
+<!-- ~\~ begin <<README.md|src/js/example-web-worker.html>>[0] -->
 <!doctype html>
 <!-- this HTML page is stored as src/js/example-web-worker.html -->
 <html>
   <script>
+    /* ~\~ begin <<README.md|worker-consumer>>[0] */
     // this JavaScript snippet is later referred to as <<worker-consumer>>
     const worker = new Worker('worker.js');
+    /* ~\~ end */
+    /* ~\~ begin <<README.md|worker-consumer>>[1] */
     // this JavaScript snippet is appended to <<worker-consumer>>
     worker.postMessage({
       type: 'CALCULATE',
       payload: { epsilon: 0.001, guess: -20 }
     });
+    /* ~\~ end */
+    /* ~\~ begin <<README.md|worker-consumer>>[2] */
     // this JavaScript snippet is appended to <<worker-consumer>>
     worker.onmessage = function(message) {
       if (message.data.type === 'RESULT') {
         const root = message.data.payload.root;
+        /* ~\~ begin <<README.md|render-answer>>[0] */
         const answer = document.createElement('span');
         answer.id = 'answer';
         answer.append(root);
         document.body.append(answer);
+        /* ~\~ end */
       }
     }
+    /* ~\~ end */
   </script>
 </html>
+<!-- ~\~ end -->

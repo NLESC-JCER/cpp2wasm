@@ -1,7 +1,10 @@
+// ~\~ language=C++ filename=src/py-newtonraphson.cpp
+// ~\~ begin <<README.md|src/py-newtonraphson.cpp>>[0]
 // this C++ snippet is stored as src/py-newtonraphson.cpp
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
+// ~\~ begin <<README.md|algorithm>>[0]
 // this C++ code snippet is later referred to as <<algorithm>>
 #include "newtonraphson.hpp"
 
@@ -39,6 +42,7 @@ double NewtonRaphson::find(double xin)
 
 
 } // namespace rootfinding
+// ~\~ end
 
 namespace py = pybind11;
 
@@ -52,3 +56,4 @@ PYBIND11_MODULE(newtonraphsonpy, m) {
         )
     ;
 }
+// ~\~ end

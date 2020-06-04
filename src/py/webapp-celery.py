@@ -1,8 +1,11 @@
+# ~\~ language=Python filename=src/py/webapp-celery.py
+# ~\~ begin <<README.md|src/py/webapp-celery.py>>[0]
 # this Python snippet is stored as src/py/webapp-celery.py
 from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
 
+# ~\~ begin <<README.md|py-form>>[0]
 # this Python code snippet is later referred to as <<py-form>>
 @app.route('/', methods=['GET'])
 def form():
@@ -14,7 +17,9 @@ def form():
       <input type="number" name="guess" value="-20">
       <button type="submit">Submit</button>
     </form>'''
+# ~\~ end
 
+# ~\~ begin <<README.md|py-submit>>[0]
 # this Python code snippet is later referred to as <<py-submit>>
 @app.route('/', methods=['POST'])
 def submit():
@@ -23,7 +28,9 @@ def submit():
   from tasks import calculate
   job = calculate.delay(epsilon, guess)
   return redirect(url_for('result', jobid=job.id))
+# ~\~ end
 
+# ~\~ begin <<README.md|py-result>>[0]
 # this Python code snippet is later referred to as <<py-result>>
 @app.route('/result/<jobid>')
 def result(jobid):
@@ -40,6 +47,8 @@ def result(jobid):
   else:
     return f'''<!doctype html>
       <p>{job.status}<p>'''
+# ~\~ end
 
 if __name__ == '__main__':
   app.run(port=5000)
+# ~\~ end

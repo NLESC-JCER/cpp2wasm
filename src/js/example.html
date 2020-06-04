@@ -1,19 +1,28 @@
-<!doctype html>
+<!-- ~\~ language=HTML filename=src/js/example.html -->
+<!-- ~\~ begin <<README.md|src/js/example.html>>[0] -->
 <!-- this HTML page is stored as src/js/example.html -->
+<!doctype html>
 <html>
   <script type="text/javascript" src="newtonraphsonwasm.js"></script>
   <script>
+    /* ~\~ begin <<README.md|wasm-promise>>[0] */
     // this JavaScript snippet is later referred to as <<wasm-promise>>
     createModule().then((module) => {
+      /* ~\~ begin <<README.md|wasm-calculate>>[0] */
       // this JavaScript snippet is later referred to as <<wasm-calculate>>
       const epsilon = 0.001;
       const finder = new module.NewtonRaphson(epsilon);
       const guess = -20;
       const root = finder.find(guess);
+      /* ~\~ end */
+      /* ~\~ begin <<README.md|render-answer>>[0] */
       const answer = document.createElement('span');
       answer.id = 'answer';
       answer.append(root);
       document.body.append(answer);
+      /* ~\~ end */
     });
+    /* ~\~ end */
   </script>
 </html>
+<!-- ~\~ end -->

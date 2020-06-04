@@ -1,3 +1,5 @@
+# ~\~ language=YAML filename=src/py/openapi.yaml
+# ~\~ begin <<README.md|src/py/openapi.yaml>>[0]
 # this yaml snippet is stored as src/py/openapi.yaml
 openapi: 3.0.0
 info:
@@ -48,3 +50,4 @@ components:
       required:
         - root
       additionalProperties: false
+# ~\~ end

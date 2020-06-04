@@ -1,6 +1,9 @@
+// ~\~ language=C++ filename=src/wasm-newtonraphson.cpp
+// ~\~ begin <<README.md|src/wasm-newtonraphson.cpp>>[0]
 // this C++ snippet is stored as src/wasm-newtonraphson.cpp
 #include <emscripten/bind.h>
 
+// ~\~ begin <<README.md|algorithm>>[0]
 // this C++ code snippet is later referred to as <<algorithm>>
 #include "newtonraphson.hpp"
 
@@ -38,6 +41,7 @@ double NewtonRaphson::find(double xin)
 
 
 } // namespace rootfinding
+// ~\~ end
 
 using namespace emscripten;
 
@@ -47,3 +51,4 @@ EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
     .function("find", &rootfinding::NewtonRaphson::find)
     ;
 }
+// ~\~ end

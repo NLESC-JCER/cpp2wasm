@@ -1,5 +1,8 @@
+// ~\~ language=jsx filename=src/js/jsonschema-app.js
+// ~\~ begin <<README.md|src/js/jsonschema-app.js>>[0]
 // this JavaScript snippet stored as src/js/jsonschema-app.js
 function App() {
+  /* ~\~ begin <<README.md|jsonschema-app>>[0] */
   // this JavaScript snippet is later referred to as <<jsonschema-app>>
   const schema = {
     "$schema": "http://json-schema.org/draft-07/schema#",
@@ -21,13 +24,19 @@ function App() {
     "required": ["epsilon", "guess"],
     "additionalProperties": false
   }
+  /* ~\~ end */
+  /* ~\~ begin <<README.md|jsonschema-app>>[1] */
   // this JavaScript snippet is appended to <<jsonschema-app>>
   const Form = JSONSchemaForm.default;
+  /* ~\~ end */
+  /* ~\~ begin <<README.md|jsonschema-app>>[2] */
   const uiSchema = {
     "guess": {
       "ui:widget": "range"
     }
   }
+  /* ~\~ end */
+  /* ~\~ begin <<README.md|jsonschema-app>>[3] */
   // this JavaScript snippet is appended to <<jsonschema-app>>
   const [formData, setFormData] = React.useState({
     epsilon: 0.001,
@@ -37,6 +46,8 @@ function App() {
   function handleChange(event) {
     setFormData(event.formData);
   }
+  /* ~\~ end */
+  /* ~\~ begin <<README.md|jsonschema-app>>[4] */
   // this JavaScript snippet is appended to <<jsonschema-app>>
   const [root, setRoot] = React.useState(undefined);
 
@@ -55,10 +66,12 @@ function App() {
       }
     };
   }
+  /* ~\~ end */
 
   return (
     <div>
       <Heading/>
+      { /* ~\~ begin <<README.md|jsonschema-form>>[0] */ }
       { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
       <Form
         uiSchema={uiSchema}
@@ -67,6 +80,7 @@ function App() {
         onChange={handleChange}
         onSubmit={handleSubmit}
       />
+      { /* ~\~ end */ }
       <Result root={root}/>
     </div>
   );
@@ -76,12 +90,17 @@ ReactDOM.render(
   <App/>,
   document.getElementById('container')
 );
+// ~\~ end
+// ~\~ begin <<README.md|src/js/jsonschema-app.js>>[1]
 // this JavaScript snippet appended to src/js/jsonschema-app.js
+// ~\~ begin <<README.md|heading-component>>[0]
 // this JavaScript snippet is later referred to as <<heading-component>>
 function Heading() {
   const title = 'Root finding web application';
   return <h1>{title}</h1>
 }
+// ~\~ end
+// ~\~ begin <<README.md|result-component>>[0]
 // this JavaScript snippet is later referred to as <<result-component>>
 function Result(props) {
   const root = props.root;
@@ -91,3 +110,5 @@ function Result(props) {
   }
   return <div id="answer">{message}</div>;
 }
+// ~\~ end
+// ~\~ end

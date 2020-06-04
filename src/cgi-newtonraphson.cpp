@@ -1,8 +1,11 @@
+// ~\~ language=C++ filename=src/cgi-newtonraphson.cpp
+// ~\~ begin <<README.md|src/cgi-newtonraphson.cpp>>[0]
 // this C++ snippet is stored as src/cgi-newtonraphson.hpp
 #include <string>
 #include <iostream>
 #include <nlohmann/json.hpp>
 
+// ~\~ begin <<README.md|algorithm>>[0]
 // this C++ code snippet is later referred to as <<algorithm>>
 #include "newtonraphson.hpp"
 
@@ -40,6 +43,7 @@ double NewtonRaphson::find(double xin)
 
 
 } // namespace rootfinding
+// ~\~ end
 
 int main(int argc, char *argv[])
 {
@@ -61,3 +65,4 @@ int main(int argc, char *argv[])
   std::cout << response.dump(2) << std::endl;
   return 0;
 }
+// ~\~ end

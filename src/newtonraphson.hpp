@@ -1,3 +1,5 @@
+// ~\~ language=C++ filename=src/newtonraphson.hpp
+// ~\~ begin <<README.md|src/newtonraphson.hpp>>[0]
 // this C++ snippet is stored as src/newtonraphson.hpp
 #ifndef H_NEWTONRAPHSON_H
 #define H_NEWTONRAPHSON_H
@@ -15,3 +17,4 @@ namespace rootfinding {
 }
 
 #endif
+// ~\~ end
