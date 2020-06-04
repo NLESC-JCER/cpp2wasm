@@ -44,6 +44,6 @@ using namespace emscripten;
 EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
   class_<rootfinding::NewtonRaphson>("NewtonRaphson")
     .constructor<double>()
-    .function("find", &rootfinding::NewtonRaphson::find)
+    .function("solve", &rootfinding::NewtonRaphson::solve)
     ;
 }

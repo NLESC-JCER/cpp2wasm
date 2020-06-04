@@ -45,8 +45,8 @@ namespace py = pybind11;
 PYBIND11_MODULE(newtonraphsonpy, m) {
     py::class_<rootfinding::NewtonRaphson>(m, "NewtonRaphson")
         .def(py::init<double>(), py::arg("epsilon"))
-        .def("find",
-             &rootfinding::NewtonRaphson::find,
+        .def("solve",
+             &rootfinding::NewtonRaphson::solve,
              py::arg("guess"),
              "Find root starting from initial guess"
         )

@@ -3,18 +3,24 @@
 - [Guide to make C++ available as a web application](#guide-to-make-c-available-as-a-web-application)
   - [JSON schema](#json-schema)
   - [CGI script](#cgi-script)
+- [this Apache2 configuration snippet is stored as apache2/apache2.conf](#this-apache2-configuration-snippet-is-stored-as-apache2apache2conf)
   - [Web framework](#web-framework)
   - [Python](#python)
     - [Accessing C++ function from Python](#accessing-c-function-from-python)
     - [Web application](#web-application)
-    - [Long running tasks](#long-running-tasks)
+- [this Python code snippet is later referred to as <<py-calculate>>](#this-python-code-snippet-is-later-referred-to-as-py-calculate)
+- [this Python snippet is stored as src/py/webapp.py](#this-python-snippet-is-stored-as-srcpywebapppy)
+    - [Long-running tasks](#long-running-tasks)
+- [this Python code snippet is later referred to as <<celery-config>>](#this-python-code-snippet-is-later-referred-to-as-celery-config)
+- [this Python code snippet is later referred to as <<py-submit>>](#this-python-code-snippet-is-later-referred-to-as-py-submit)
+- [this Python snippet is stored as src/py/webapp-celery.py](#this-python-snippet-is-stored-as-srcpywebapp-celerypy)
     - [Web service](#web-service)
-  - [JavaScript](#JavaScript)
-    - [Accessing C++ function from JavaScript in web browser](#accessing-c-function-from-JavaScript-in-web-browser)
-    - [Executing long running methods in JavaScript](#executing-long-running-methods-in-JavaScript)
+- [this yaml snippet is stored as src/py/openapi.yaml](#this-yaml-snippet-is-stored-as-srcpyopenapiyaml)
+  - [JavaScript](#javascript)
+    - [Accessing C++ function from JavaScript in web browser](#accessing-c-function-from-javascript-in-web-browser)
   - [Single page application](#single-page-application)
     - [React component](#react-component)
-    - [Form](#form)
+    - [JSON schema powered form](#json-schema-powered-form)
     - [Visualization](#visualization)
 
 [![CI](https://github.com/NLESC-JCER/cpp2wasm/workflows/CI/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3ACI)
@@ -318,8 +324,8 @@ namespace py = pybind11;
 PYBIND11_MODULE(newtonraphsonpy, m) {
     py::class_<rootfinding::NewtonRaphson>(m, "NewtonRaphson")
         .def(py::init<double>(), py::arg("epsilon"))
-        .def("find",
-             &rootfinding::NewtonRaphson::find,
+        .def("solve",
+             &rootfinding::NewtonRaphson::solve,
              py::arg("guess"),
              "Find root starting from initial guess"
         )
@@ -703,7 +709,7 @@ using namespace emscripten;
 EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
   class_<rootfinding::NewtonRaphson>("NewtonRaphson")
     .constructor<double>()
-    .function("find", &rootfinding::NewtonRaphson::find)
+    .function("solve", &rootfinding::NewtonRaphson::solve)
     ;
 }
 ```
