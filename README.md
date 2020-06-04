@@ -780,6 +780,10 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example.html](http://localhost:8000/src/js/example.html) to see the result of the calculation.
+Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html)
+
+[https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html](https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html ':include :type=iframe width=100% height=60px').
+
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, executed by some JavaScript and rendered on a HTML page.
 
 ### Executing long running methods in JavaScript
@@ -886,6 +890,10 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example-web-worker.html](http://localhost:8000/src/js/example-web-worker.html) to see the result of the calculation.
+Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-web-worker.html)
+
+<iframe width="100%" height="60" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-web-worker.html" /></iframe>
+
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
 ## Single page application
@@ -1129,6 +1137,9 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example-app.html](http://localhost:8000/src/js/example-app.html) to see the root answer.
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html)
+
+<iframe width="100%" height="160" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html" /></iframe>
 
 ### JSON schema powered form
 
@@ -1292,6 +1303,9 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example-jsonschema-form.html](http://localhost:8000/src/js/example-jsonschema-form.html) to see the root answer.
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html)
+
+<iframe width="100%" height="320" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-jsonschema-form.html" /></iframe>
 
 If you enter a negative number in the `epsilon` field the form will become invalid with a error message.
 
