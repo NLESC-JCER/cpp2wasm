@@ -116,7 +116,6 @@ Before you submit a pull request, check that it meets these guidelines:
 The [Entangled](https://github.com/entangled/entangled) Docker image can be used to generate source code files from the Markdown files.
 
 ```{.shell #entangled-tangle}
-rm -r .entangled
 docker run --rm --user ${UID} -v ${PWD}:/data nlesc/entangled insert -s *.md
 docker run --rm --user ${UID} -v ${PWD}:/data nlesc/entangled tangle -a
 ```
@@ -155,9 +154,9 @@ UID=$(id -u)
 echo 'Check entangled files are up to date'
 
 # Entangle Markdown to source code and store the output
-LOG=$(docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md 2>&1 > /dev/null)
-# Parse which filenames have been written from output
-FILES=$(echo $LOG | perl -ne 'print $1,"\n" if /^Writing \`(.*)\`./')
+LOG=$(docker run --rm --user ${UID} -v ${PWD}:/data nlesc/entangled -m tangle -a 2>&1 > /dev/null)
+# Parse which filenames have been created or modified from output, ignoring deleted files (start with `- `)
+FILES=$(echo $LOG | grep -v '^-' | cut -c 3-)
 [ -z "$FILES" ] && exit 0
 echo $FILES
 
