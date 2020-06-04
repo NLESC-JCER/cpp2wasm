@@ -69,7 +69,7 @@ The implementation would look like
 namespace rootfinding
 {
 
-// An example function is x^3 - x^2  + 2
+// An example equation is x^3 - x^2  + 2
 double equation(double x)
 {
   return x * x * x - x * x + 2;
