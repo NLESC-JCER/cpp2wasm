@@ -19,6 +19,8 @@
 
 [![CI](https://github.com/NLESC-JCER/cpp2wasm/workflows/CI/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3ACI)
 [![Entangled](https://img.shields.io/badge/entangled-Use%20the%20source!-%2300aeff)](https://entangled.github.io/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3876112.svg)](https://doi.org/10.5281/zenodo.3876112)
+
 
 Document describing a way that a researcher with a C++ algorithm can make it available as a web application. We will host the C++ algorithm as an web application in several different ways:
 
@@ -69,7 +71,7 @@ double func(double x)
   return x * x * x - x * x + 2;
 }
 
-// Derivative of the above function which is 3*x^x - 2*x
+// Derivative of the above function which is 3*x*x - 2*x
 double derivFunc(double x)
 {
   return 3 * x * x - 2 * x;
@@ -780,6 +782,10 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example.html](http://localhost:8000/src/js/example.html) to see the result of the calculation.
+Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html)
+
+[https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html](https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html ':include :type=iframe width=100% height=60px').
+
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, executed by some JavaScript and rendered on a HTML page.
 
 ### Executing long running methods in JavaScript
@@ -886,6 +892,10 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example-web-worker.html](http://localhost:8000/src/js/example-web-worker.html) to see the result of the calculation.
+Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-web-worker.html)
+
+<iframe width="100%" height="60" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-web-worker.html" /></iframe>
+
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
 ## Single page application
@@ -1005,12 +1015,12 @@ const [epsilon, setEpsilon] = React.useState(0.001);
 
 The argument of the `useState` function is the initial value. The `epsilon` variable contains the current value for epsilon and `setEpsilon` is a function to set epsilon to a new value.
 
-The input tag in the form will call the `onChange` function with a event object. We need to extract the user input from the event and pass it to `setEpsilon`. The value should be a number, so we use `*1` to cast the string from the event to a number.
+The input tag in the form will call the `onChange` function with a event object. We need to extract the user input from the event and pass it to `setEpsilon`. The value should be a number, so we use `Number()` to cast the string from the event to a number.
 
 ```{.js #react-state}
 // this JavaScript snippet is appended to <<react-state>>
 function onEpsilonChange(event) {
-  setEpsilon(event.target.value*1);
+  setEpsilon(Number(event.target.value));
 }
 ```
 
@@ -1021,7 +1031,7 @@ We will follow the same steps for the guess input as well.
 const [guess, setGuess] = React.useState(-20);
 
 function onGuessChange(event) {
-  setGuess(event.target.value*1);
+  setGuess(Number(event.target.value));
 }
 ```
 
@@ -1129,6 +1139,9 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example-app.html](http://localhost:8000/src/js/example-app.html) to see the root answer.
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html)
+
+<iframe width="100%" height="160" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html" /></iframe>
 
 ### JSON schema powered form
 
@@ -1292,6 +1305,9 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example-jsonschema-form.html](http://localhost:8000/src/js/example-jsonschema-form.html) to see the root answer.
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html)
+
+<iframe width="100%" height="320" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-jsonschema-form.html" /></iframe>
 
 If you enter a negative number in the `epsilon` field the form will become invalid with a error message.
 
