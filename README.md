@@ -3,21 +3,15 @@
 - [Guide to make C++ available as a web application](#guide-to-make-c-available-as-a-web-application)
   - [JSON schema](#json-schema)
   - [CGI script](#cgi-script)
-- [this Apache2 configuration snippet is stored as apache2/apache2.conf](#this-apache2-configuration-snippet-is-stored-as-apache2apache2conf)
   - [Web framework](#web-framework)
   - [Python](#python)
     - [Accessing C++ function from Python](#accessing-c-function-from-python)
     - [Web application](#web-application)
-- [this Python code snippet is later referred to as <<py-calculate>>](#this-python-code-snippet-is-later-referred-to-as-py-calculate)
-- [this Python snippet is stored as src/py/webapp.py](#this-python-snippet-is-stored-as-srcpywebapppy)
-    - [Long-running tasks](#long-running-tasks)
-- [this Python code snippet is later referred to as <<celery-config>>](#this-python-code-snippet-is-later-referred-to-as-celery-config)
-- [this Python code snippet is later referred to as <<py-submit>>](#this-python-code-snippet-is-later-referred-to-as-py-submit)
-- [this Python snippet is stored as src/py/webapp-celery.py](#this-python-snippet-is-stored-as-srcpywebapp-celerypy)
+    - [Long running tasks](#long-running-tasks)
     - [Web service](#web-service)
-- [this yaml snippet is stored as src/py/openapi.yaml](#this-yaml-snippet-is-stored-as-srcpyopenapiyaml)
-  - [JavaScript](#javascript)
-    - [Accessing C++ function from JavaScript in web browser](#accessing-c-function-from-javascript-in-web-browser)
+  - [JavaScript](#JavaScript)
+    - [Accessing C++ function from JavaScript in web browser](#accessing-c-function-from-JavaScript-in-web-browser)
+    - [Executing long running methods in JavaScript](#executing-long-running-methods-in-JavaScript)
   - [Single page application](#single-page-application)
     - [React component](#react-component)
     - [JSON schema powered form](#json-schema-powered-form)
@@ -25,6 +19,7 @@
 
 [![CI](https://github.com/NLESC-JCER/cpp2wasm/workflows/CI/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3ACI)
 [![Entangled](https://img.shields.io/badge/entangled-Use%20the%20source!-%2300aeff)](https://entangled.github.io/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3876112.svg)](https://doi.org/10.5281/zenodo.3876112)
 
 Document describing a way that a researcher with a C++ algorithm can make it available as a web application. We will host the C++ algorithm as an web application in several different ways:
 
