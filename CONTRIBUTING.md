@@ -187,3 +187,4 @@ A reminder for the maintainers on how to create a new release.
 1. Verify that the authors list in [``CITATION.cff``](CITATION.cff) is up to date
 1. If needed, generate updated Zenodo metadata using the [cffconvert web service](https://us-central1-cffconvert.cloudfunctions.net/cffconvert?url=https://github.com/NLESC-JCER/cpp2wasm/tree/master/&outputformat=zenodo&ignore_suspect_keys), then use its result to update [``.zenodo.json``](.zenodo.json).
 1. Create a GitHub release
+
