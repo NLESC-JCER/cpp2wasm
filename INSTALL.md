@@ -13,6 +13,8 @@ To run the commands in the README.md the following items are required
 
 ## Command collection
 
+[BROKEN link](link to nowhere)
+
 All the commands in the [README.md](README.md) and [CONTRIBUTING.md](CONTRIBUTING.md) can be captured in a [Makefile](https://en.wikipedia.org/wiki/Makefile) like so:
 
 ```{.makefile file=Makefile}
