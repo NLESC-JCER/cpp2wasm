@@ -374,9 +374,9 @@ The web application has 3 kinds of pages:
 2. a page to show the progress of the calculation
 3. and a page which shows the result of the calculation. Each calculation will have it's own submit and result page.
 
-Each page is available on a different url. In flask the way urls are mapped to Python function is done by adding a route decorator to the function for example:
+Each page is available on a different url. In flask the way urls are mapped to Python function is done by adding a route decorator (`@app.route`) to the function.
 
-The starting page will render the form like so
+The first page with the form and submit button is defined as a function returning a HTML form.
 
 ```{.python #py-form}
 # this Python code snippet is later referred to as <<py-form>>
@@ -392,7 +392,7 @@ def form():
     </form>'''
 ```
 
-The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result html page.
+The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result html page. To get the submitted values we use the [Flask global `request` object](https://flask.palletsprojects.com/en/1.1.x/api/#flask.request). To construct the returned html we use [f-strings](https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals) to replace the variable names with the variable values.
 
 ```{.python #py-calculate}
 # this Python code snippet is later referred to as <<py-calculate>>
@@ -417,7 +417,7 @@ Putting it all together in
 
 ```{.python file=src/py/webapp.py}
 # this Python snippet is stored as src/py/webapp.py
-from flask import Flask, render_template, request
+from flask import Flask, request
 app = Flask(__name__)
 
 <<py-form>>
@@ -498,7 +498,7 @@ def submit():
   return redirect(url_for('result', jobid=job.id))
 ```
 
-The last method is to ask the Celery task queue what the status is of the job and return the result when it is succesful. To construct the returned html we use [f-strings](https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals) to replace the variable names with the variable values.
+The last method is to ask the Celery task queue what the status is of the job and return the result when it is succesful.
 
 ```{.python #py-result}
 # this Python code snippet is later referred to as <<py-result>>
@@ -889,7 +889,6 @@ To make writing a SPA easier, a number of frameworks have been developed. The mo
 - [Angular](https://angular.io/)
 
 They have their strengths and weaknesses which are summarized in the [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
-
 
 For Newton-Raphson web application I picked React as it is light and functional, because I like the small API footprint and the functional programming paradigm.
 

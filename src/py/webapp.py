@@ -1,5 +1,5 @@
 # this Python snippet is stored as src/py/webapp.py
-from flask import Flask, render_template, request
+from flask import Flask, request
 app = Flask(__name__)
 
 # this Python code snippet is later referred to as <<py-form>>
