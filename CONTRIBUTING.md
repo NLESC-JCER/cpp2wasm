@@ -106,9 +106,9 @@ Before you submit a pull request, check that it meets these guidelines:
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
 1. Update the [CHANGELOG](CHANGELOG.md) in accordance with the nature of your Pull Request.
-1. The pull request should work for Python 3.5, 3.6, 3.7 and 3.8, and for PyPy. Check
-   https://travis-ci.com/{{ cookiecutter.github_username }}/cpp2wasm/pull_requests
-   and make sure that the tests pass for all supported Python versions.
+1. The pull request should work for C++, emscripten, web browser, Python 3.6, 3.7 and 3.8. A continuous integration job will run tests for you. Check
+   green check mark on https://github.com/NLESC-JCER/cpp2wasm/pulls
+   and make sure that the tests pass.
 
 ## Tips
 
@@ -187,4 +187,3 @@ A reminder for the maintainers on how to create a new release.
 1. Verify that the authors list in [``CITATION.cff``](CITATION.cff) is up to date
 1. If needed, generate updated Zenodo metadata using the [cffconvert web service](https://us-central1-cffconvert.cloudfunctions.net/cffconvert?url=https://github.com/NLESC-JCER/cpp2wasm/tree/master/&outputformat=zenodo&ignore_suspect_keys), then use its result to update [``.zenodo.json``](.zenodo.json).
 1. Create a GitHub release
-
