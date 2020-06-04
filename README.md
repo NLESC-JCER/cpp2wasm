@@ -69,7 +69,7 @@ double func(double x)
   return x * x * x - x * x + 2;
 }
 
-// Derivative of the above function which is 3*x^x - 2*x
+// Derivative of the above function which is 3*x*x - 2*x
 double derivFunc(double x)
 {
   return 3 * x * x - 2 * x;
