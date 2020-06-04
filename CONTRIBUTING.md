@@ -10,7 +10,7 @@
   - [Pull Request Guidelines](#pull-request-guidelines)
   - [Tips](#tips)
     - [Generating code from Markdown](#generating-code-from-markdown)
-    - [Generate code from Markdown and vice versa](generate-code-from-markdown-and-vice-versa)
+    - [Generate code from Markdown and vice versa](#generate-code-from-markdown-and-vice-versa)
     - [Generate code from Markdown on commit](#generate-code-from-markdown-on-commit)
   - [New release](#new-release)
 
