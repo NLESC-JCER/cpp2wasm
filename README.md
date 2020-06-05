@@ -900,17 +900,15 @@ The result of root finding was calculated using the C++ algorithm compiled to a 
 
 ## Single page application
 
-In the [Web application](#web_application) chapter, a whole new page was rendered by the server even for a small change. With the advent of more powerful JavaScript engines in browsers and JavaScript methods to fetch JSON documents from a web service, it is possible to prevent that. [Single Page Applications](https://en.wikipedia.org/wiki/Single-page_application)(SPA) can render the page and fetch a small change from the web service and re-render a small part of the page with JavaScript.
-
-To make writing a SPA easier, a number of frameworks have been developed. The most popular frontend web frameworks at the moment (July 2019) are:
+In the [Web application](#web-application) section, a common approach is to render an entire HTML page even if a subset of elements requires a change. With the advances in the web browser (JavaScript) engines including methods to fetch JSON documents from a web service, it has become possible to address this shortcoming. The so-called [Single Page Applications](https://en.wikipedia.org/wiki/Single-page_application) (SPA) enable changes to be made in a part of the page without rendering the entire page. To ease SPA development, a number of frameworks have been developed. The most popular front-end web frameworks are (as of July 2019):
 
 - [React](https://reactjs.org/)
 - [Vue.js](https://vuejs.org/)
 - [Angular](https://angular.io/)
 
-They have their strengths and weaknesses which are summarized in the [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
+Their pros and cons are summarized [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
 
-For Newton-Raphson web application I picked React as it is light and functional, because I like the small API footprint and the functional programming paradigm.
+For Newton-Raphson web application, we selected React because its small API footprint (light-weight) and the use of functional programming paradigm.
 
 The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
 
