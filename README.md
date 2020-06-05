@@ -33,29 +33,7 @@ The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton
 The algorithm is explained in [this video series](https://www.youtube.com/watch?v=cOmAk82cr9M).
 The code we are using came from [geeksforgeeks.org](https://www.geeksforgeeks.org/program-for-newton-raphson-method/).
 
-The interface would like
-
-```{.cpp file=src/newtonraphson.hpp}
-// this C++ snippet is stored as src/newtonraphson.hpp
-#ifndef H_NEWTONRAPHSON_H
-#define H_NEWTONRAPHSON_H
-
-#include <string>
-
-namespace rootfinding {
-  class NewtonRaphson {
-    public:
-      NewtonRaphson(double tolerancein);
-      double solve(double xin);
-    private:
-      double tolerance;
-  };
-}
-
-#endif
-```
-
-The implementation would look like
+Let's first define the mathematical function, which we will be searching for its root, and the derivative of it.
 
 ```{.hpp file=src/algebra.hpp}
 // this C++ code snippet is later referred to as <<algebra>>
@@ -77,6 +55,32 @@ double derivative(double x)
 
 } // namespace algebra
 ```
+
+Next, we define the interface (C++ class).
+
+```{.cpp file=src/newtonraphson.hpp}
+// this C++ snippet is stored as src/newtonraphson.hpp
+#ifndef H_NEWTONRAPHSON_H
+#define H_NEWTONRAPHSON_H
+
+#include <string>
+
+namespace rootfinding {
+  class NewtonRaphson {
+    public:
+      NewtonRaphson(double tolerancein);
+      double solve(double xin);
+    private:
+      double tolerance;
+  };
+}
+
+#endif
+```
+
+In this C++ class, `solve` function will be performing root finding task. We now need to define the algorithm so that `solve` function does what it supposed to do.
+
+The implementation of the algorithm would look like
 
 ```{.cpp #algorithm}
 // this C++ code snippet is later referred to as <<algorithm>>
@@ -109,7 +113,7 @@ double NewtonRaphson::solve(double xin)
 } // namespace rootfinding
 ```
 
-A simple CLI program would look like
+Finally, we can write our simple CLI program. It would look like
 
 ```{.cpp file=src/cli-newtonraphson.cpp}
 // this C++ snippet is stored as src/newtonraphson.cpp
@@ -793,6 +797,10 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example.html](http://localhost:8000/src/js/example.html) to see the result of the calculation.
+Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html)
+
+[https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html](https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html ':include :type=iframe width=100% height=60px').
+
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, executed by some JavaScript and rendered on a HTML page.
 
 ### Executing long running methods in JavaScript
@@ -899,21 +907,23 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example-web-worker.html](http://localhost:8000/src/js/example-web-worker.html) to see the result of the calculation.
+Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-web-worker.html)
+
+<iframe width="100%" height="60" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-web-worker.html" /></iframe>
+
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
 ## Single page application
 
-In the [Web application](#web_application) chapter, a whole new page was rendered by the server even for a small change. With the advent of more powerful JavaScript engines in browsers and JavaScript methods to fetch JSON documents from a web service, it is possible to prevent that. [Single Page Applications](https://en.wikipedia.org/wiki/Single-page_application)(SPA) can render the page and fetch a small change from the web service and re-render a small part of the page with JavaScript.
-
-To make writing a SPA easier, a number of frameworks have been developed. The most popular frontend web frameworks at the moment (July 2019) are:
+In the [Web application](#web-application) section, a common approach is to render an entire HTML page even if a subset of elements requires a change. With the advances in the web browser (JavaScript) engines including methods to fetch JSON documents from a web service, it has become possible to address this shortcoming. The so-called [Single Page Applications](https://en.wikipedia.org/wiki/Single-page_application) (SPA) enable changes to be made in a part of the page without rendering the entire page. To ease SPA development, a number of frameworks have been developed. The most popular front-end web frameworks are (as of July 2019):
 
 - [React](https://reactjs.org/)
 - [Vue.js](https://vuejs.org/)
 - [Angular](https://angular.io/)
 
-They have their strengths and weaknesses which are summarized in the [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
+Their pros and cons are summarized [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
 
-For Newton-Raphson web application I picked React as it is light and functional, because I like the small API footprint and the functional programming paradigm.
+For Newton-Raphson web application, we selected React because its small API footprint (light-weight) and the use of functional programming paradigm.
 
 The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
 
@@ -1142,6 +1152,9 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example-app.html](http://localhost:8000/src/js/example-app.html) to see the root answer.
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html)
+
+<iframe width="100%" height="160" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html" /></iframe>
 
 ### JSON schema powered form
 
@@ -1305,6 +1318,9 @@ python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/src/js/example-jsonschema-form.html](http://localhost:8000/src/js/example-jsonschema-form.html) to see the root answer.
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html)
+
+<iframe width="100%" height="320" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-jsonschema-form.html" /></iframe>
 
 If you enter a negative number in the `epsilon` field the form will become invalid with a error message.
 
