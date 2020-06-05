@@ -2,12 +2,18 @@
 
 To make sure [JavaScript and WebAssembly code snippets](README.md#JavaScript) and [Single page application](README.md#single-page-application) work we want have a tests for them.
 
-To test, we will use the [cypress](https://www.cypress.io/) JavaScript end to end testing  framework.
+To test, we will use the [cypress](https://www.cypress.io/) JavaScript end to end testing framework.
 Cypress can simulate user behavior such as clicking buttons etc. and checks expected result in a web browser.
 
-In the following example, we test if the example web page renders the answer `-1.00` when it is visited.
+In the following examples, we test if the example web pages render the answer `-1.00` when they are visited.
 
-Let's, first write a test for the direct WebAssembly example.
+To visit a web page we need to start a web server with
+
+```shell
+python3 -m http.server 8000
+```
+
+Let's, first write a test for the [direct WebAssembly example](http://localhost:8000/src/js/example.html).
 
 ```{.js file=cypress/integration/example_spec.js}
 // this JavaScript snippet is run by cypress and is stored as cypress/integration/example_spec.js
@@ -38,6 +44,7 @@ Let us also change the guess value.
 describe('src/js/example-app.html', () => {
   it('should render -1.00', () => {
     cy.visit('http://localhost:8000/src/js/example-app.html');
+    // In initial guess input field type 0 to append 0 to default -20 so the value is -200
     cy.get('input[name=guess]').type('0');
     cy.contains('Submit').click();
     cy.get('#answer').contains('-1.00');
@@ -51,7 +58,10 @@ And another test for the full application, but now with JSON schema powered form
 describe('src/js/example-jsonschema-form.html', () => {
   it('should render -1.00', () => {
     cy.visit('http://localhost:8000/src/js/example-jsonschema-form.html');
-    cy.get('input[id=root_epsilon]').type('{selectall}0.1');
+    // The JSON schema powered form uses a hierarchy of identifers for each input field starting with `root`, as the `epsilon` input field is a direct child of root it has `root_epsilon` as an identifier
+    const input_selector = 'input[id=root_epsilon]';
+    // In initial guess input field replace default value of initial guess with 0.1
+    cy.get(input_selector).type('{selectall}0.1');
     cy.contains('Submit').click();
     cy.get('#answer').contains('-1.00');
   });
