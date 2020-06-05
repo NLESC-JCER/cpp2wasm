@@ -18,9 +18,9 @@
     - [Visualization](#visualization)
 
 [![CI](https://github.com/NLESC-JCER/cpp2wasm/workflows/CI/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3ACI)
+[![Markdown Link Checker](https://github.com/NLESC-JCER/cpp2wasm/workflows/Check%20Markdown%20links/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3A%22Check%20Markdown%20links%22)
 [![Entangled](https://img.shields.io/badge/entangled-Use%20the%20source!-%2300aeff)](https://entangled.github.io/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3876112.svg)](https://doi.org/10.5281/zenodo.3876112)
-
 
 Document describing a way that a researcher with a C++ algorithm can make it available as a web application. We will host the C++ algorithm as an web application in several different ways:
 
@@ -449,7 +449,7 @@ To test we can visit [http://localhost:5001](http://localhost:5001) fill the for
 
 ### Long-running tasks
 
-When performing a long calculation (more than 30 seconds), the end-user requires feedback of the progress. In a normal request/response cycle, feedback is only returned in the response. To give feedback during the calculation, the computation must be offloaded to a task queue. In Python, a commonly used task queue is [celery](http://www.celeryproject.org/). While the calculation is running on some worker it is possible to have a progress page which can check in the queue what the progress is of the calculation.
+When performing a long calculation (more than 30 seconds), the end-user requires feedback of the progress. In a normal request/response cycle, feedback is only returned in the response. To give feedback during the calculation, the computation must be offloaded to a task queue. In Python, a commonly used task queue is [celery](http://docs.celeryproject.org/). While the calculation is running on some worker it is possible to have a progress page which can check in the queue what the progress is of the calculation.
 
 Celery needs a broker for a queue and result storage.
 We'll use [redis](https://redis.io/) in a Docker container as Celery broker, because it's simple to setup. Redis can be started with the following command
