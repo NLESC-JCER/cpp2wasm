@@ -1573,7 +1573,9 @@ The html page should look like
 ```{.html file=src/js/example-plot.html}
 <!doctype html>
 <!-- this HTML page is stored as src/js/plot-form.html -->
-<html>
+<html lang="en">
+  <title>Example plot</title>
+
   <<imports>>
   <div id="container"></div>
 
