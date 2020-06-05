@@ -1574,12 +1574,15 @@ The html page should look like
 <!doctype html>
 <!-- this HTML page is stored as src/js/plot-form.html -->
 <html lang="en">
-  <title>Example plot</title>
+  <head>
+    <title>Example plot</title>
+    <<imports>>
+  <head>
+  <body>
+    <div id="container"></div>
 
-  <<imports>>
-  <div id="container"></div>
-
-  <script type="text/babel" src="plot-app.js"></script>
+    <script type="text/babel" src="plot-app.js"></script>
+  </body>
 </html>
 ```
 
