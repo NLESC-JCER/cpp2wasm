@@ -78,7 +78,7 @@ namespace rootfinding {
 #endif
 ```
 
-In this C++ class, `solve` function will be performing root finding task. We now need to define the algorithm so that `solve` function does what it supposed to do.
+In this C++ class, `solve` function will be performing the root finding task. We now need to define the algorithm so that `solve` function does what it supposed to do.
 
 The implementation of the algorithm would look like
 
