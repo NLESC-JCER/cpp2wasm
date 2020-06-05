@@ -296,6 +296,8 @@ The problem with CGI scripts is when the program does some initialization, you h
 
 ## Web framework
 
+![flask](images/flask.svg.png "Flask")
+
 A web framework is an abstraction layer for making web applications. It takes care of mapping a request on a certain url to a user defined function. And mapping the return of a user defined function to a response like an HTML page or an error message.
 
 ## Python
@@ -372,8 +374,6 @@ It will output something like
 ```
 
 ### Web application
-
-![flask](images/flask.svg.png "Flask")
 
 Now that the C++ functions can be called from Python it is time to call the function from a web page.
 To assist in making a web application a web framework needs to be picked. The [Flask](https://flask.palletsprojects.com/) web framework was chosen as it minimalistic and has a large active community.
