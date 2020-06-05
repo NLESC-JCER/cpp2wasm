@@ -1,0 +1,19 @@
+name: Check Markdown links
+
+on:
+  push:
+    branches:
+    - master
+  schedule:
+  # https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html#tag_20_25_07
+  # https://crontab.guru/#0_9_7_*_*
+  - cron: "0 9 7 * *"
+
+jobs:
+  markdown-link-check:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@master
+    - uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        config-file: '.mlc-config.json'

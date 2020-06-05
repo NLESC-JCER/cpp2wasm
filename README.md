@@ -449,7 +449,7 @@ To test we can visit [http://localhost:5001](http://localhost:5001) fill the for
 
 ### Long-running tasks
 
-When performing a long calculation (more than 30 seconds), the end-user requires feedback of the progress. In a normal request/response cycle, feedback is only returned in the response. To give feedback during the calculation, the computation must be offloaded to a task queue. In Python, a commonly used task queue is [celery](http://www.celeryproject.org/). While the calculation is running on some worker it is possible to have a progress page which can check in the queue what the progress is of the calculation.
+When performing a long calculation (more than 30 seconds), the end-user requires feedback of the progress. In a normal request/response cycle, feedback is only returned in the response. To give feedback during the calculation, the computation must be offloaded to a task queue. In Python, a commonly used task queue is [celery](http://docs.celeryproject.org/). While the calculation is running on some worker it is possible to have a progress page which can check in the queue what the progress is of the calculation.
 
 Celery needs a broker for a queue and result storage.
 We'll use [redis](https://redis.io/) in a Docker container as Celery broker, because it's simple to setup. Redis can be started with the following command
