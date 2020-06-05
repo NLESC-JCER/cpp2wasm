@@ -58,7 +58,7 @@ namespace rootfinding {
 The implementation would look like
 
 ```{.hpp file=src/algebra.hpp}
-// this C++ code snippet is later referred to as <<algebra>>
+// this C++ code snippet is stored as  src/algebra.hpp
 
 namespace algebra
 {
