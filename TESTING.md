@@ -25,7 +25,7 @@ describe('src/js/example.html', () => {
 });
 ```
 
-Second, a test for the WebAssembly called through a web worker.
+Second, a test for the WebAssembly called through a [web worker](http://localhost:8000/src/js/example-web-worker.html).
 
 ```{.js file=cypress/integration/example-web-worker_spec.js}
 // this JavaScript snippet is run by cypress and is stored as cypress/integration/example-web-worker_spec.js
@@ -37,8 +37,8 @@ describe('src/js/example-web-worker.html', () => {
 });
 ```
 
-And lastly, a test for the React/form/Web worker/WebAssembly combination.
-Let us also change the guess value.
+Third, a test for the [React/form/Web worker/WebAssembly combination](http://localhost:8000/src/js/example-app.html).
+Let us also change the initial guess value.
 
 ```{.js file=cypress/integration/example-app_spec.js}
 describe('src/js/example-app.html', () => {
@@ -52,7 +52,7 @@ describe('src/js/example-app.html', () => {
 });
 ```
 
-And another test for the full application, but now with JSON schema powered form.
+And another test for the full application, but now with [JSON schema powered form](http://localhost:8000/src/js/example-jsonschema-form.html).
 
 ```{.js file=cypress/integration/example-jsonschema-form_spec.js}
 describe('src/js/example-jsonschema-form.html', () => {
@@ -68,7 +68,7 @@ describe('src/js/example-jsonschema-form.html', () => {
 });
 ```
 
-And lastly a test for the web application with a plot.
+And lastly a test for the [web application with a plot](http://localhost:8000/src/js/example-plot.html).
 
 ```{.js file=cypress/integration/example-plot_spec.js}
 describe('src/js/example-plot.html', () => {
