@@ -1,14 +1,13 @@
 name: Check Markdown links
 
-on: [push]
-
-# on:
-#   push:
-#     branches:
-#     - master
-#   schedule:
-#   # Run everyday at 9:00 AM (See https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html#tag_20_25_07)
-#   - cron: "0 9 7 * *"
+on:
+  push:
+    branches:
+    - master
+  schedule:
+  # https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html#tag_20_25_07
+  # https://crontab.guru/#0_9_7_*_*
+  - cron: "0 9 7 * *"
 
 jobs:
   markdown-link-check:
