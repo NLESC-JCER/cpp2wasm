@@ -190,6 +190,8 @@ And a valid document:
 
 ## CGI script
 
+![cgi](images/cgi.svg.png "CGI")
+
 The classic way to run programs when accessing a url is to use the Common Gateway Interface (CGI).
 In the [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.html) you can configure a directory as a ScriptAlias, when visiting a file inside that directory the file will be executed.
 The executable can read the request body from the stdin for and the response must be printed to the stdout.
@@ -370,6 +372,8 @@ It will output something like
 ```
 
 ### Web application
+
+![flask](images/flask.svg.png "Flask")
 
 Now that the C++ functions can be called from Python it is time to call the function from a web page.
 To assist in making a web application a web framework needs to be picked. The [Flask](https://flask.palletsprojects.com/) web framework was chosen as it minimalistic and has a large active community.
@@ -577,6 +581,8 @@ docker stop some-redis
 
 ### Web service
 
+![swagger](images/swagger.svg.png "Swagger")
+
 A web application is meant for consumption by humans and web service is meant for consumption by machines or other programs.
 So instead of returning HTML pages a web service will accept and return machine readable documents like JSON documents. A web service is an application programming interface (API) based on web technologies.
 
@@ -690,6 +696,8 @@ curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/j
 ```
 
 ## JavaScript
+
+![wasm](images/wasm.svg.png "WebAssembly")
 
 JavaScript is the de facto programming language for web browsers.
 The JavaScript engine in the Chrome browser called V8 has been wrapped in a runtime engine called Node.js which can execute JavaScript code outside the browser.
@@ -899,6 +907,8 @@ Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
 ## Single page application
+
+![react](images/react.svg.png "React")
 
 In the [Web application](#web-application) section, a common approach is to render an entire HTML page even if a subset of elements requires a change. With the advances in the web browser (JavaScript) engines including methods to fetch JSON documents from a web service, it has become possible to address this shortcoming. The so-called [Single Page Applications](https://en.wikipedia.org/wiki/Single-page_application) (SPA) enable changes to be made in a part of the page without rendering the entire page. To ease SPA development, a number of frameworks have been developed. The most popular front-end web frameworks are (as of July 2019):
 
