@@ -766,11 +766,14 @@ To be able to use the `createModule` function, we will import the `newtonraphson
 ```{.html file=src/js/example.html}
 <!doctype html>
 <!-- this HTML page is stored as src/js/example.html -->
-<html>
-  <script type="text/javascript" src="newtonraphsonwasm.js"></script>
-  <script>
-    <<wasm-promise>>
-  </script>
+<html lang="en">
+  <head>
+    <title>Example</title>
+    <script type="text/javascript" src="newtonraphsonwasm.js"></script>
+    <script>
+      <<wasm-promise>>
+    </script>
+  </head>
 </html>
 ```
 
@@ -878,10 +881,13 @@ Like before we need a HTML page to run the JavaScript, but now we don't need to 
 ```{.html file=src/js/example-web-worker.html}
 <!doctype html>
 <!-- this HTML page is stored as src/js/example-web-worker.html -->
-<html>
-  <script>
-    <<worker-consumer>>
-  </script>
+<html lang="en">
+  <head>
+    <title>Example web worker</title>
+    <script>
+      <<worker-consumer>>
+    </script>
+  </head>
 </html>
 ```
 
@@ -920,8 +926,11 @@ we implement the React application in the `app.js` file.
 ```{.html file=src/js/example-app.html}
 <!doctype html>
 <!-- this HTML page is stored as src/js/example-app.html -->
-<html>
-  <<imports>>
+<html lang="en">
+  <head>
+    <title>Example React application</title>
+    <<imports>>
+  </head>
   <div id="container"></div>
 
   <script type="text/babel" src="app.js"></script>
@@ -1177,8 +1186,11 @@ To render the application we need a HTML page. We will reuse the imports we did 
 ```{.html file=src/js/example-jsonschema-form.html}
 <!doctype html>
 <!-- this HTML page is stored as src/jsexample-jsonschema-form.html -->
-<html>
-  <<imports>>
+<html lang="en">
+  <head>
+    <title>Example JSON schema powered form</title>
+    <<imports>>
+  </head>
   <div id="container"></div>
 
   <script type="text/babel" src="jsonschema-app.js"></script>
@@ -1249,12 +1261,12 @@ The `handleSubmit` function recieves the form input values and use the web worke
 // this JavaScript snippet is appended to <<jsonschema-app>>
 const [root, setRoot] = React.useState(undefined);
 
-function handleSubmit({formData}, event) {
+function handleSubmit(submission, event) {
   event.preventDefault();
   const worker = new Worker('worker.js');
   worker.postMessage({
     type: 'CALCULATE',
-    payload: formData
+    payload: submission.formData
   });
   worker.onmessage = function(message) {
       if (message.data.type === 'RESULT') {
@@ -1462,12 +1474,12 @@ To handle the submit we will start a worker, send the form data to the worker, r
 // this JavaScript snippet is appended to <<plot-app>>
 const [roots, setRoots] = React.useState([]);
 
-function handleSubmit({formData}, event) {
+function handleSubmit(submission, event) {
   event.preventDefault();
   const worker = new Worker('worker-sweep.js');
   worker.postMessage({
     type: 'CALCULATE',
-    payload: formData
+    payload: submission.formData
   });
   worker.onmessage = function(message) {
       if (message.data.type === 'RESULT') {

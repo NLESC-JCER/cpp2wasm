@@ -89,12 +89,12 @@ function App() {
   // this JavaScript snippet is appended to <<plot-app>>
   const [roots, setRoots] = React.useState([]);
 
-  function handleSubmit({formData}, event) {
+  function handleSubmit(submission, event) {
     event.preventDefault();
     const worker = new Worker('worker-sweep.js');
     worker.postMessage({
       type: 'CALCULATE',
-      payload: formData
+      payload: submission.formData
     });
     worker.onmessage = function(message) {
         if (message.data.type === 'RESULT') {

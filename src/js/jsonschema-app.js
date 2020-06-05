@@ -40,12 +40,12 @@ function App() {
   // this JavaScript snippet is appended to <<jsonschema-app>>
   const [root, setRoot] = React.useState(undefined);
 
-  function handleSubmit({formData}, event) {
+  function handleSubmit(submission, event) {
     event.preventDefault();
     const worker = new Worker('worker.js');
     worker.postMessage({
       type: 'CALCULATE',
-      payload: formData
+      payload: submission.formData
     });
     worker.onmessage = function(message) {
         if (message.data.type === 'RESULT') {
