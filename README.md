@@ -34,7 +34,9 @@ The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton
 The algorithm is explained in [this video series](https://www.youtube.com/watch?v=cOmAk82cr9M).
 The code we are using came from [geeksforgeeks.org](https://www.geeksforgeeks.org/program-for-newton-raphson-method/).
 
-Let's first define the mathematical function, which we will be searching for its root, and the derivative of it.
+Let's first define the mathematical equation, which we will be searching for its root, and the derivative of it.
+
+The equation and its derivative which we will use in this guide are $x^3 - x^2  + 2$ and $3x^2 - 2x$ respectively.
 
 ```{.hpp file=src/algebra.hpp}
 // this C++ code snippet is store as src/algebra.hpp
@@ -420,7 +422,7 @@ def form():
     </form>'''
 ```
 
-The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result html page. To get the submitted values we use the Flask global [request](https://flask.palletsprojects.com/en/1.1.x/quickstart/#accessing-request-data) object. To construct the returned html we use [f-strings](https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals) to replace the variable names with the variable values.
+The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result HTML page. To get the submitted values we use the Flask global [request](https://flask.palletsprojects.com/en/1.1.x/quickstart/#accessing-request-data) object. To construct the returned HTML we use [f-strings](https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals) to replace the variable names with the variable values.
 
 ```{.python #py-calculate}
 # this Python code snippet is later referred to as <<py-calculate>>
@@ -767,7 +769,7 @@ const guess = -20;
 const root = finder.solve(guess);
 ```
 
-Append the root answer to the html page using [document manipulation functions](https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/append).
+Set the root answer to the HTML page using document manipulation functions: [getElementById](https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById), [innerHTML](https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML). In order to display the result, we use a HTML element with an id of `answer`. This element is defined in the HTML page which we will define soon.
 
 ```{.js #render-answer}
 document.getElementById('answer').innerHTML = root.toFixed(2);
@@ -935,7 +937,7 @@ Their pros and cons are summarized [here](https://en.wikipedia.org/wiki/Comparis
 
 For Newton-Raphson web application, we selected React because its small API footprint (light-weight) and the use of functional programming paradigm.
 
-The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
+The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the HTML, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
 
 ### React component
 
@@ -1599,7 +1601,7 @@ ReactDOM.render(
 );
 ```
 
-The html page should look like
+The HTML page should look like
 
 ```{.html file=src/js/example-plot.html}
 <!doctype html>

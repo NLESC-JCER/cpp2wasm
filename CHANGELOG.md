@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * WebAssembly module ([#35](https://github.com/NLESC-JCER/cpp2wasm/issues/35))
 * Vega plot ([#15](https://github.com/NLESC-JCER/cpp2wasm/issues/15))
 
+### Changed
+
+* have a separate code block for equations [#29](https://github.com/NLESC-JCER/cpp2wasm/issues/29) [#43](https://github.com/NLESC-JCER/cpp2wasm/issues/43)
+* the html answer field: set instead of appending
+
 ## [0.1.0] - 2020-06-04
 
 Initial release.
