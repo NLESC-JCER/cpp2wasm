@@ -52,7 +52,7 @@ describe('src/js/example-app.html', () => {
 });
 ```
 
-And another test for the full application, but now with [JSON schema powered form](http://localhost:8000/src/js/example-jsonschema-form.html).
+And another test same as before, but now with [JSON schema powered form](http://localhost:8000/src/js/example-jsonschema-form.html).
 
 ```{.js file=cypress/integration/example-jsonschema-form_spec.js}
 describe('src/js/example-jsonschema-form.html', () => {
