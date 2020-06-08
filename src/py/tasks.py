@@ -15,5 +15,5 @@ def calculate(self, epsilon, guess):
   if not self.request.called_directly:
     self.update_state(state='FINDING')
   time.sleep(5)
-  root = finder.find(guess)
+  root = finder.solve(guess)
   return {'root': root, 'guess': guess, 'epsilon':epsilon}

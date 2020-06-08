@@ -12,3 +12,6 @@ apache2/cgi-bin/newtonraphson
 
 # Ignore entangled db
 .entangled/db.sqlite
+
+# other ignores
+node_modules

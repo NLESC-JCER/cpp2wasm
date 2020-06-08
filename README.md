@@ -34,7 +34,32 @@ The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton
 The algorithm is explained in [this video series](https://www.youtube.com/watch?v=cOmAk82cr9M).
 The code we are using came from [geeksforgeeks.org](https://www.geeksforgeeks.org/program-for-newton-raphson-method/).
 
-The interface would like
+Let's first define the mathematical equation, which we will be searching for its root, and the derivative of it.
+
+The equation and its derivative which we will use in this guide are $x^3 - x^2  + 2$ and $3x^2 - 2x$ respectively.
+
+```{.hpp file=src/algebra.hpp}
+// this C++ code snippet is store as src/algebra.hpp
+
+namespace algebra
+{
+
+// An example equation is x^3 - x^2  + 2
+double equation(double x)
+{
+  return x * x * x - x * x + 2;
+}
+
+// Derivative of the above equation which is 3*x^2 - 2*x
+double derivative(double x)
+{
+  return 3 * x * x - 2 * x;
+}
+
+} // namespace algebra
+```
+
+Next, we define the interface (C++ class).
 
 ```{.cpp file=src/newtonraphson.hpp}
 // this C++ snippet is stored as src/newtonraphson.hpp
@@ -47,7 +72,7 @@ namespace rootfinding {
   class NewtonRaphson {
     public:
       NewtonRaphson(double tolerancein);
-      double find(double xin);
+      double solve(double xin);
     private:
       double tolerance;
   };
@@ -56,37 +81,30 @@ namespace rootfinding {
 #endif
 ```
 
-The implementation would look like
+In this C++ class, `solve` function will be performing the root finding task. We now need to define the algorithm so that `solve` function does what it supposed to do.
+
+The implementation of the algorithm would look like
 
 ```{.cpp #algorithm}
 // this C++ code snippet is later referred to as <<algorithm>>
 #include "newtonraphson.hpp"
+#include "algebra.hpp"
+
+using namespace algebra;
 
 namespace rootfinding
 {
 
-// An example function is x^3 - x^2  + 2
-double func(double x)
-{
-  return x * x * x - x * x + 2;
-}
-
-// Derivative of the above function which is 3*x*x - 2*x
-double derivFunc(double x)
-{
-  return 3 * x * x - 2 * x;
-}
-
 NewtonRaphson::NewtonRaphson(double tolerancein) : tolerance(tolerancein) {}
 
 // Function to find the root
-double NewtonRaphson::find(double xin)
+double NewtonRaphson::solve(double xin)
 {
   double x = xin;
-  double delta_x = func(x) / derivFunc(x);
+  double delta_x = equation(x) / derivative(x);
   while (abs(delta_x) >= tolerance)
   {
-    delta_x = func(x) / derivFunc(x);
+    delta_x = equation(x) / derivative(x);
 
     // x_new = x_old - f(x) / f'(x)
     x = x - delta_x;
@@ -98,7 +116,7 @@ double NewtonRaphson::find(double xin)
 } // namespace rootfinding
 ```
 
-A simple CLI program would look like
+We are now ready to call the algorithm in a simple CLI program. It would look like
 
 ```{.cpp file=src/cli-newtonraphson.cpp}
 // this C++ snippet is stored as src/newtonraphson.cpp
@@ -112,7 +130,7 @@ int main()
   double x0 = -20; // Initial values assumed
   double epsilon = 0.001;
   rootfinding::NewtonRaphson finder(epsilon);
-  double x1 = finder.find(x0);
+  double x1 = finder.solve(x0);
 
   std::cout << "The value of the root is : " << x1 << std::endl;
   return 0;
@@ -214,7 +232,7 @@ int main(int argc, char *argv[])
 
   // Find root
   rootfinding::NewtonRaphson finder(epsilon);
-  double root = finder.find(guess);
+  double root = finder.solve(guess);
 
   // Assemble response
   nlohmann::json response;
@@ -330,8 +348,8 @@ namespace py = pybind11;
 PYBIND11_MODULE(newtonraphsonpy, m) {
     py::class_<rootfinding::NewtonRaphson>(m, "NewtonRaphson")
         .def(py::init<double>(), py::arg("epsilon"))
-        .def("find",
-             &rootfinding::NewtonRaphson::find,
+        .def("solve",
+             &rootfinding::NewtonRaphson::solve,
              py::arg("guess"),
              "Find root starting from initial guess"
         )
@@ -353,7 +371,7 @@ In Python it can be used:
 from newtonraphsonpy import NewtonRaphson
 
 finder = NewtonRaphson(epsilon=0.001)
-root = finder.find(guess=-20)
+root = finder.solve(guess=-20)
 print(root)
 ```
 
@@ -404,7 +422,7 @@ def form():
     </form>'''
 ```
 
-The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result html page. To get the submitted values we use the Flask global [request](https://flask.palletsprojects.com/en/1.1.x/quickstart/#accessing-request-data) object. To construct the returned html we use [f-strings](https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals) to replace the variable names with the variable values.
+The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result HTML page. To get the submitted values we use the Flask global [request](https://flask.palletsprojects.com/en/1.1.x/quickstart/#accessing-request-data) object. To construct the returned HTML we use [f-strings](https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals) to replace the variable names with the variable values.
 
 ```{.python #py-calculate}
 # this Python code snippet is later referred to as <<py-calculate>>
@@ -415,7 +433,7 @@ def calculate():
 
   from newtonraphsonpy import NewtonRaphson
   finder = NewtonRaphson(epsilon)
-  root = finder.find(guess)
+  root = finder.solve(guess)
 
   return f'''<!doctype html>
     <p>With epsilon of {epsilon} and a guess of {guess} the found root is {root}.</p>'''
@@ -492,7 +510,7 @@ def calculate(self, epsilon, guess):
   if not self.request.called_directly:
     self.update_state(state='FINDING')
   time.sleep(5)
-  root = finder.find(guess)
+  root = finder.solve(guess)
   return {'root': root, 'guess': guess, 'epsilon':epsilon}
 ```
 
@@ -655,7 +673,7 @@ def calculate(body):
   guess = body['guess']
   from newtonraphsonpy import NewtonRaphson
   finder = NewtonRaphson(epsilon)
-  root = finder.find(guess)
+  root = finder.solve(guess)
   return {'root': root}
 ```
 
@@ -715,7 +733,7 @@ using namespace emscripten;
 EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
   class_<rootfinding::NewtonRaphson>("NewtonRaphson")
     .constructor<double>()
-    .function("find", &rootfinding::NewtonRaphson::find)
+    .function("solve", &rootfinding::NewtonRaphson::solve)
     ;
 }
 ```
@@ -748,16 +766,13 @@ The root finder can be called with.
 const epsilon = 0.001;
 const finder = new module.NewtonRaphson(epsilon);
 const guess = -20;
-const root = finder.find(guess);
+const root = finder.solve(guess);
 ```
 
-Append the root answer to the html page using [document manipulation functions](https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/append).
+Set the root answer to the HTML page using document manipulation functions: [getElementById](https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById), [innerHTML](https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML). In order to display the result, we use a HTML element with an id of `answer`. This element is defined in the HTML page which we will define soon.
 
 ```{.js #render-answer}
-const answer = document.createElement('span');
-answer.id = 'answer';
-answer.append(root);
-document.body.append(answer);
+document.getElementById('answer').innerHTML = root.toFixed(2);
 ```
 
 To run the JavaScript in a web browser a HTML page is needed.
@@ -774,6 +789,9 @@ To be able to use the `createModule` function, we will import the `newtonraphson
       <<wasm-promise>>
     </script>
   </head>
+  <body>
+    <span id="answer"> </span>
+  </body>
 </html>
 ```
 
@@ -849,7 +867,7 @@ Let's calculate the result (root) based on the payload parameters in the incomin
 const epsilon = message.data.payload.epsilon;
 const finder = new module.NewtonRaphson(epsilon);
 const guess = message.data.payload.guess;
-const root = finder.find(guess);
+const root = finder.solve(guess);
 ```
 
 And send the result back to the web worker consumer as a outgoing message.
@@ -888,6 +906,9 @@ Like before we need a HTML page to run the JavaScript, but now we don't need to 
       <<worker-consumer>>
     </script>
   </head>
+  <body>
+    <span id="answer"> </span>
+  </body>
 </html>
 ```
 
@@ -916,7 +937,7 @@ Their pros and cons are summarized [here](https://en.wikipedia.org/wiki/Comparis
 
 For Newton-Raphson web application, we selected React because its small API footprint (light-weight) and the use of functional programming paradigm.
 
-The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
+The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the HTML, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
 
 ### React component
 
@@ -1580,7 +1601,7 @@ ReactDOM.render(
 );
 ```
 
-The html page should look like
+The HTML page should look like
 
 ```{.html file=src/js/example-plot.html}
 <!doctype html>
