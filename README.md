@@ -113,7 +113,7 @@ double NewtonRaphson::solve(double xin)
 } // namespace rootfinding
 ```
 
-Finally, we can write our simple CLI program. It would look like
+We are now ready to call the algorithm in a simple CLI program. It would look like
 
 ```{.cpp file=src/cli-newtonraphson.cpp}
 // this C++ snippet is stored as src/newtonraphson.cpp
