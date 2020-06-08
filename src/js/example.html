@@ -2,18 +2,18 @@
 <!-- this HTML page is stored as src/js/example.html -->
 <html>
   <head>
-  <script type="text/javascript" src="newtonraphsonwasm.js"></script>
-  <script>
-    // this JavaScript snippet is later referred to as <<wasm-promise>>
-    createModule().then((module) => {
-      // this JavaScript snippet is later referred to as <<wasm-calculate>>
-      const epsilon = 0.001;
-      const finder = new module.NewtonRaphson(epsilon);
-      const guess = -20;
-      const root = finder.solve(guess);
-      document.getElementById('answer').innerHTML = root.toFixed(2);
-    });
-  </script>
+    <script type="text/javascript" src="newtonraphsonwasm.js"></script>
+    <script>
+      // this JavaScript snippet is later referred to as <<wasm-promise>>
+      createModule().then((module) => {
+        // this JavaScript snippet is later referred to as <<wasm-calculate>>
+        const epsilon = 0.001;
+        const finder = new module.NewtonRaphson(epsilon);
+        const guess = -20;
+        const root = finder.solve(guess);
+        document.getElementById('answer').innerHTML = root.toFixed(2);
+      });
+    </script>
   </head>
 
   <body>

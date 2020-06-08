@@ -780,10 +780,10 @@ To be able to use the `createModule` function, we will import the `newtonraphson
 <!-- this HTML page is stored as src/js/example.html -->
 <html>
   <head>
-  <script type="text/javascript" src="newtonraphsonwasm.js"></script>
-  <script>
-    <<wasm-promise>>
-  </script>
+    <script type="text/javascript" src="newtonraphsonwasm.js"></script>
+    <script>
+      <<wasm-promise>>
+    </script>
   </head>
 
   <body>
@@ -898,9 +898,15 @@ Like before we need a HTML page to run the JavaScript, but now we don't need to 
 <!doctype html>
 <!-- this HTML page is stored as src/js/example-web-worker.html -->
 <html>
-  <script>
-    <<worker-consumer>>
-  </script>
+  <head>
+    <script>
+      <<worker-consumer>>
+    </script>
+  </head>
+
+  <body>
+    <span id="answer"> </span>
+  </body>
 </html>
 ```
 
