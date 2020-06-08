@@ -44,7 +44,7 @@ Let us also change the initial guess value.
 describe('src/js/example-app.html', () => {
   it('should render -1.00', () => {
     cy.visit('http://localhost:8000/src/js/example-app.html');
-    // We append a 0 to the guess input field so it becomes -200 
+    // The initial value of the guess input field is -20 so we append a 0 and it becomes -200 
     cy.get('input[name=guess]').type('0');
     cy.contains('Submit').click();
     cy.get('#answer').contains('-1.00');
@@ -61,7 +61,7 @@ describe('src/js/example-jsonschema-form.html', () => {
     // The JSON schema powered form uses a hierarchy of identifiers for each input field starting with `root`
     // As the `epsilon` input field is a direct child of root, it has `root_epsilon` as an identifier
     const input_selector = 'input[id=root_epsilon]';
-    // In initial guess input field replace default value of initial guess with 0.1
+    // In initial guess input field we replace the default value with 0.1
     cy.get(input_selector).type('{selectall}0.1');
     cy.contains('Submit').click();
     cy.get('#answer').contains('-1.00');
