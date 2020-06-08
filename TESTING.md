@@ -7,7 +7,7 @@ Cypress can simulate user behavior such as clicking buttons etc. and checks expe
 
 In the following examples, we test if the example web pages render the answer `-1.00` when they are visited.
 
-To visit a web page we need to start a web server with
+To visit a web page we need to start a simple web server with using Python
 
 ```shell
 python3 -m http.server 8000
@@ -44,7 +44,7 @@ Let us also change the initial guess value.
 describe('src/js/example-app.html', () => {
   it('should render -1.00', () => {
     cy.visit('http://localhost:8000/src/js/example-app.html');
-    // In initial guess input field type 0 to append 0 to default -20 so the value is -200
+    // The initial value of the guess input field is -20 so we append a 0 and it becomes -200 
     cy.get('input[name=guess]').type('0');
     cy.contains('Submit').click();
     cy.get('#answer').contains('-1.00');
@@ -52,15 +52,16 @@ describe('src/js/example-app.html', () => {
 });
 ```
 
-And another test for the full application, but now with [JSON schema powered form](http://localhost:8000/src/js/example-jsonschema-form.html).
+And similar test to the previous one, but now with [JSON schema powered form](http://localhost:8000/src/js/example-jsonschema-form.html).
 
 ```{.js file=cypress/integration/example-jsonschema-form_spec.js}
 describe('src/js/example-jsonschema-form.html', () => {
   it('should render -1.00', () => {
     cy.visit('http://localhost:8000/src/js/example-jsonschema-form.html');
-    // The JSON schema powered form uses a hierarchy of identifers for each input field starting with `root`, as the `epsilon` input field is a direct child of root it has `root_epsilon` as an identifier
+    // The JSON schema powered form uses a hierarchy of identifiers for each input field starting with `root`
+    // As the `epsilon` input field is a direct child of root, it has `root_epsilon` as an identifier
     const input_selector = 'input[id=root_epsilon]';
-    // In initial guess input field replace default value of initial guess with 0.1
+    // In initial guess input field we replace the default value with 0.1
     cy.get(input_selector).type('{selectall}0.1');
     cy.contains('Submit').click();
     cy.get('#answer').contains('-1.00');
