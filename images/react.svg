@@ -25,15 +25,15 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.36040071"
-     inkscape:cx="1693.9478"
+     inkscape:zoom="0.86177744"
+     inkscape:cx="1727.2441"
      inkscape:cy="283.46457"
      inkscape:document-units="mm"
      inkscape:current-layer="layer1"
      showgrid="false"
-     inkscape:window-width="1662"
-     inkscape:window-height="566"
-     inkscape:window-x="1754"
+     inkscape:window-width="3396"
+     inkscape:window-height="1287"
+     inkscape:window-x="20"
      inkscape:window-y="97"
      inkscape:window-maximized="0" />
   <metadata
@@ -108,26 +108,26 @@
        inkscape:connector-curvature="0" />
     <path
        style="fill:#6c5353;fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:0.8938843;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-       d="m 613.83993,209.82879 2.31172,6.23025 h -27.84014 v 5.94084 5.94109 h 27.84014 l -2.31172,6.23024 23.65877,-12.17133 z"
+       d="m 613.83986,209.82879 2.31172,6.23025 h -27.84014 v 5.94084 5.94109 h 27.84014 l -2.31172,6.23024 23.65877,-12.17133 z"
        id="path78-3-5"
        inkscape:connector-curvature="0" />
     <g
-       id="g201"
-       transform="translate(37.61702,-6.1623596)">
+       id="g533"
+       transform="translate(16.608773)">
       <flowRoot
-         transform="matrix(0.26458333,0,0,0.26458333,14.137879,188.27407)"
+         transform="matrix(0.26458333,0,0,0.26458333,51.754899,182.11171)"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:40px;line-height:125%;font-family:Akkurat-Bold;-inkscape-font-specification:'Akkurat-Bold Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          id="flowRoot1000"
          xml:space="preserve"><flowRegion
            id="flowRegion1002"><rect
              y="102.80756"
              x="1267.2537"
-             height="407.36746"
-             width="740.8255"
+             height="383.38519"
+             width="454.08102"
              id="rect1004" /></flowRegion><flowPara
            id="flowPara149"
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:53.33333588px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#333333">two-way WebAssembly to JavaScript bindings</flowPara></flowRoot>      <flowRoot
-         transform="matrix(0.26458333,0,0,0.26458333,14.137879,168.11103)"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:53.33333588px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#333333">WebAssembly to JavaScript bindings</flowPara></flowRoot>      <flowRoot
+         transform="matrix(0.26458333,0,0,0.26458333,51.754899,161.94867)"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:40px;line-height:125%;font-family:Akkurat-Bold;-inkscape-font-specification:'Akkurat-Bold Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          id="flowRoot1000-3"
          xml:space="preserve"><flowRegion
@@ -138,8 +138,8 @@
              width="932.27899"
              id="rect1004-7" /></flowRegion><flowPara
            style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:53.33333588px;font-family:'Roboto Condensed';-inkscape-font-specification:'Roboto Condensed, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-feature-settings:normal;text-align:start;writing-mode:lr-tb;text-anchor:start;fill:#333333"
-           id="flowPara1006-5">Emscriptem</flowPara></flowRoot>      <flowRoot
-         transform="matrix(0.26458333,0,0,0.26458333,13.214593,222.30277)"
+           id="flowPara1006-5">Emscripten</flowPara></flowRoot>      <flowRoot
+         transform="matrix(0.26458333,0,0,0.26458333,50.831613,216.14041)"
          style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-size:40px;line-height:125%;font-family:Akkurat-Bold;-inkscape-font-specification:'Akkurat-Bold Bold';letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
          id="flowRoot1000-3-3"
          xml:space="preserve"><flowRegion
