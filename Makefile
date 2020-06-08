@@ -23,7 +23,7 @@ pip-flask:
 	pip install flask
 
 pip-celery:
-	pip install celery[redis]==4.4.3
+	pip install celery[redis]
 
 pip-connexion:
 	pip install connexion[swagger-ui]
