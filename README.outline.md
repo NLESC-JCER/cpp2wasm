@@ -8,6 +8,8 @@ add Announcement, something like _Five ways to host your C++ program online_
 
 Consider adding a line that helps people decide which section to focus on.
 
+# Example algorithm
+
 Introduce the example algorithm, as a CLI.
 - delay introducing the interface if possible
 - one file: algorithm and main
@@ -20,8 +22,9 @@ Introduce the example algorithm, as a CLI.
 | :heart: pro1 | :no_entry: con1 |
 | :heart: pro2 | :no_entry: con2 |
 
-- Explain that there is no longer a stdin, we need to change to JSON
-- move JSON schema to swagger section
+- Explain that there is no longer command line args, we need to change to JSON
+- Explain what is JSON
+- move JSON schema to swagger section or even to JavaScript form generation
 - JSON flavor of JSON schema can be removed (we still have the OpenAPI YAML)
 
 # Python web service
