@@ -34,7 +34,32 @@ The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton
 The algorithm is explained in [this video series](https://www.youtube.com/watch?v=cOmAk82cr9M).
 The code we are using came from [geeksforgeeks.org](https://www.geeksforgeeks.org/program-for-newton-raphson-method/).
 
-The interface would like
+Let's first define the mathematical equation, which we will be searching for its root, and the derivative of it.
+
+The equation and its derivative which we will use in this guide are $x^3 - x^2  + 2$ and $3x^2 - 2x$ respectively.
+
+```{.hpp file=src/algebra.hpp}
+// this C++ code snippet is store as src/algebra.hpp
+
+namespace algebra
+{
+
+// An example equation is x^3 - x^2  + 2
+double equation(double x)
+{
+  return x * x * x - x * x + 2;
+}
+
+// Derivative of the above equation which is 3*x^2 - 2*x
+double derivative(double x)
+{
+  return 3 * x * x - 2 * x;
+}
+
+} // namespace algebra
+```
+
+Next, we define the interface (C++ class).
 
 ```{.cpp file=src/newtonraphson.hpp}
 // this C++ snippet is stored as src/newtonraphson.hpp
@@ -47,7 +72,7 @@ namespace rootfinding {
   class NewtonRaphson {
     public:
       NewtonRaphson(double tolerancein);
-      double find(double xin);
+      double solve(double xin);
     private:
       double tolerance;
   };
@@ -56,37 +81,30 @@ namespace rootfinding {
 #endif
 ```
 
-The implementation would look like
+In this C++ class, `solve` function will be performing the root finding task. We now need to define the algorithm so that `solve` function does what it supposed to do.
+
+The implementation of the algorithm would look like
 
 ```{.cpp #algorithm}
 // this C++ code snippet is later referred to as <<algorithm>>
 #include "newtonraphson.hpp"
+#include "algebra.hpp"
+
+using namespace algebra;
 
 namespace rootfinding
 {
 
-// An example function is x^3 - x^2  + 2
-double func(double x)
-{
-  return x * x * x - x * x + 2;
-}
-
-// Derivative of the above function which is 3*x*x - 2*x
-double derivFunc(double x)
-{
-  return 3 * x * x - 2 * x;
-}
-
 NewtonRaphson::NewtonRaphson(double tolerancein) : tolerance(tolerancein) {}
 
 // Function to find the root
-double NewtonRaphson::find(double xin)
+double NewtonRaphson::solve(double xin)
 {
   double x = xin;
-  double delta_x = func(x) / derivFunc(x);
+  double delta_x = equation(x) / derivative(x);
   while (abs(delta_x) >= tolerance)
   {
-    delta_x = func(x) / derivFunc(x);
+    delta_x = equation(x) / derivative(x);
 
     // x_new = x_old - f(x) / f'(x)
     x = x - delta_x;
@@ -98,7 +116,7 @@ double NewtonRaphson::find(double xin)
 } // namespace rootfinding
 ```
 
-A simple CLI program would look like
+We are now ready to call the algorithm in a simple CLI program. It would look like
 
 ```{.cpp file=src/cli-newtonraphson.cpp}
 // this C++ snippet is stored as src/newtonraphson.cpp
@@ -112,7 +130,7 @@ int main()
   double x0 = -20; // Initial values assumed
   double epsilon = 0.001;
   rootfinding::NewtonRaphson finder(epsilon);
-  double x1 = finder.find(x0);
+  double x1 = finder.solve(x0);
 
   std::cout << "The value of the root is : " << x1 << std::endl;
   return 0;
@@ -214,7 +232,7 @@ int main(int argc, char *argv[])
 
   // Find root
   rootfinding::NewtonRaphson finder(epsilon);
-  double root = finder.find(guess);
+  double root = finder.solve(guess);
 
   // Assemble response
   nlohmann::json response;
@@ -330,8 +348,8 @@ namespace py = pybind11;
 PYBIND11_MODULE(newtonraphsonpy, m) {
     py::class_<rootfinding::NewtonRaphson>(m, "NewtonRaphson")
         .def(py::init<double>(), py::arg("epsilon"))
-        .def("find",
-             &rootfinding::NewtonRaphson::find,
+        .def("solve",
+             &rootfinding::NewtonRaphson::solve,
              py::arg("guess"),
              "Find root starting from initial guess"
         )
@@ -353,7 +371,7 @@ In Python it can be used:
 from newtonraphsonpy import NewtonRaphson
 
 finder = NewtonRaphson(epsilon=0.001)
-root = finder.find(guess=-20)
+root = finder.solve(guess=-20)
 print(root)
 ```
 
@@ -404,7 +422,7 @@ def form():
     </form>'''
 ```
 
-The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result html page. To get the submitted values we use the Flask global [request](https://flask.palletsprojects.com/en/1.1.x/quickstart/#accessing-request-data) object. To construct the returned html we use [f-strings](https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals) to replace the variable names with the variable values.
+The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result HTML page. To get the submitted values we use the Flask global [request](https://flask.palletsprojects.com/en/1.1.x/quickstart/#accessing-request-data) object. To construct the returned HTML we use [f-strings](https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals) to replace the variable names with the variable values.
 
 ```{.python #py-calculate}
 # this Python code snippet is later referred to as <<py-calculate>>
@@ -415,7 +433,7 @@ def calculate():
 
   from newtonraphsonpy import NewtonRaphson
   finder = NewtonRaphson(epsilon)
-  root = finder.find(guess)
+  root = finder.solve(guess)
 
   return f'''<!doctype html>
     <p>With epsilon of {epsilon} and a guess of {guess} the found root is {root}.</p>'''
@@ -461,7 +479,7 @@ docker run --rm -d -p 6379:6379 --name some-redis redis
 To use Celery we must install the redis flavored version with
 
 ```{.awk #pip-celery}
-pip install celery[redis]==4.4.3
+pip install celery[redis]
 ```
 
 Let's set up a method that can be submitted to the Celery task queue.
@@ -492,7 +510,7 @@ def calculate(self, epsilon, guess):
   if not self.request.called_directly:
     self.update_state(state='FINDING')
   time.sleep(5)
-  root = finder.find(guess)
+  root = finder.solve(guess)
   return {'root': root, 'guess': guess, 'epsilon':epsilon}
 ```
 
@@ -655,7 +673,7 @@ def calculate(body):
   guess = body['guess']
   from newtonraphsonpy import NewtonRaphson
   finder = NewtonRaphson(epsilon)
-  root = finder.find(guess)
+  root = finder.solve(guess)
   return {'root': root}
 ```
 
@@ -715,7 +733,7 @@ using namespace emscripten;
 EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
   class_<rootfinding::NewtonRaphson>("NewtonRaphson")
     .constructor<double>()
-    .function("find", &rootfinding::NewtonRaphson::find)
+    .function("solve", &rootfinding::NewtonRaphson::solve)
     ;
 }
 ```
@@ -748,16 +766,13 @@ The root finder can be called with.
 const epsilon = 0.001;
 const finder = new module.NewtonRaphson(epsilon);
 const guess = -20;
-const root = finder.find(guess);
+const root = finder.solve(guess);
 ```
 
-Append the root answer to the html page using [document manipulation functions](https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/append).
+Set the root answer to the HTML page using document manipulation functions: [getElementById](https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById), [innerHTML](https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML). In order to display the result, we use a HTML element with an id of `answer`. This element is defined in the HTML page which we will define soon.
 
 ```{.js #render-answer}
-const answer = document.createElement('span');
-answer.id = 'answer';
-answer.append(root);
-document.body.append(answer);
+document.getElementById('answer').innerHTML = root.toFixed(2);
 ```
 
 To run the JavaScript in a web browser a HTML page is needed.
@@ -766,11 +781,17 @@ To be able to use the `createModule` function, we will import the `newtonraphson
 ```{.html file=src/js/example.html}
 <!doctype html>
 <!-- this HTML page is stored as src/js/example.html -->
-<html>
-  <script type="text/javascript" src="newtonraphsonwasm.js"></script>
-  <script>
-    <<wasm-promise>>
-  </script>
+<html lang="en">
+  <head>
+    <title>Example</title>
+    <script type="text/javascript" src="newtonraphsonwasm.js"></script>
+    <script>
+      <<wasm-promise>>
+    </script>
+  </head>
+  <body>
+    <span id="answer"> </span>
+  </body>
 </html>
 ```
 
@@ -846,7 +867,7 @@ Let's calculate the result (root) based on the payload parameters in the incomin
 const epsilon = message.data.payload.epsilon;
 const finder = new module.NewtonRaphson(epsilon);
 const guess = message.data.payload.guess;
-const root = finder.find(guess);
+const root = finder.solve(guess);
 ```
 
 And send the result back to the web worker consumer as a outgoing message.
@@ -878,10 +899,16 @@ Like before we need a HTML page to run the JavaScript, but now we don't need to 
 ```{.html file=src/js/example-web-worker.html}
 <!doctype html>
 <!-- this HTML page is stored as src/js/example-web-worker.html -->
-<html>
-  <script>
-    <<worker-consumer>>
-  </script>
+<html lang="en">
+  <head>
+    <title>Example web worker</title>
+    <script>
+      <<worker-consumer>>
+    </script>
+  </head>
+  <body>
+    <span id="answer"> </span>
+  </body>
 </html>
 ```
 
@@ -910,7 +937,7 @@ Their pros and cons are summarized [here](https://en.wikipedia.org/wiki/Comparis
 
 For Newton-Raphson web application, we selected React because its small API footprint (light-weight) and the use of functional programming paradigm.
 
-The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
+The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the HTML, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
 
 ### React component
 
@@ -920,8 +947,11 @@ we implement the React application in the `app.js` file.
 ```{.html file=src/js/example-app.html}
 <!doctype html>
 <!-- this HTML page is stored as src/js/example-app.html -->
-<html>
-  <<imports>>
+<html lang="en">
+  <head>
+    <title>Example React application</title>
+    <<imports>>
+  </head>
   <div id="container"></div>
 
   <script type="text/babel" src="app.js"></script>
@@ -1177,8 +1207,11 @@ To render the application we need a HTML page. We will reuse the imports we did 
 ```{.html file=src/js/example-jsonschema-form.html}
 <!doctype html>
 <!-- this HTML page is stored as src/jsexample-jsonschema-form.html -->
-<html>
-  <<imports>>
+<html lang="en">
+  <head>
+    <title>Example JSON schema powered form</title>
+    <<imports>>
+  </head>
   <div id="container"></div>
 
   <script type="text/babel" src="jsonschema-app.js"></script>
@@ -1192,7 +1225,7 @@ To use the [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema
 <script src="https://unpkg.com/@rjsf/core/dist/react-jsonschema-form.js"></script>
 ```
 
-The form component is exported as `JSONSchemaForm.default` and can be aliases to `Form` with
+The form component is exported as `JSONSchemaForm.default` and can be aliases to `Form` for easy use with
 
 ```{.js #jsonschema-app}
 // this JavaScript snippet is appended to <<jsonschema-app>>
@@ -1249,12 +1282,12 @@ The `handleSubmit` function recieves the form input values and use the web worke
 // this JavaScript snippet is appended to <<jsonschema-app>>
 const [root, setRoot] = React.useState(undefined);
 
-function handleSubmit({formData}, event) {
+function handleSubmit(submission, event) {
   event.preventDefault();
   const worker = new Worker('worker.js');
   worker.postMessage({
     type: 'CALCULATE',
-    payload: formData
+    payload: submission.formData
   });
   worker.onmessage = function(message) {
       if (message.data.type === 'RESULT') {
@@ -1311,4 +1344,291 @@ If you enter a negative number in the `epsilon` field the form will become inval
 
 ### Visualization
 
-The plots in web apllicatoin can be made using [vega-lite](https://vega.github.io/vega-lite/). Vega-lite is a JS library which accepts a JSON document describing the plot and generates interactive graphics.
+The plots in web application can be made using [vega-lite](https://vega.github.io/vega-lite/). Vega-lite is a JS library which accepts a JSON document describing the plot.
+
+To make an interesting plot we need more than one result. We are going to do a parameter sweep and measure how long each calculation takes.
+
+Lets make a new JSON schema for the form in which we can set a max, min and step for epsilon.
+
+```{.js #plot-app}
+// this JavaScript snippet is later referred to as <<jsonschema-app>>
+const schema = {
+  "type": "object",
+  "properties": {
+    "epsilon": {
+      "title": "Epsilon",
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.0001
+        },
+        "max": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.001
+        },
+        "step": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.0001
+        }
+      },
+      "required": ["min", "max", "step"],
+      "additionalProperties": false
+    },
+    "guess": {
+      "title": "Initial guess",
+      "type": "number",
+      "minimum": -100,
+      "maximum": 100,
+      "default": -20
+    }
+  },
+  "required": ["epsilon", "guess"],
+  "additionalProperties": false
+}
+```
+
+We need to rewrite the worker to perform a parameter sweep.
+The worker will recieve a payload like
+
+```json
+{
+  "epsilon": {
+    "min": 0.0001,
+    "max": 0.001,
+    "step": 0.0001
+  },
+  "guess": -20
+}
+```
+
+The worker will send back an array containing objects with the root result, the input parameters and the duration in milliseconds.
+
+```json
+[{
+  "epsilon": 0.0001,
+  "guess": -20,
+  "root": -1,
+  "duration": 0.61
+}]
+```
+
+To perform the sweep we will first unpack the payload.
+
+```{.js #calculate-sweep}
+// this JavaScript snippet is later referred to as <<calculate-sweep>>
+const {min, max, step} = message.data.payload.epsilon;
+const guess = message.data.payload.guess;
+```
+
+The result array needs to be initialized.
+
+```{.js #calculate-sweep}
+// this JavaScript snippet appended to <<calculate-sweep>>
+const roots = [];
+```
+
+Lets use a [classic for loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for) to iterate over requested the epsilons.
+
+```{.js #calculate-sweep}
+// this JavaScript snippet appended to <<calculate-sweep>>
+for (let epsilon = min; epsilon <= max; epsilon += step) {
+```
+
+To measure the duration of a calculation we use the [performance.now()](https://developer.mozilla.org/en-US/docs/Web/API/Performance/now) method which returns a timestamp in milliseconds.
+
+```{.js #calculate-sweep}
+  // this JavaScript snippet appended to <<calculate-sweep>>
+  const t0 = performance.now();
+  const finder = new module.NewtonRaphson(epsilon);
+  const root = finder.find(guess);
+  const duration = performance.now() - t0;
+```
+
+We append the root result object using [shorthand property names](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer) to the result array.
+
+```{.js #calculate-sweep}
+  // this JavaScript snippet appended to <<calculate-sweep>>
+  roots.push({
+    epsilon,
+    guess,
+    root,
+    duration
+  });
+```
+
+To complete the sweep calculation we need to close the for loop and post the result.
+
+```{.js #calculate-sweep}
+  // this JavaScript snippet appended to <<calculate-sweep>>
+}
+postMessage({
+  type: 'RESULT',
+  payload: {
+    roots
+  }
+});
+```
+
+The sweep calculation snippet (`<<calculate-sweep>>`) must be run in a new web worker called `worker-sweep.js`.
+Like before we need to wait for the WebAssembly module to be initialized before we can start the calculation.
+
+```{.js file=src/js/worker-sweep.js}
+// this JavaScript snippet stored as src/js/worker-sweep.js
+importScripts('newtonraphsonwasm.js');
+
+onmessage = function(message) {
+  if (message.data.type === 'CALCULATE') {
+    createModule().then((module) => {
+      <<calculate-sweep>>
+    });
+  }
+};
+```
+
+To handle the submit we will start a worker, send the form data to the worker, recieve the workers result and store it in the `roots` variable.
+
+```{.js #plot-app}
+// this JavaScript snippet is appended to <<plot-app>>
+const [roots, setRoots] = React.useState([]);
+
+function handleSubmit(submission, event) {
+  event.preventDefault();
+  const worker = new Worker('worker-sweep.js');
+  worker.postMessage({
+    type: 'CALCULATE',
+    payload: submission.formData
+  });
+  worker.onmessage = function(message) {
+      if (message.data.type === 'RESULT') {
+        const result = message.data.payload.roots;
+        setRoots(result);
+        worker.terminate();
+    }
+  };
+}
+```
+
+Now that we got data, we are ready to plot. We use the
+ [Vega-Lite specification](https://vega.github.io/vega-lite/docs/spec.html) to declare the plot.
+The specification for a scatter plot of the `epsilon` against the `duration` looks like.
+
+```{.js #vega-lite-spec}
+// this JavaScript snippet is later referred to as <<vega-lite-spec>>
+const spec = {
+  "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
+  "data": { "values": roots },
+  "mark": "point",
+  "encoding": {
+    "x": { "field": "epsilon", "type": "quantitative" },
+    "y": { "field": "duration", "type": "quantitative", "title": "Duration (ms)" }
+  },
+  "width": 800,
+  "height": 600
+};
+```
+
+To render the spec we use the [vegaEmbed](https://github.com/vega/vega-embed) module. The Vega-Lite specification is a simplification of the [Vega specification](https://vega.github.io/vega/docs/specification/) so wil first import `vega` then `vega-lite` and lastly `vega-embed`.
+
+```{.html #imports}
+<script src="https://cdn.jsdelivr.net/npm/vega@5.13.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+```
+
+The `vegaEmbed()` function needs a DOM element to render the plot in.
+In React we must use the [useRef](https://reactjs.org/docs/hooks-reference.html#useref) hook to get a reference to a DOM element. As the DOM element needs time to initialize we need to use the [useEffect](https://reactjs.org/docs/hooks-effect.html) hook to only embed the plot when the DOM element is ready. The `Plot` React component can be written as
+
+```{.jsx #plot-component}
+// this JavaScript snippet is later referred to as <<plot-component>>
+function Plot({roots}) {
+  const container = React.useRef(null);
+
+  function didUpdate() {
+    if (container.current === null) {
+      return;
+    }
+    <<vega-lite-spec>>
+    vegaEmbed(container.current, spec);
+  }
+  const dependencies = [container, roots];
+  React.useEffect(didUpdate, dependencies);
+
+  return <div ref={container}/>;
+}
+```
+
+The App component can be defined and rendered with.
+
+```{.jsx file=src/js/plot-app.js}
+// this JavaScript snippet stored as src/js/plot-app.js
+<<heading-component>>
+
+<<plot-component>>
+
+function App() {
+  const Form = JSONSchemaForm.default;
+  const uiSchema = {
+    "guess": {
+      "ui:widget": "range"
+    }
+  }
+  const [formData, setFormData] = React.useState({
+
+  });
+
+  function handleChange(event) {
+    setFormData(event.formData);
+  }
+
+  <<plot-app>>
+
+  return (
+    <div>
+      <Heading/>
+      <<jsonschema-form>>
+      <Plot roots={roots}/>
+    </div>
+  );
+}
+
+ReactDOM.render(
+  <App/>,
+  document.getElementById('container')
+);
+```
+
+The HTML page should look like
+
+```{.html file=src/js/example-plot.html}
+<!doctype html>
+<!-- this HTML page is stored as src/js/plot-form.html -->
+<html lang="en">
+  <head>
+    <title>Example plot</title>
+    <<imports>>
+  <head>
+  <body>
+    <div id="container"></div>
+
+    <script type="text/babel" src="plot-app.js"></script>
+  </body>
+</html>
+```
+
+Like before we also need to host the files in a web server with
+
+```shell
+python3 -m http.server 8000
+```
+
+Visit [http://localhost:8000/src/js/example-plot.html](http://localhost:8000/src/js/example-plot.html) to see the epsilon/duration plot.
+
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-plot.html)
+
+<iframe width="100%" height="1450" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-plot.html" /></iframe>
+
+After the submit button is pressed the plot should show that the first calculation took a bit longer then the rest.

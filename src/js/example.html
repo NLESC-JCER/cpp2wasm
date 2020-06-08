@@ -1,19 +1,22 @@
 <!doctype html>
 <!-- this HTML page is stored as src/js/example.html -->
-<html>
-  <script type="text/javascript" src="newtonraphsonwasm.js"></script>
-  <script>
-    // this JavaScript snippet is later referred to as <<wasm-promise>>
-    createModule().then((module) => {
-      // this JavaScript snippet is later referred to as <<wasm-calculate>>
-      const epsilon = 0.001;
-      const finder = new module.NewtonRaphson(epsilon);
-      const guess = -20;
-      const root = finder.find(guess);
-      const answer = document.createElement('span');
-      answer.id = 'answer';
-      answer.append(root);
-      document.body.append(answer);
-    });
-  </script>
+<html lang="en">
+  <head>
+    <title>Example</title>
+    <script type="text/javascript" src="newtonraphsonwasm.js"></script>
+    <script>
+      // this JavaScript snippet is later referred to as <<wasm-promise>>
+      createModule().then((module) => {
+        // this JavaScript snippet is later referred to as <<wasm-calculate>>
+        const epsilon = 0.001;
+        const finder = new module.NewtonRaphson(epsilon);
+        const guess = -20;
+        const root = finder.solve(guess);
+        document.getElementById('answer').innerHTML = root.toFixed(2);
+      });
+    </script>
+  </head>
+  <body>
+    <span id="answer"> </span>
+  </body>
 </html>
