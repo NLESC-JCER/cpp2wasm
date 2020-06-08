@@ -1444,7 +1444,7 @@ To measure the duration of a calculation we use the [performance.now()](https://
   // this JavaScript snippet appended to <<calculate-sweep>>
   const t0 = performance.now();
   const finder = new module.NewtonRaphson(epsilon);
-  const root = finder.find(guess);
+  const root = finder.solve(guess);
   const duration = performance.now() - t0;
 ```
 

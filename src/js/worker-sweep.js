@@ -14,7 +14,7 @@ onmessage = function(message) {
         // this JavaScript snippet appended to <<calculate-sweep>>
         const t0 = performance.now();
         const finder = new module.NewtonRaphson(epsilon);
-        const root = finder.find(guess);
+        const root = finder.solve(guess);
         const duration = performance.now() - t0;
         // this JavaScript snippet appended to <<calculate-sweep>>
         roots.push({
