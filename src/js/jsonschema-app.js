@@ -23,11 +23,6 @@ function App() {
   }
   // this JavaScript snippet is appended to <<jsonschema-app>>
   const Form = JSONSchemaForm.default;
-  const uiSchema = {
-    "guess": {
-      "ui:widget": "range"
-    }
-  }
   // this JavaScript snippet is appended to <<jsonschema-app>>
   const [formData, setFormData] = React.useState({
     epsilon: 0.001,
@@ -61,7 +56,6 @@ function App() {
       <Heading/>
       { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
       <Form
-        uiSchema={uiSchema}
         schema={schema}
         formData={formData}
         onChange={handleChange}

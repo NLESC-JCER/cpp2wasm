@@ -1216,16 +1216,6 @@ The form [by default](https://react-jsonschema-form.readthedocs.io/en/latest/usa
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 ```
 
-The react-jsonschema-form component normally renders an integer with a updown selector. To use a range slider instead configure a [user interface schema](https://react-jsonschema-form.readthedocs.io/en/latest/quickstart/#form-uischema).
-
-```{.js #jsonschema-app}
-const uiSchema = {
-  "guess": {
-    "ui:widget": "range"
-  }
-}
-```
-
 The values in the form must be initialized and updated whenever the form changes.
 
 ```{.js #jsonschema-app}
@@ -1245,7 +1235,6 @@ The form can be rendered with
 ```{.jsx #jsonschema-form}
 { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
 <Form
-  uiSchema={uiSchema}
   schema={schema}
   formData={formData}
   onChange={handleChange}
