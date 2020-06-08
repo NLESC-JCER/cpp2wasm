@@ -1,4 +1,4 @@
-// this C++ code snippet is later referred to as <<algebra>>
+// this C++ code snippet is store as src/algebra.hpp
 
 namespace algebra
 {
