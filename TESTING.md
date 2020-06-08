@@ -7,7 +7,7 @@ Cypress can simulate user behavior such as clicking buttons etc. and checks expe
 
 In the following examples, we test if the example web pages render the answer `-1.00` when they are visited.
 
-To visit a web page we need to start a web server with
+To visit a web page we need to start a simple web server with using Python
 
 ```shell
 python3 -m http.server 8000
