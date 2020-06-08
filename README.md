@@ -36,7 +36,7 @@ The code we are using came from [geeksforgeeks.org](https://www.geeksforgeeks.or
 Let's first define the mathematical function, which we will be searching for its root, and the derivative of it.
 
 ```{.hpp file=src/algebra.hpp}
-// this C++ code snippet is later referred to as <<algebra>>
+// this C++ code snippet is store as src/algebra.hpp
 
 namespace algebra
 {
