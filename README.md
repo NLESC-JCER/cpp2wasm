@@ -766,11 +766,14 @@ To be able to use the `createModule` function, we will import the `newtonraphson
 ```{.html file=src/js/example.html}
 <!doctype html>
 <!-- this HTML page is stored as src/js/example.html -->
-<html>
-  <script type="text/javascript" src="newtonraphsonwasm.js"></script>
-  <script>
-    <<wasm-promise>>
-  </script>
+<html lang="en">
+  <head>
+    <title>Example</title>
+    <script type="text/javascript" src="newtonraphsonwasm.js"></script>
+    <script>
+      <<wasm-promise>>
+    </script>
+  </head>
 </html>
 ```
 
@@ -878,10 +881,13 @@ Like before we need a HTML page to run the JavaScript, but now we don't need to 
 ```{.html file=src/js/example-web-worker.html}
 <!doctype html>
 <!-- this HTML page is stored as src/js/example-web-worker.html -->
-<html>
-  <script>
-    <<worker-consumer>>
-  </script>
+<html lang="en">
+  <head>
+    <title>Example web worker</title>
+    <script>
+      <<worker-consumer>>
+    </script>
+  </head>
 </html>
 ```
 
@@ -920,8 +926,11 @@ we implement the React application in the `app.js` file.
 ```{.html file=src/js/example-app.html}
 <!doctype html>
 <!-- this HTML page is stored as src/js/example-app.html -->
-<html>
-  <<imports>>
+<html lang="en">
+  <head>
+    <title>Example React application</title>
+    <<imports>>
+  </head>
   <div id="container"></div>
 
   <script type="text/babel" src="app.js"></script>
@@ -1177,8 +1186,11 @@ To render the application we need a HTML page. We will reuse the imports we did 
 ```{.html file=src/js/example-jsonschema-form.html}
 <!doctype html>
 <!-- this HTML page is stored as src/jsexample-jsonschema-form.html -->
-<html>
-  <<imports>>
+<html lang="en">
+  <head>
+    <title>Example JSON schema powered form</title>
+    <<imports>>
+  </head>
   <div id="container"></div>
 
   <script type="text/babel" src="jsonschema-app.js"></script>
@@ -1192,7 +1204,7 @@ To use the [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema
 <script src="https://unpkg.com/@rjsf/core/dist/react-jsonschema-form.js"></script>
 ```
 
-The form component is exported as `JSONSchemaForm.default` and can be aliases to `Form` with
+The form component is exported as `JSONSchemaForm.default` and can be aliases to `Form` for easy use with
 
 ```{.js #jsonschema-app}
 // this JavaScript snippet is appended to <<jsonschema-app>>
@@ -1249,12 +1261,12 @@ The `handleSubmit` function recieves the form input values and use the web worke
 // this JavaScript snippet is appended to <<jsonschema-app>>
 const [root, setRoot] = React.useState(undefined);
 
-function handleSubmit({formData}, event) {
+function handleSubmit(submission, event) {
   event.preventDefault();
   const worker = new Worker('worker.js');
   worker.postMessage({
     type: 'CALCULATE',
-    payload: formData
+    payload: submission.formData
   });
   worker.onmessage = function(message) {
       if (message.data.type === 'RESULT') {
@@ -1311,4 +1323,291 @@ If you enter a negative number in the `epsilon` field the form will become inval
 
 ### Visualization
 
-The plots in web apllicatoin can be made using [vega-lite](https://vega.github.io/vega-lite/). Vega-lite is a JS library which accepts a JSON document describing the plot and generates interactive graphics.
+The plots in web application can be made using [vega-lite](https://vega.github.io/vega-lite/). Vega-lite is a JS library which accepts a JSON document describing the plot.
+
+To make an interesting plot we need more than one result. We are going to do a parameter sweep and measure how long each calculation takes.
+
+Lets make a new JSON schema for the form in which we can set a max, min and step for epsilon.
+
+```{.js #plot-app}
+// this JavaScript snippet is later referred to as <<jsonschema-app>>
+const schema = {
+  "type": "object",
+  "properties": {
+    "epsilon": {
+      "title": "Epsilon",
+      "type": "object",
+      "properties": {
+        "min": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.0001
+        },
+        "max": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.001
+        },
+        "step": {
+          "type": "number",
+          "minimum": 0,
+          "default": 0.0001
+        }
+      },
+      "required": ["min", "max", "step"],
+      "additionalProperties": false
+    },
+    "guess": {
+      "title": "Initial guess",
+      "type": "number",
+      "minimum": -100,
+      "maximum": 100,
+      "default": -20
+    }
+  },
+  "required": ["epsilon", "guess"],
+  "additionalProperties": false
+}
+```
+
+We need to rewrite the worker to perform a parameter sweep.
+The worker will recieve a payload like
+
+```json
+{
+  "epsilon": {
+    "min": 0.0001,
+    "max": 0.001,
+    "step": 0.0001
+  },
+  "guess": -20
+}
+```
+
+The worker will send back an array containing objects with the root result, the input parameters and the duration in milliseconds.
+
+```json
+[{
+  "epsilon": 0.0001,
+  "guess": -20,
+  "root": -1,
+  "duration": 0.61
+}]
+```
+
+To perform the sweep we will first unpack the payload.
+
+```{.js #calculate-sweep}
+// this JavaScript snippet is later referred to as <<calculate-sweep>>
+const {min, max, step} = message.data.payload.epsilon;
+const guess = message.data.payload.guess;
+```
+
+The result array needs to be initialized.
+
+```{.js #calculate-sweep}
+// this JavaScript snippet appended to <<calculate-sweep>>
+const roots = [];
+```
+
+Lets use a [classic for loop](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/for) to iterate over requested the epsilons.
+
+```{.js #calculate-sweep}
+// this JavaScript snippet appended to <<calculate-sweep>>
+for (let epsilon = min; epsilon <= max; epsilon += step) {
+```
+
+To measure the duration of a calculation we use the [performance.now()](https://developer.mozilla.org/en-US/docs/Web/API/Performance/now) method which returns a timestamp in milliseconds.
+
+```{.js #calculate-sweep}
+  // this JavaScript snippet appended to <<calculate-sweep>>
+  const t0 = performance.now();
+  const finder = new module.NewtonRaphson(epsilon);
+  const root = finder.find(guess);
+  const duration = performance.now() - t0;
+```
+
+We append the root result object using [shorthand property names](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Object_initializer) to the result array.
+
+```{.js #calculate-sweep}
+  // this JavaScript snippet appended to <<calculate-sweep>>
+  roots.push({
+    epsilon,
+    guess,
+    root,
+    duration
+  });
+```
+
+To complete the sweep calculation we need to close the for loop and post the result.
+
+```{.js #calculate-sweep}
+  // this JavaScript snippet appended to <<calculate-sweep>>
+}
+postMessage({
+  type: 'RESULT',
+  payload: {
+    roots
+  }
+});
+```
+
+The sweep calculation snippet (`<<calculate-sweep>>`) must be run in a new web worker called `worker-sweep.js`.
+Like before we need to wait for the WebAssembly module to be initialized before we can start the calculation.
+
+```{.js file=src/js/worker-sweep.js}
+// this JavaScript snippet stored as src/js/worker-sweep.js
+importScripts('newtonraphsonwasm.js');
+
+onmessage = function(message) {
+  if (message.data.type === 'CALCULATE') {
+    createModule().then((module) => {
+      <<calculate-sweep>>
+    });
+  }
+};
+```
+
+To handle the submit we will start a worker, send the form data to the worker, recieve the workers result and store it in the `roots` variable.
+
+```{.js #plot-app}
+// this JavaScript snippet is appended to <<plot-app>>
+const [roots, setRoots] = React.useState([]);
+
+function handleSubmit(submission, event) {
+  event.preventDefault();
+  const worker = new Worker('worker-sweep.js');
+  worker.postMessage({
+    type: 'CALCULATE',
+    payload: submission.formData
+  });
+  worker.onmessage = function(message) {
+      if (message.data.type === 'RESULT') {
+        const result = message.data.payload.roots;
+        setRoots(result);
+        worker.terminate();
+    }
+  };
+}
+```
+
+Now that we got data, we are ready to plot. We use the
+ [Vega-Lite specification](https://vega.github.io/vega-lite/docs/spec.html) to declare the plot.
+The specification for a scatter plot of the `epsilon` against the `duration` looks like.
+
+```{.js #vega-lite-spec}
+// this JavaScript snippet is later referred to as <<vega-lite-spec>>
+const spec = {
+  "$schema": "https://vega.github.io/schema/vega-lite/v4.json",
+  "data": { "values": roots },
+  "mark": "point",
+  "encoding": {
+    "x": { "field": "epsilon", "type": "quantitative" },
+    "y": { "field": "duration", "type": "quantitative", "title": "Duration (ms)" }
+  },
+  "width": 800,
+  "height": 600
+};
+```
+
+To render the spec we use the [vegaEmbed](https://github.com/vega/vega-embed) module. The Vega-Lite specification is a simplification of the [Vega specification](https://vega.github.io/vega/docs/specification/) so wil first import `vega` then `vega-lite` and lastly `vega-embed`.
+
+```{.html #imports}
+<script src="https://cdn.jsdelivr.net/npm/vega@5.13.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-lite@4.13.0"></script>
+<script src="https://cdn.jsdelivr.net/npm/vega-embed@6.8.0"></script>
+```
+
+The `vegaEmbed()` function needs a DOM element to render the plot in.
+In React we must use the [useRef](https://reactjs.org/docs/hooks-reference.html#useref) hook to get a reference to a DOM element. As the DOM element needs time to initialize we need to use the [useEffect](https://reactjs.org/docs/hooks-effect.html) hook to only embed the plot when the DOM element is ready. The `Plot` React component can be written as
+
+```{.jsx #plot-component}
+// this JavaScript snippet is later referred to as <<plot-component>>
+function Plot({roots}) {
+  const container = React.useRef(null);
+
+  function didUpdate() {
+    if (container.current === null) {
+      return;
+    }
+    <<vega-lite-spec>>
+    vegaEmbed(container.current, spec);
+  }
+  const dependencies = [container, roots];
+  React.useEffect(didUpdate, dependencies);
+
+  return <div ref={container}/>;
+}
+```
+
+The App component can be defined and rendered with.
+
+```{.jsx file=src/js/plot-app.js}
+// this JavaScript snippet stored as src/js/plot-app.js
+<<heading-component>>
+
+<<plot-component>>
+
+function App() {
+  const Form = JSONSchemaForm.default;
+  const uiSchema = {
+    "guess": {
+      "ui:widget": "range"
+    }
+  }
+  const [formData, setFormData] = React.useState({
+
+  });
+
+  function handleChange(event) {
+    setFormData(event.formData);
+  }
+
+  <<plot-app>>
+
+  return (
+    <div>
+      <Heading/>
+      <<jsonschema-form>>
+      <Plot roots={roots}/>
+    </div>
+  );
+}
+
+ReactDOM.render(
+  <App/>,
+  document.getElementById('container')
+);
+```
+
+The html page should look like
+
+```{.html file=src/js/example-plot.html}
+<!doctype html>
+<!-- this HTML page is stored as src/js/plot-form.html -->
+<html lang="en">
+  <head>
+    <title>Example plot</title>
+    <<imports>>
+  <head>
+  <body>
+    <div id="container"></div>
+
+    <script type="text/babel" src="plot-app.js"></script>
+  </body>
+</html>
+```
+
+Like before we also need to host the files in a web server with
+
+```shell
+python3 -m http.server 8000
+```
+
+Visit [http://localhost:8000/src/js/example-plot.html](http://localhost:8000/src/js/example-plot.html) to see the epsilon/duration plot.
+
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-plot.html)
+
+<iframe width="100%" height="1450" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-plot.html" /></iframe>
+
+After the submit button is pressed the plot should show that the first calculation took a bit longer then the rest.
