@@ -13,10 +13,7 @@
     worker.onmessage = function(message) {
       if (message.data.type === 'RESULT') {
         const root = message.data.payload.root;
-        const answer = document.createElement('span');
-        answer.id = 'answer';
-        answer.append(root);
-        document.body.append(answer);
+        document.getElementById('answer').innerHTML = root.toFixed(2);
       }
     }
   </script>

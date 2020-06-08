@@ -769,10 +769,7 @@ const root = finder.solve(guess);
 Append the root answer to the html page using [document manipulation functions](https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/append).
 
 ```{.js #render-answer}
-const answer = document.createElement('span');
-answer.id = 'answer';
-answer.append(root);
-document.body.append(answer);
+document.getElementById('answer').innerHTML = root.toFixed(2);
 ```
 
 To run the JavaScript in a web browser a HTML page is needed.
@@ -782,10 +779,17 @@ To be able to use the `createModule` function, we will import the `newtonraphson
 <!doctype html>
 <!-- this HTML page is stored as src/js/example.html -->
 <html>
+  <head>
   <script type="text/javascript" src="newtonraphsonwasm.js"></script>
   <script>
     <<wasm-promise>>
   </script>
+  </head>
+
+  <body>
+    <span id="answer"> </span>
+  </body>
+
 </html>
 ```
 
