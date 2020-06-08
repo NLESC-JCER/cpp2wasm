@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * JSON schema powered form ([#27](https://github.com/NLESC-JCER/cpp2wasm/issues/27))
 * WebAssembly module ([#35](https://github.com/NLESC-JCER/cpp2wasm/issues/35))
+* Vega plot ([#15](https://github.com/NLESC-JCER/cpp2wasm/issues/15))
 
 ## [0.1.0] - 2020-06-04
 
