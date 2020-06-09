@@ -29,6 +29,7 @@ Introduce the example algorithm, as a CLI.
 
 # Python web service
 
+- pybind11
 - OpenApi, Swagger, JSON schema
 
 # Python web application
