@@ -38,6 +38,9 @@ The code we are using came from [geeksforgeeks.org](https://www.geeksforgeeks.or
 Let's first define the mathematical equation, which we will be searching for its root, and the derivative of it.
 
 The equation and its derivative which we will use in this guide are $x^3 - x^2  + 2$ and $3x^2 - 2x$ respectively.
+The root is the X-coordinate you must put in the equation to get `0` as Y-coordinate. In this equation the root is `-1`.
+
+[![Plotted equation](images/equation.svg)](https://www.desmos.com/calculator/yj0ih4ml0i)
 
 ```{.hpp file=src/algebra.hpp}
 // this C++ code snippet is store as src/algebra.hpp
