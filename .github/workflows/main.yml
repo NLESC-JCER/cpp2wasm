@@ -18,6 +18,31 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.8
+        architecture: "x64"
+    - name: Install emscripten
+      uses: mymindstorm/setup-emsdk@v4
+    - name: Cache SonarCloud Build Wrapper
+      id: cache-bw
+      uses: actions/cache@v2
+      with:
+        path: build-wrapper-linux-x86
+        key: ${{ runner.os }}-bw
+    - name: Install SonarCloud Build Wrapper
+      if: steps.cache-bw.outputs.cache-hit != 'true'
+      run: |
+        wget https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
+        unzip build-wrapper-linux-x86.zip
+        rm -f build-wrapper-linux-x86.zip
+    - name: Remove all compiled files
+      run: make clean-compiled
+    - name: Compile C++ files using wrapper
+      run: ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make all
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       env:
