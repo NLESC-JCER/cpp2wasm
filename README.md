@@ -21,6 +21,7 @@
 [![Markdown Link Checker](https://github.com/NLESC-JCER/cpp2wasm/workflows/Check%20Markdown%20links/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3A%22Check%20Markdown%20links%22)
 [![Entangled](https://img.shields.io/badge/entangled-Use%20the%20source!-%2300aeff)](https://entangled.github.io/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3876112.svg)](https://doi.org/10.5281/zenodo.3876112)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=NLESC-JCER_cpp2wasm&metric=alert_status)](https://sonarcloud.io/dashboard?id=NLESC-JCER_cpp2wasm)
 
 Document describing a way that a researcher with a C++ algorithm can make it available as a web application. We will host the C++ algorithm as an web application in several different ways:
 
