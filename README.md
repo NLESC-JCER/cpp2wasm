@@ -757,7 +757,7 @@ The algorithm and binding can be compiled into a WebAssembly module with the Ems
 To make live easier we configure the compile command to generate a `webassembly/newtonraphsonwasm.js` file which exports the `createModule` function.
 
 ```{.awk #build-wasm}
-emcc --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
+emcc -Icli/ --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
 ```
 
 The compilation also generates a `webassembly/newtonraphsonwasm.wasm` file which will be loaded with the `createModule` function.
@@ -814,7 +814,7 @@ The web browser can only load the `newtonraphsonwasm.js` file when hosted by a w
 Python ships with a built-in web server, we will use it to host the all files of the repository on port 8000.
 
 ```{.awk #host-files}
-python3 -m http.server 8000
+cd flask && python3 -m http.server 8000 && cd -
 ```
 
 Visit [http://localhost:8000/webassembly/example.html](http://localhost:8000/webassembly/example.html) to see the result of the calculation.

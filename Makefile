@@ -88,10 +88,10 @@ run-celery-webapp: openapi/newtonraphsonpy.*.so
 build-wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
 
 webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm: webassembly/wasm-newtonraphson.cpp
-	emcc --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
+	emcc -Icli/ --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
 
 host-files: build-wasm
-	python3 -m http.server 8000
+	cd flask && python3 -m http.server 8000 && cd -
 
 test-wasm:
 	npx cypress run --config-file false

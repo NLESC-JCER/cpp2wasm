@@ -4,12 +4,15 @@ __pycache__/
 cypress/plugins
 cypress/support
 cypress/videos
+/cypress/screenshots
 
 # Ignore compiled files
 /cli/newtonraphson.exe
 /cgi/apache2/cgi-bin/newtonraphson
 /openapi/newtonraphsonpy.*.so
 /flask/newtonraphsonpy.*.so
+/webassembly/newtonraphsonwasm.js
+/webassembly/newtonraphsonwasm.wasm
 
 # Ignore entangled db
 .entangled/db.sqlite
