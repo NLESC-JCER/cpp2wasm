@@ -1,4 +1,4 @@
-// this C++ snippet is stored as src/wasm-newtonraphson.cpp
+// this C++ snippet is stored as webassembly/wasm-newtonraphson.cpp
 #include <emscripten/bind.h>
 
 // this C++ code snippet is later referred to as <<algorithm>>

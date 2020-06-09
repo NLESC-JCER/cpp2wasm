@@ -40,7 +40,7 @@ Let's first define the mathematical equation, which we will be searching for its
 The equation and its derivative which we will use in this guide are $x^3 - x^2  + 2$ and $3x^2 - 2x$ respectively.
 
 ```{.hpp file=cli/algebra.hpp}
-// this C++ code snippet is store as src/algebra.hpp
+// this C++ code snippet is store as cli/algebra.hpp
 
 namespace algebra
 {
@@ -63,7 +63,7 @@ double derivative(double x)
 Next, we define the interface (C++ class).
 
 ```{.cpp file=cli/newtonraphson.hpp}
-// this C++ snippet is stored as src/newtonraphson.hpp
+// this C++ snippet is stored as cli/newtonraphson.hpp
 #ifndef H_NEWTONRAPHSON_H
 #define H_NEWTONRAPHSON_H
 
@@ -120,7 +120,7 @@ double NewtonRaphson::solve(double xin)
 We are now ready to call the algorithm in a simple CLI program. It would look like
 
 ```{.cpp file=cli/cli-newtonraphson.cpp}
-// this C++ snippet is stored as src/newtonraphson.cpp
+// this C++ snippet is stored as cli/newtonraphson.cpp
 #include<bits/stdc++.h>
 
 <<algorithm>>
@@ -581,7 +581,7 @@ python flask/webapp-celery.py
 Tasks will be run by the Celery worker. The worker can be started with
 
 ```{.awk #run-celery-worker}
-PYTHONPATH=src/py celery worker -A tasks
+PYTHONPATH=openapi celery worker -A tasks
 ```
 
 (The PYTHONPATH environment variable is set so the Celery worker can find the `tasks.py` and `newtonraphsonpy.*.so` files in the `flask/` directory)
@@ -731,8 +731,8 @@ Instead of writing code in the WebAssembly language, there are compilers that ca
 
 The binding of the C++ code will be
 
-```{.cpp file=src/wasm-newtonraphson.cpp}
-// this C++ snippet is stored as src/wasm-newtonraphson.cpp
+```{.cpp file=webassembly/wasm-newtonraphson.cpp}
+// this C++ snippet is stored as webassembly/wasm-newtonraphson.cpp
 #include <emscripten/bind.h>
 
 <<algorithm>>
@@ -748,13 +748,13 @@ EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
 ```
 
 The algorithm and binding can be compiled into a WebAssembly module with the Emscripten compiler called `emcc`.
-To make live easier we configure the compile command to generate a `src/js/newtonraphsonwasm.js` file which exports the `createModule` function.
+To make live easier we configure the compile command to generate a `webassembly/newtonraphsonwasm.js` file which exports the `createModule` function.
 
 ```{.awk #build-wasm}
-emcc --bind -o src/js/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule src/wasm-newtonraphson.cpp
+emcc --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
 ```
 
-The compilation also generates a `src/js/newtonraphsonwasm.wasm` file which will be loaded with the `createModule` function.
+The compilation also generates a `webassembly/newtonraphsonwasm.wasm` file which will be loaded with the `createModule` function.
 
 The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the JavaScript promise to resolve.
 
@@ -787,9 +787,9 @@ document.getElementById('answer').innerHTML = root.toFixed(2);
 To run the JavaScript in a web browser a HTML page is needed.
 To be able to use the `createModule` function, we will import the `newtonraphsonwasm.js` with a script tag.
 
-```{.html file=src/js/example.html}
+```{.html file=webassembly/example.html}
 <!doctype html>
-<!-- this HTML page is stored as src/js/example.html -->
+<!-- this HTML page is stored as webassembly/example.html -->
 <html lang="en">
   <head>
     <title>Example</title>
@@ -811,10 +811,10 @@ Python ships with a built-in web server, we will use it to host the all files of
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example.html](http://localhost:8000/src/js/example.html) to see the result of the calculation.
-Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html)
+Visit [http://localhost:8000/webassembly/example.html](http://localhost:8000/webassembly/example.html) to see the result of the calculation.
+Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/webassembly/example.html)
 
-[https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html](https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html ':include :type=iframe width=100% height=60px').
+[https://nlesc-jcer.github.io/cpp2wasm/webassembly/example.html](https://nlesc-jcer.github.io/cpp2wasm/webassembly/example.html ':include :type=iframe width=100% height=60px').
 
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, executed by some JavaScript and rendered on a HTML page.
 
@@ -822,7 +822,7 @@ The result of root finding was calculated using the C++ algorithm compiled to a 
 
 Executing a long running C++ method will block the browser from running any other code like updating the user interface. In order to avoid this, the method can be run in the background using [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers). A web worker runs in its own thread and can be interacted with from JavaScript using messages.
 
-We need to instantiate a web worker which we will implement later in `src/js/worker.js`.
+We need to instantiate a web worker which we will implement later in `webassembly/worker.js`.
 
 ```{.js #worker-consumer}
 // this JavaScript snippet is later referred to as <<worker-consumer>>
@@ -850,8 +850,8 @@ onmessage = function(message) {
 
 Before we can handle the message we need to import the WebAssembly module.
 
-```{.js file=src/js/worker.js}
-// this JavaScript snippet is stored as src/js/worker.js
+```{.js file=webassembly/worker.js}
+// this JavaScript snippet is stored as webassembly/worker.js
 importScripts('newtonraphsonwasm.js');
 
 <<worker-provider-onmessage>>
@@ -905,9 +905,9 @@ worker.onmessage = function(message) {
 
 Like before we need a HTML page to run the JavaScript, but now we don't need to import the `newtonraphsonwasm.js` file here as it is imported in the `worker.js` file.
 
-```{.html file=src/js/example-web-worker.html}
+```{.html file=webassembly/example-web-worker.html}
 <!doctype html>
-<!-- this HTML page is stored as src/js/example-web-worker.html -->
+<!-- this HTML page is stored as webassembly/example-web-worker.html -->
 <html lang="en">
   <head>
     <title>Example web worker</title>
@@ -927,10 +927,10 @@ Like before we also need to host the files in a web server with
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example-web-worker.html](http://localhost:8000/src/js/example-web-worker.html) to see the result of the calculation.
-Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-web-worker.html)
+Visit [http://localhost:8000/webassembly/example-web-worker.html](http://localhost:8000/webassembly/example-web-worker.html) to see the result of the calculation.
+Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/webassembly/example-web-worker.html)
 
-<iframe width="100%" height="60" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-web-worker.html" /></iframe>
+<iframe width="100%" height="60" src="https://nlesc-jcer.github.io/cpp2wasm/webassembly/example-web-worker.html" /></iframe>
 
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
@@ -955,9 +955,9 @@ The C++ algorithm is compiled into a wasm file using bindings. When a calculatio
 To render the React application we need a HTML tag as a container. We will give it the identifier `container` which will use later when
 we implement the React application in the `app.js` file.
 
-```{.html file=src/js/example-app.html}
+```{.html file=react/example-app.html}
 <!doctype html>
-<!-- this HTML page is stored as src/js/example-app.html -->
+<!-- this HTML page is stored as react/example-app.html -->
 <html lang="en">
   <head>
     <title>Example React application</title>
@@ -1139,11 +1139,11 @@ function Result(props) {
 
 We can combine the heading, form and result components and all the states and handleSubmit function into the `App` React component.
 
-```{.jsx file=src/js/app.js}
+```{.jsx file=react/app.js}
 <<heading-component>>
 <<result-component>>
 
-// this JavaScript snippet appenended to src/js/app.js
+// this JavaScript snippet appenended to react/app.js
 function App() {
   <<react-state>>
 
@@ -1163,8 +1163,8 @@ function App() {
 
 Finally we can render the `App` component to the HTML container with `container` as identifier.
 
-```{.jsx file=src/js/app.js}
-// this JavaScript snippet appenended to src/js/app.js
+```{.jsx file=react/app.js}
+// this JavaScript snippet appenended to react/app.js
 ReactDOM.render(
   <App/>,
   document.getElementById('container')
@@ -1177,10 +1177,10 @@ Like before we also need to host the files in a web server with
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example-app.html](http://localhost:8000/src/js/example-app.html) to see the root answer.
-Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html)
+Visit [http://localhost:8000/react/example-app.html](http://localhost:8000/react/example-app.html) to see the root answer.
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/react/example-app.html)
 
-<iframe width="100%" height="160" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html" /></iframe>
+<iframe width="100%" height="160" src="https://nlesc-jcer.github.io/cpp2wasm/react/example-app.html" /></iframe>
 
 ### JSON schema powered form
 
@@ -1215,9 +1215,9 @@ const schema = {
 
 To render the application we need a HTML page. We will reuse the imports we did in the previous chapter.
 
-```{.html file=src/js/example-jsonschema-form.html}
+```{.html file=react/example-jsonschema-form.html}
 <!doctype html>
-<!-- this HTML page is stored as src/jsexample-jsonschema-form.html -->
+<!-- this HTML page is stored as react/example-jsonschema-form.html -->
 <html lang="en">
   <head>
     <title>Example JSON schema powered form</title>
@@ -1301,8 +1301,8 @@ function handleSubmit(submission, event) {
 
 The App component can be defined and rendered with.
 
-```{.jsx file=src/js/jsonschema-app.js}
-// this JavaScript snippet stored as src/js/jsonschema-app.js
+```{.jsx file=react/jsonschema-app.js}
+// this JavaScript snippet stored as react/jsonschema-app.js
 function App() {
   <<jsonschema-app>>
 
@@ -1323,8 +1323,8 @@ ReactDOM.render(
 
 The `Heading` and `Result` React component can be reused.
 
-```{.jsx file=src/js/jsonschema-app.js}
-// this JavaScript snippet appended to src/js/jsonschema-app.js
+```{.jsx file=react/jsonschema-app.js}
+// this JavaScript snippet appended to react/jsonschema-app.js
 <<heading-component>>
 <<result-component>>
 ```
@@ -1335,10 +1335,10 @@ Like before we also need to host the files in a web server with
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example-jsonschema-form.html](http://localhost:8000/src/js/example-jsonschema-form.html) to see the root answer.
-Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html)
+Visit [http://localhost:8000/react/example-jsonschema-form.html](http://localhost:8000/react/example-jsonschema-form.html) to see the root answer.
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/react/example-app.html)
 
-<iframe width="100%" height="320" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-jsonschema-form.html" /></iframe>
+<iframe width="100%" height="320" src="https://nlesc-jcer.github.io/cpp2wasm/react/example-jsonschema-form.html" /></iframe>
 
 If you enter a negative number in the `epsilon` field the form will become invalid with a error message.
 
@@ -1476,8 +1476,8 @@ postMessage({
 The sweep calculation snippet (`<<calculate-sweep>>`) must be run in a new web worker called `worker-sweep.js`.
 Like before we need to wait for the WebAssembly module to be initialized before we can start the calculation.
 
-```{.js file=src/js/worker-sweep.js}
-// this JavaScript snippet stored as src/js/worker-sweep.js
+```{.js file=react/worker-sweep.js}
+// this JavaScript snippet stored as react/worker-sweep.js
 importScripts('newtonraphsonwasm.js');
 
 onmessage = function(message) {
@@ -1563,8 +1563,8 @@ function Plot({roots}) {
 
 The App component can be defined and rendered with.
 
-```{.jsx file=src/js/plot-app.js}
-// this JavaScript snippet stored as src/js/plot-app.js
+```{.jsx file=react/plot-app.js}
+// this JavaScript snippet stored as react/plot-app.js
 <<heading-component>>
 
 <<plot-component>>
@@ -1603,9 +1603,9 @@ ReactDOM.render(
 
 The HTML page should look like
 
-```{.html file=src/js/example-plot.html}
+```{.html file=react/example-plot.html}
 <!doctype html>
-<!-- this HTML page is stored as src/js/plot-form.html -->
+<!-- this HTML page is stored as react/plot-form.html -->
 <html lang="en">
   <head>
     <title>Example plot</title>
@@ -1625,10 +1625,10 @@ Like before we also need to host the files in a web server with
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example-plot.html](http://localhost:8000/src/js/example-plot.html) to see the epsilon/duration plot.
+Visit [http://localhost:8000/react/example-plot.html](http://localhost:8000/react/example-plot.html) to see the epsilon/duration plot.
 
-Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-plot.html)
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/react/example-plot.html)
 
-<iframe width="100%" height="1450" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-plot.html" /></iframe>
+<iframe width="100%" height="1450" src="https://nlesc-jcer.github.io/cpp2wasm/react/example-plot.html" /></iframe>
 
 After the submit button is pressed the plot should show that the first calculation took a bit longer then the rest.

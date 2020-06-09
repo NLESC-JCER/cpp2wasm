@@ -77,7 +77,7 @@ test-webservice:
 	curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 
 run-celery-worker: openapi/newtonraphsonpy.*.so
-	PYTHONPATH=src/py celery worker -A tasks
+	PYTHONPATH=openapi celery worker -A tasks
 
 run-celery-webapp: openapi/newtonraphsonpy.*.so
 	python flask/webapp-celery.py
@@ -85,7 +85,7 @@ run-celery-webapp: openapi/newtonraphsonpy.*.so
 build-wasm: src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm
 
 src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm: src/wasm-newtonraphson.cpp
-	emcc --bind -o src/js/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule src/wasm-newtonraphson.cpp
+	emcc --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
 
 host-files: build-wasm
 	python3 -m http.server 8000

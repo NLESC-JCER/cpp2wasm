@@ -1,4 +1,4 @@
-// this C++ snippet is stored as src/newtonraphson.hpp
+// this C++ snippet is stored as cli/newtonraphson.hpp
 #ifndef H_NEWTONRAPHSON_H
 #define H_NEWTONRAPHSON_H
 

@@ -1,4 +1,4 @@
-// this C++ snippet is stored as src/newtonraphson.cpp
+// this C++ snippet is stored as cli/newtonraphson.cpp
 #include<bits/stdc++.h>
 
 // this C++ code snippet is later referred to as <<algorithm>>
