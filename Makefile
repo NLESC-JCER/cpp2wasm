@@ -91,7 +91,7 @@ webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm: webassembly
 	emcc -Icli/ --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
 
 host-files: build-wasm
-	cd flask && python3 -m http.server 8000 && cd -
+	python3 -m http.server 8000
 
 test-wasm:
 	npx cypress run --config-file false

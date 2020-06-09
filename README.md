@@ -814,7 +814,7 @@ The web browser can only load the `newtonraphsonwasm.js` file when hosted by a w
 Python ships with a built-in web server, we will use it to host the all files of the repository on port 8000.
 
 ```{.awk #host-files}
-cd flask && python3 -m http.server 8000 && cd -
+python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/webassembly/example.html](http://localhost:8000/webassembly/example.html) to see the result of the calculation.
