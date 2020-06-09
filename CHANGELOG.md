@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] -  2020-06-09
+
 ### Added
 
 * C++ in SonarCloud analysis ([#73](https://github.com/NLESC-JCER/cpp2wasm/issues/73))
@@ -14,8 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Use fabs instead of abs to fix tolerance issue ([#79](https://github.com/NLESC-JCER/cpp2wasm/pull/79))
-- Precision of the result ([#79](https://github.com/NLESC-JCER/cpp2wasm/pull/79))
+* Use fabs instead of abs to fix tolerance issue ([#79](https://github.com/NLESC-JCER/cpp2wasm/pull/79))
+* Precision of the result ([#79](https://github.com/NLESC-JCER/cpp2wasm/pull/79))
 
 ## [0.2.0] -  2020-06-09
 
@@ -47,6 +49,7 @@ Initial release.
 * Generated source code in repo ([#1](https://github.com/NLESC-JCER/cpp2wasm/issues/1))
 * Python chapter ([#8](https://github.com/NLESC-JCER/cpp2wasm/pull/8))
 
-[Unreleased]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/NLESC-JCER/cpp2wasm/releases/tag/v0.1.0
