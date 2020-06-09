@@ -36,7 +36,7 @@ Introduce the example algorithm, as a CLI.
 
 - web app v web service difference
 - explanation of what is a web framework
-
+- long running tasks, celery
 
 # JavaScript web service
 
