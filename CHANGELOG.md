@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+* C++ in SonarCloud analysis ([#73](https://github.com/NLESC-JCER/cpp2wasm/issues/73)) 
+
 ## [0.2.0] -  2020-06-09
 
 ### Added
