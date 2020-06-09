@@ -15,7 +15,7 @@ jobs:
       - name: Check all entangled files are in sync with Markdown
         run: make check
   sonarcloud:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
       with:
@@ -49,14 +49,11 @@ jobs:
     - name: Compile C++ files using wrapper
       run: ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make all
     - name: Restore wasm
+      # As we want to analyse files in git not files we just build
       run: git restore src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm
     - name: Relativize bw-output
+      # Build wrapper runs on CI server while sonar-scanner runs in Docker container need to adjust paths
       run: perl -pi -e 's@/home/runner/work/cpp2wasm/cpp2wasm@/github/workspace@g' bw-output/build-wrapper-dump.json
-    - name: Upload bw output
-      uses: actions/upload-artifact@v2
-      with:
-        name: bw-output
-        path: ./bw-output
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       env:
