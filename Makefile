@@ -29,10 +29,10 @@ pip-connexion:
 	pip install connexion[swagger-ui]
 
 bin/newtonraphson.exe: src/cli-newtonraphson.cpp
-	g++ src/cli-newtonraphson.cpp -o bin/newtonraphson.exe
+	g++ cli/cli-newtonraphson.cpp -o cli/newtonraphson.exe
 
 test-cli: bin/newtonraphson.exe
-	./bin/newtonraphson.exe
+	./cli/newtonraphson.exe
 
 apache2/cgi-bin/newtonraphson: src/cgi-newtonraphson.cpp
 	g++ -Ideps src/cgi-newtonraphson.cpp -o apache2/cgi-bin/newtonraphson

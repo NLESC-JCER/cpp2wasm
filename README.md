@@ -39,7 +39,7 @@ Let's first define the mathematical equation, which we will be searching for its
 
 The equation and its derivative which we will use in this guide are $x^3 - x^2  + 2$ and $3x^2 - 2x$ respectively.
 
-```{.hpp file=src/algebra.hpp}
+```{.hpp file=cli/algebra.hpp}
 // this C++ code snippet is store as src/algebra.hpp
 
 namespace algebra
@@ -62,7 +62,7 @@ double derivative(double x)
 
 Next, we define the interface (C++ class).
 
-```{.cpp file=src/newtonraphson.hpp}
+```{.cpp file=cli/newtonraphson.hpp}
 // this C++ snippet is stored as src/newtonraphson.hpp
 #ifndef H_NEWTONRAPHSON_H
 #define H_NEWTONRAPHSON_H
@@ -119,7 +119,7 @@ double NewtonRaphson::solve(double xin)
 
 We are now ready to call the algorithm in a simple CLI program. It would look like
 
-```{.cpp file=src/cli-newtonraphson.cpp}
+```{.cpp file=cli/cli-newtonraphson.cpp}
 // this C++ snippet is stored as src/newtonraphson.cpp
 #include<bits/stdc++.h>
 
@@ -141,13 +141,13 @@ int main()
 Compile with
 
 ```{.awk #build-cli}
-g++ src/cli-newtonraphson.cpp -o bin/newtonraphson.exe
+g++ cli/cli-newtonraphson.cpp -o cli/newtonraphson.exe
 ```
 
 Run with
 
 ```{.awk #test-cli}
-./bin/newtonraphson.exe
+./cli/newtonraphson.exe
 ```
 
 Should output
