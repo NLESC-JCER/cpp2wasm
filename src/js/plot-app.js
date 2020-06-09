@@ -110,7 +110,6 @@ function App() {
       <Heading/>
       { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
       <Form
-        uiSchema={uiSchema}
         schema={schema}
         formData={formData}
         onChange={handleChange}
