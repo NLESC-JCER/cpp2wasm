@@ -28,7 +28,10 @@ jobs:
     - name: Install Python dependencies
       run: make py-deps && pip install httpie
     - name: Install emscripten
-      uses: mymindstorm/setup-emsdk@v4
+      uses: mymindstorm/setup-emsdk@v5
+      with:
+        version: 1.39.17
+        actions-cache-folder: 'emsdk-cache'
     - name: Cache SonarCloud Build Wrapper
       id: cache-bw
       uses: actions/cache@v2
@@ -45,6 +48,11 @@ jobs:
       run: make clean-compiled
     - name: Compile C++ files using wrapper
       run: ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make all
+    - name: Upload bw output
+      uses: actions/upload-artifact@v2
+      with:
+        name: bw-output
+        path: ./bw-output
     - name: SonarCloud Scan
       uses: sonarsource/sonarcloud-github-action@master
       env:
@@ -135,7 +143,10 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install emscripten
-        uses: mymindstorm/setup-emsdk@v4
+        uses: mymindstorm/setup-emsdk@v5
+        with:
+          version: 1.39.17
+          actions-cache-folder: 'emsdk-cache'
 
       - name: Build WebAssembly module
         run: make build-wasm
