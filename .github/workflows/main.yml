@@ -103,10 +103,7 @@ jobs:
         run: which python
 
       - name: Install Python dependencies
-        run: make py-deps && pip install httpie
-
-      - name: Run Python example
-        run: make test-py
+        run: make pip-pybind11 && make pip-flask && make pip-celery && pip install httpie
 
       - name: Start web application in background
         run: make run-webapp 2>&1 | tee ./run-webapp.log &
@@ -114,18 +111,12 @@ jobs:
       - name: Test web application
         run: http --ignore-stdin -f localhost:5001 epsilon=0.001 guess=-20
 
-      - name: Start web service in background
-        run: make run-webservice 2>&1 | tee ./run-webservice.log &
-
-      - name: Test web service
-        run: make test-webservice
-
       - name: Start Celery web app in background
         run: make run-celery-webapp 2>&1 | tee ./run-celery-webapp.log  &
 
       - name: Start Celery worker in background
         run: |
-          cd src/py
+          cd flask
           PYTHONPATH=$PWD/../.. celery -A tasks worker 2>&1 | tee ./run-celery-worker.log &
           cd ../..
 
