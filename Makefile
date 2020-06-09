@@ -4,7 +4,7 @@
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
 ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' *.md | grep -v Makefile | sort -u)
-COMPILED := bin/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
+COMPILED := cli/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
 
 entangle: *.md
 	docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md
@@ -28,10 +28,10 @@ pip-celery:
 pip-connexion:
 	pip install connexion[swagger-ui]
 
-bin/newtonraphson.exe: src/cli-newtonraphson.cpp
+cli/newtonraphson.exe: cli/cli-newtonraphson.cpp
 	g++ cli/cli-newtonraphson.cpp -o cli/newtonraphson.exe
 
-test-cli: bin/newtonraphson.exe
+test-cli: cli/newtonraphson.exe
 	./cli/newtonraphson.exe
 
 apache2/cgi-bin/newtonraphson: src/cgi-newtonraphson.cpp
