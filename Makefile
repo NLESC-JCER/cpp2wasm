@@ -45,7 +45,7 @@ openapi/newtonraphsonpy.*.so: openapi/py-newtonraphson.cpp
 	openapi/py-newtonraphson.cpp -o openapi/newtonraphsonpy`python3-config --extension-suffix`
 
 flask/newtonraphsonpy.*.so: openapi/newtonraphsonpy.*.so
-		cd flask && ln -s openapi/newtonraphsonpy.*.so && cd -
+		cd flask && ln -s ../openapi/newtonraphsonpy`python3-config --extension-suffix` . && cd -
 
 test-py: openapi/example.py openapi/newtonraphsonpy.*.so
 	python openapi/example.py

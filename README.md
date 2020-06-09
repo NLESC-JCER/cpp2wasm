@@ -406,7 +406,7 @@ pip install flask
 We'll use the shared library that the openapi example also uses:
 
 ```{.awk #flask-link-newtonraphsonpy}
-	cd flask && ln -s openapi/newtonraphsonpy.*.so && cd -
+	cd flask && ln -s ../openapi/newtonraphsonpy`python3-config --extension-suffix` . && cd -
 ```
 
 The web application has 3 kinds of pages:
