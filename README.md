@@ -341,8 +341,8 @@ Pybind11 requires a bindings to expose C++ constants/functions/enumerations/clas
 
 For example the bindings of `newtonraphson.hpp:NewtonRaphson` class would look like:
 
-```{.cpp file=src/py-newtonraphson.cpp}
-// this C++ snippet is stored as src/py-newtonraphson.cpp
+```{.cpp file=openapi/py-newtonraphson.cpp}
+// this C++ snippet is stored as openapi/py-newtonraphson.cpp
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -365,14 +365,14 @@ PYBIND11_MODULE(newtonraphsonpy, m) {
 Compile with
 
 ```{.awk #build-py}
-g++ -O3 -Wall -shared -std=c++14 -fPIC `python3 -m pybind11 --includes` \
-src/py-newtonraphson.cpp -o src/py/newtonraphsonpy`python3-config --extension-suffix`
+g++ -O3 -Wall -shared -std=c++14 -fPIC -Icli/ `python3 -m pybind11 --includes` \
+openapi/py-newtonraphson.cpp -o openapi/newtonraphsonpy`python3-config --extension-suffix`
 ```
 
 In Python it can be used:
 
-```{.python file=src/py/example.py}
-# this Python snippet is stored as src/py/example.py
+```{.python file=openapi/example.py}
+# this Python snippet is stored as openapi/example.py
 from newtonraphsonpy import NewtonRaphson
 
 finder = NewtonRaphson(epsilon=0.001)
@@ -383,7 +383,7 @@ print(root)
 The Python example can be run with
 
 ```{.awk #test-py}
-python src/py/example.py
+python openapi/example.py
 ```
 
 It will output something like
@@ -450,8 +450,8 @@ def calculate():
 
 Putting it all together in
 
-```{.python file=src/py/webapp.py}
-# this Python snippet is stored as src/py/webapp.py
+```{.python file=flask/webapp.py}
+# this Python snippet is stored as flask/webapp.py
 from flask import Flask, request
 app = Flask(__name__)
 
@@ -465,7 +465,7 @@ app.run(port=5001)
 And running it with
 
 ```{.awk #run-webapp}
-python src/py/webapp.py
+python flask/webapp.py
 ```
 
 To test we can visit [http://localhost:5001](http://localhost:5001) fill the form and press submit to get the result.
@@ -499,8 +499,8 @@ capp = Celery('tasks', broker='redis://localhost:6379', backend='redis://localho
 When a method is decorated with the Celery task decorator then it can be submitted to the Celery task queue.
 We'll add some ``sleep``s to demonstrate what would happen with a long running calculation. We'll also tell Celery about in which step the calculation is; later, we can display this step to the user.
 
-```{.python file=src/py/tasks.py}
-# this Python snippet is stored as src/py/tasks.py
+```{.python file=flask/tasks.py}
+# this Python snippet is stored as flask/tasks.py
 import time
 
 <<celery-config>>
@@ -556,8 +556,8 @@ def result(jobid):
 
 Putting it all together
 
-```{.python file=src/py/webapp-celery.py}
-# this Python snippet is stored as src/py/webapp-celery.py
+```{.python file=flask/webapp-celery.py}
+# this Python snippet is stored as flask/webapp-celery.py
 from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
@@ -575,7 +575,7 @@ if __name__ == '__main__':
 Start the web application like before with
 
 ```{.awk #run-celery-webapp}
-python src/py/webapp-celery.py
+python flask/webapp-celery.py
 ```
 
 Tasks will be run by the Celery worker. The worker can be started with
@@ -584,7 +584,7 @@ Tasks will be run by the Celery worker. The worker can be started with
 PYTHONPATH=src/py celery worker -A tasks
 ```
 
-(The PYTHONPATH environment variable is set so the Celery worker can find the `tasks.py` and `newtonraphsonpy.*.so` files in the `src/py/` directory)
+(The PYTHONPATH environment variable is set so the Celery worker can find the `tasks.py` and `newtonraphsonpy.*.so` files in the `flask/` directory)
 
 To test the web service
 
@@ -615,8 +615,8 @@ For the Python based root finding web service, Connexion was used as the web fra
 
 The OpenAPI specification for performing root finding would look like
 
-```{.yaml file=src/py/openapi.yaml}
-# this yaml snippet is stored as src/py/openapi.yaml
+```{.yaml file=openapi/openapi.yaml}
+# this yaml snippet is stored as openapi/openapi.yaml
 openapi: 3.0.0
 info:
   title: Root finder
@@ -673,8 +673,8 @@ The request and response are in JSON format and adhere to their respective JSON 
 
 The operation identifier (`operationId`) in the specification gets translated by Connexion to a Python method that will be called when the path is requested. Connexion calls the function with the JSON parsed request body.
 
-```{.python file=src/py/api.py}
-# this Python snippet is stored as src/py/api.py
+```{.python file=openapi/api.py}
+# this Python snippet is stored as openapi/.py
 def calculate(body):
   epsilon = body['epsilon']
   guess = body['guess']
@@ -692,8 +692,8 @@ pip install connexion[swagger-ui]
 
 To run the web service we have to to tell Connexion which specification it should expose.
 
-```{.python file=src/py/webservice.py}
-# this Python snippet is stored as src/py/webservice.py
+```{.python file=openapi/webservice.py}
+# this Python snippet is stored as openapi/webservice.py
 import connexion
 
 app = connexion.App(__name__)
@@ -704,7 +704,7 @@ app.run(port=8080)
 The web service can be started with
 
 ```{.awk #run-webservice}
-python src/py/webservice.py
+python openapi/webservice.py
 ```
 
 We can try out the web service using the Swagger UI at [http://localhost:8080/ui/](http://localhost:8080/ui/).

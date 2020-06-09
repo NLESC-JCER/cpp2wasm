@@ -22,7 +22,7 @@ All the commands in the [README.md](README.md) and [CONTRIBUTING.md](CONTRIBUTIN
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
 ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' *.md | grep -v Makefile | sort -u)
-COMPILED := cli/newtonraphson.exe src/py/newtonraphsonpy.*.so cgi/apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
+COMPILED := cli/newtonraphson.exe openapi/newtonraphsonpy.*.so cgi/apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
 
 entangle: *.md
 	<<pandoc-tangle>>
@@ -58,10 +58,10 @@ cgi/apache2/cgi-bin/newtonraphson: cgi/cgi-newtonraphson.cpp
 test-cgi: cgi/apache2/cgi-bin/newtonraphson
 	<<test-cgi>>
 
-src/py/newtonraphsonpy.*.so: src/py-newtonraphson.cpp
+openapi/newtonraphsonpy.*.so: openapi/py-newtonraphson.cpp
 	<<build-py>>
 
-test-py: src/py/example.py src/py/newtonraphsonpy.*.so
+test-py: openapi/example.py openapi/newtonraphsonpy.*.so
 	<<test-py>>
 
 test: test-cli test-cgi test-py test-webservice
@@ -84,19 +84,19 @@ start-redis:
 stop-redis:
 	<<stop-redis>>
 
-run-webapp: src/py/newtonraphsonpy.*.so
+run-webapp: openapi/newtonraphsonpy.*.so
 	<<run-webapp>>
 
-run-webservice: src/py/newtonraphsonpy.*.so
+run-webservice: openapi/newtonraphsonpy.*.so
 	<<run-webservice>>
 
 test-webservice:
 	<<test-webservice>>
 
-run-celery-worker: src/py/newtonraphsonpy.*.so
+run-celery-worker: openapi/newtonraphsonpy.*.so
 	<<run-celery-worker>>
 
-run-celery-webapp: src/py/newtonraphsonpy.*.so
+run-celery-webapp: openapi/newtonraphsonpy.*.so
 	<<run-celery-webapp>>
 
 build-wasm: src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm

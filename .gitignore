@@ -6,9 +6,9 @@ cypress/support
 cypress/videos
 
 # Ignore compiled files
-cli/newtonraphson.exe
-src/py/newtonraphsonpy.*.so
-apache2/cgi-bin/newtonraphson
+/cli/newtonraphson.exe
+/cgi/apache2/cgi-bin/newtonraphson
+/openapi/newtonraphsonpy.*.so
 
 # Ignore entangled db
 .entangled/db.sqlite

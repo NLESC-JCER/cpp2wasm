@@ -1,4 +1,4 @@
-# this Python snippet is stored as src/py/example.py
+# this Python snippet is stored as openapi/example.py
 from newtonraphsonpy import NewtonRaphson
 
 finder = NewtonRaphson(epsilon=0.001)

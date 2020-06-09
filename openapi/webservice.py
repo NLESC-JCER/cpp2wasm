@@ -1,4 +1,4 @@
-# this Python snippet is stored as src/py/webservice.py
+# this Python snippet is stored as openapi/webservice.py
 import connexion
 
 app = connexion.App(__name__)

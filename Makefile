@@ -4,7 +4,7 @@
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
 ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' *.md | grep -v Makefile | sort -u)
-COMPILED := cli/newtonraphson.exe src/py/newtonraphsonpy.*.so cgi/apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
+COMPILED := cli/newtonraphson.exe openapi/newtonraphsonpy.*.so cgi/apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
 
 entangle: *.md
 	docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md
@@ -40,12 +40,12 @@ cgi/apache2/cgi-bin/newtonraphson: cgi/cgi-newtonraphson.cpp
 test-cgi: cgi/apache2/cgi-bin/newtonraphson
 	echo '{"guess":-20, "epsilon":0.001}' | cgi/apache2/cgi-bin/newtonraphson
 
-src/py/newtonraphsonpy.*.so: src/py-newtonraphson.cpp
-	g++ -O3 -Wall -shared -std=c++14 -fPIC `python3 -m pybind11 --includes` \
-	src/py-newtonraphson.cpp -o src/py/newtonraphsonpy`python3-config --extension-suffix`
+openapi/newtonraphsonpy.*.so: openapi/py-newtonraphson.cpp
+	g++ -O3 -Wall -shared -std=c++14 -fPIC -Icli/ `python3 -m pybind11 --includes` \
+	openapi/py-newtonraphson.cpp -o openapi/newtonraphsonpy`python3-config --extension-suffix`
 
-test-py: src/py/example.py src/py/newtonraphsonpy.*.so
-	python src/py/example.py
+test-py: openapi/example.py openapi/newtonraphsonpy.*.so
+	python openapi/example.py
 
 test: test-cli test-cgi test-py test-webservice
 
@@ -67,20 +67,20 @@ start-redis:
 stop-redis:
 	docker stop some-redis
 
-run-webapp: src/py/newtonraphsonpy.*.so
-	python src/py/webapp.py
+run-webapp: openapi/newtonraphsonpy.*.so
+	python flask/webapp.py
 
-run-webservice: src/py/newtonraphsonpy.*.so
-	python src/py/webservice.py
+run-webservice: openapi/newtonraphsonpy.*.so
+	python openapi/webservice.py
 
 test-webservice:
 	curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 
-run-celery-worker: src/py/newtonraphsonpy.*.so
+run-celery-worker: openapi/newtonraphsonpy.*.so
 	PYTHONPATH=src/py celery worker -A tasks
 
-run-celery-webapp: src/py/newtonraphsonpy.*.so
-	python src/py/webapp-celery.py
+run-celery-webapp: openapi/newtonraphsonpy.*.so
+	python flask/webapp-celery.py
 
 build-wasm: src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm
 

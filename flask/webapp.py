@@ -1,4 +1,4 @@
-# this Python snippet is stored as src/py/webapp.py
+# this Python snippet is stored as flask/webapp.py
 from flask import Flask, request
 app = Flask(__name__)
 
