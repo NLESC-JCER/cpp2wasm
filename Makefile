@@ -44,7 +44,7 @@ openapi/newtonraphsonpy.*.so: openapi/py-newtonraphson.cpp
 	g++ -O3 -Wall -shared -std=c++14 -fPIC -Icli/ `python3 -m pybind11 --includes` \
 	openapi/py-newtonraphson.cpp -o openapi/newtonraphsonpy`python3-config --extension-suffix`
 
-flask-link-newtonraphsonpy: openapi/newtonraphsonpy.*.so
+flask/newtonraphsonpy.*.so: openapi/newtonraphsonpy.*.so
 		cd flask && ln -s openapi/newtonraphsonpy.*.so && cd -
 
 test-py: openapi/example.py openapi/newtonraphsonpy.*.so

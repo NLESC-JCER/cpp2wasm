@@ -61,7 +61,7 @@ test-cgi: cgi/apache2/cgi-bin/newtonraphson
 openapi/newtonraphsonpy.*.so: openapi/py-newtonraphson.cpp
 	<<build-py>>
 
-flask-link-newtonraphsonpy: openapi/newtonraphsonpy.*.so
+flask/newtonraphsonpy.*.so: openapi/newtonraphsonpy.*.so
 	<<flask-link-newtonraphsonpy>>
 
 test-py: openapi/example.py openapi/newtonraphsonpy.*.so
