@@ -22,9 +22,6 @@ double NewtonRaphson::solve(double xin)
   double x = xin;
   double delta_x = equation(x) / derivative(x);
 
-  std::cout << "initial guess: " << xin << std::endl;
-  std::cout << "initial tolerance: " << tolerance << std::endl;
-
   while (fabs(delta_x) >= tolerance)
   {
     delta_x = equation(x) / derivative(x);

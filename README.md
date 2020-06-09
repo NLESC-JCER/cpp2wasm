@@ -105,9 +105,6 @@ double NewtonRaphson::solve(double xin)
   double x = xin;
   double delta_x = equation(x) / derivative(x);
 
-  std::cout << "initial guess: " << xin << std::endl;
-  std::cout << "initial tolerance: " << tolerance << std::endl;
-
   while (fabs(delta_x) >= tolerance)
   {
     delta_x = equation(x) / derivative(x);
@@ -162,7 +159,7 @@ Run with
 Should output
 
 ```shell
-The value of the root is : -1.62292
+The value of the root is : -1.000000
 ```
 
 A C++ algorithm is a collection of functions/classes that can perform a mathematical computation.
@@ -279,7 +276,7 @@ Content-type: application/json
 
 {
   "guess": -20.0,
-  "root": -1.622923986083026
+  "root": -1.000000
 }
 ```
 
@@ -319,7 +316,7 @@ Should return the following JSON document as a response
 ```json
 {
   "guess": -20,
-  "root":-1.62292
+  "root":-1.000000
 }
 ```
 
