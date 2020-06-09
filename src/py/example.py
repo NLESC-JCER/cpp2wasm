@@ -3,4 +3,4 @@ from newtonraphsonpy import NewtonRaphson
 
 finder = NewtonRaphson(epsilon=0.001)
 root = finder.solve(guess=-20)
-print(root)
+print ("{0:.6f}".format(root))

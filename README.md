@@ -90,6 +90,7 @@ The implementation of the algorithm would look like
 // this C++ code snippet is later referred to as <<algorithm>>
 #include "newtonraphson.hpp"
 #include "algebra.hpp"
+#include <math.h>
 
 using namespace algebra;
 
@@ -103,7 +104,8 @@ double NewtonRaphson::solve(double xin)
 {
   double x = xin;
   double delta_x = equation(x) / derivative(x);
-  while (abs(delta_x) >= tolerance)
+
+  while (fabs(delta_x) >= tolerance)
   {
     delta_x = equation(x) / derivative(x);
 
@@ -122,6 +124,7 @@ We are now ready to call the algorithm in a simple CLI program. It would look li
 ```{.cpp file=src/cli-newtonraphson.cpp}
 // this C++ snippet is stored as src/newtonraphson.cpp
 #include<bits/stdc++.h>
+#include <iomanip>
 
 <<algorithm>>
 
@@ -133,7 +136,10 @@ int main()
   rootfinding::NewtonRaphson finder(epsilon);
   double x1 = finder.solve(x0);
 
+  std::cout << std::fixed;
+  std::cout << std::setprecision(6);
   std::cout << "The value of the root is : " << x1 << std::endl;
+
   return 0;
 }
 ```
@@ -153,7 +159,7 @@ Run with
 Should output
 
 ```shell
-The value of the root is : -1.62292
+The value of the root is : -1.000000
 ```
 
 A C++ algorithm is a collection of functions/classes that can perform a mathematical computation.
@@ -267,7 +273,7 @@ Content-type: application/json
 
 {
   "guess": -20.0,
-  "root": -1.622923986083026
+  "root": -1.0000001181322415
 }
 ```
 
@@ -307,7 +313,7 @@ Should return the following JSON document as a response
 ```json
 {
   "guess": -20,
-  "root":-1.62292
+  "root":-1.0000001181322415
 }
 ```
 
@@ -377,7 +383,8 @@ from newtonraphsonpy import NewtonRaphson
 
 finder = NewtonRaphson(epsilon=0.001)
 root = finder.solve(guess=-20)
-print(root)
+print ("{0:.6f}".format(root))
+
 ```
 
 The Python example can be run with
