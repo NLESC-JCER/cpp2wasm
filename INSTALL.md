@@ -87,7 +87,7 @@ start-redis:
 stop-redis:
 	<<stop-redis>>
 
-run-webapp: openapi/newtonraphsonpy.*.so
+run-webapp: flask/newtonraphsonpy.*.so
 	<<run-webapp>>
 
 run-webservice: openapi/newtonraphsonpy.*.so
@@ -96,10 +96,10 @@ run-webservice: openapi/newtonraphsonpy.*.so
 test-webservice:
 	<<test-webservice>>
 
-run-celery-worker: openapi/newtonraphsonpy.*.so
+run-celery-worker: flask/newtonraphsonpy.*.so
 	<<run-celery-worker>>
 
-run-celery-webapp: openapi/newtonraphsonpy.*.so
+run-celery-webapp: flask/newtonraphsonpy.*.so
 	<<run-celery-webapp>>
 
 build-wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm

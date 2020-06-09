@@ -70,7 +70,7 @@ start-redis:
 stop-redis:
 	docker stop some-redis
 
-run-webapp: openapi/newtonraphsonpy.*.so
+run-webapp: flask/newtonraphsonpy.*.so
 	python flask/webapp.py
 
 run-webservice: openapi/newtonraphsonpy.*.so
@@ -79,10 +79,10 @@ run-webservice: openapi/newtonraphsonpy.*.so
 test-webservice:
 	curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 
-run-celery-worker: openapi/newtonraphsonpy.*.so
+run-celery-worker: flask/newtonraphsonpy.*.so
 	PYTHONPATH=openapi celery worker -A tasks
 
-run-celery-webapp: openapi/newtonraphsonpy.*.so
+run-celery-webapp: flask/newtonraphsonpy.*.so
 	python flask/webapp-celery.py
 
 build-wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
