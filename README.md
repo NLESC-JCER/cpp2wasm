@@ -21,6 +21,7 @@
 [![Markdown Link Checker](https://github.com/NLESC-JCER/cpp2wasm/workflows/Check%20Markdown%20links/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3A%22Check%20Markdown%20links%22)
 [![Entangled](https://img.shields.io/badge/entangled-Use%20the%20source!-%2300aeff)](https://entangled.github.io/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3876112.svg)](https://doi.org/10.5281/zenodo.3876112)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=NLESC-JCER_cpp2wasm&metric=alert_status)](https://sonarcloud.io/dashboard?id=NLESC-JCER_cpp2wasm)
 
 Document describing a way that a researcher with a C++ algorithm can make it available as a web application. We will host the C++ algorithm as an web application in several different ways:
 
@@ -208,6 +209,8 @@ And a valid document:
 
 ## CGI script
 
+![cgi](images/cgi.svg.png "CGI")
+
 The classic way to run programs when accessing a url is to use the Common Gateway Interface (CGI).
 In the [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.html) you can configure a directory as a ScriptAlias, when visiting a file inside that directory the file will be executed.
 The executable can read the request body from the stdin for and the response must be printed to the stdout.
@@ -311,6 +314,8 @@ Should return the following JSON document as a response
 The problem with CGI scripts is when the program does some initialization, you have to wait for it each visit. It is better to do the initialization once when the web service is starting up.
 
 ## Web framework
+
+![flask](images/flask.svg.png "Flask")
 
 A web framework is an abstraction layer for making web applications. It takes care of mapping a request on a certain url to a user defined function. And mapping the return of a user defined function to a response like an HTML page or an error message.
 
@@ -595,6 +600,8 @@ docker stop some-redis
 
 ### Web service
 
+![swagger](images/swagger.svg.png "Swagger")
+
 A web application is meant for consumption by humans and web service is meant for consumption by machines or other programs.
 So instead of returning HTML pages a web service will accept and return machine readable documents like JSON documents. A web service is an application programming interface (API) based on web technologies.
 
@@ -708,6 +715,8 @@ curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/j
 ```
 
 ## JavaScript
+
+![wasm](images/wasm.svg.png "WebAssembly")
 
 JavaScript is the de facto programming language for web browsers.
 The JavaScript engine in the Chrome browser called V8 has been wrapped in a runtime engine called Node.js which can execute JavaScript code outside the browser.
@@ -926,6 +935,8 @@ Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
 ## Single page application
+
+![react](images/react.svg.png "React")
 
 In the [Web application](#web-application) section, a common approach is to render an entire HTML page even if a subset of elements requires a change. With the advances in the web browser (JavaScript) engines including methods to fetch JSON documents from a web service, it has become possible to address this shortcoming. The so-called [Single Page Applications](https://en.wikipedia.org/wiki/Single-page_application) (SPA) enable changes to be made in a part of the page without rendering the entire page. To ease SPA development, a number of frameworks have been developed. The most popular front-end web frameworks are (as of July 2019):
 
@@ -1239,16 +1250,6 @@ The form [by default](https://react-jsonschema-form.readthedocs.io/en/latest/usa
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 ```
 
-The react-jsonschema-form component normally renders an integer with a updown selector. To use a range slider instead configure a [user interface schema](https://react-jsonschema-form.readthedocs.io/en/latest/quickstart/#form-uischema).
-
-```{.js #jsonschema-app}
-const uiSchema = {
-  "guess": {
-    "ui:widget": "range"
-  }
-}
-```
-
 The values in the form must be initialized and updated whenever the form changes.
 
 ```{.js #jsonschema-app}
@@ -1268,7 +1269,6 @@ The form can be rendered with
 ```{.jsx #jsonschema-form}
 { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
 <Form
-  uiSchema={uiSchema}
   schema={schema}
   formData={formData}
   onChange={handleChange}
@@ -1444,7 +1444,7 @@ To measure the duration of a calculation we use the [performance.now()](https://
   // this JavaScript snippet appended to <<calculate-sweep>>
   const t0 = performance.now();
   const finder = new module.NewtonRaphson(epsilon);
-  const root = finder.find(guess);
+  const root = finder.solve(guess);
   const duration = performance.now() - t0;
 ```
 
