@@ -9,7 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-* C++ in SonarCloud analysis ([#73](https://github.com/NLESC-JCER/cpp2wasm/issues/73)) 
+* C++ in SonarCloud analysis ([#73](https://github.com/NLESC-JCER/cpp2wasm/issues/73))
+* Plot of equation ([#30](https://github.com/NLESC-JCER/cpp2wasm/issues/30))
+
+### Fixed
+
+- Use fabs instead of abs to fix tolerance issue ([#79](https://github.com/NLESC-JCER/cpp2wasm/pull/79))
+- Precision of the result ([#79](https://github.com/NLESC-JCER/cpp2wasm/pull/79))
 
 ## [0.2.0] -  2020-06-09
 
