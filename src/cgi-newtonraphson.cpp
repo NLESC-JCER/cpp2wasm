@@ -1,7 +1,6 @@
 // this C++ snippet is stored as src/cgi-newtonraphson.hpp
 #include <string>
 #include <iostream>
-#include <iomanip>
 #include <nlohmann/json.hpp>
 
 // this C++ code snippet is later referred to as <<algorithm>>
@@ -52,8 +51,6 @@ int main(int argc, char *argv[])
   nlohmann::json response;
   response["guess"] = guess;
   response["root"] = root;
-  std::cout << std::fixed;
-  std::cout << std::setprecision(6);
   std::cout << response.dump(2) << std::endl;
   return 0;
 }
