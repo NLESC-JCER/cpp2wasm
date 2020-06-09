@@ -16,6 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Use fabs instead of abs to fix tolerance issue ([#79](https://github.com/NLESC-JCER/cpp2wasm/pull/79))
 - Precision of the result ([#79](https://github.com/NLESC-JCER/cpp2wasm/pull/79))
+
 ## [0.2.0] -  2020-06-09
 
 ### Added
