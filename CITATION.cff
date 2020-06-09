@@ -22,6 +22,15 @@ authors:
     family-names: Diblen
     given-names: Faruk
     orcid: "https://orcid.org/0000-0002-0989-929X"
+  -
+    affiliation: "Netherlands eScience Center"
+    family-names: Spreeuw
+    given-names: Hanno
+  -
+    affiliation: "Netherlands eScience Center"
+    family-names: Kuzniar
+    given-names: Arnold
+    orcid: "https://orcid.org/0000-0003-1711-7961"
 cff-version: "1.1.0"
 doi: "10.5281/zenodo.3876112"
 keywords:

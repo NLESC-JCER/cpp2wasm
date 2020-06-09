@@ -7,11 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.0] -  2020-06-09
+
 ### Added
 
 * JSON schema powered form ([#27](https://github.com/NLESC-JCER/cpp2wasm/issues/27))
 * WebAssembly module ([#35](https://github.com/NLESC-JCER/cpp2wasm/issues/35))
 * Vega plot ([#15](https://github.com/NLESC-JCER/cpp2wasm/issues/15))
+* Check broken links ([#44](https://github.com/NLESC-JCER/cpp2wasm/issues/44))
+* Citable ([#40](https://github.com/NLESC-JCER/cpp2wasm/issues/40))
+* Issue templates ([#42](https://github.com/NLESC-JCER/cpp2wasm/issues/42))
 
 ### Changed
 
@@ -32,5 +37,6 @@ Initial release.
 * Generated source code in repo ([#1](https://github.com/NLESC-JCER/cpp2wasm/issues/1))
 * Python chapter ([#8](https://github.com/NLESC-JCER/cpp2wasm/pull/8))
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.1.0...HEAD
-[0.0.1]: https://github.com/olivierlacan/keep-a-changelog/releases/tag/v0.1.0
+[Unreleased]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/NLESC-JCER/cpp2wasm/releases/tag/v0.1.0
