@@ -216,8 +216,8 @@ In the [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.htm
 The executable can read the request body from the stdin for and the response must be printed to the stdout.
 A response should consist of the content type such as ``application/json`` or ``text/html``, followed by the content itself. A web service which accepts and returns JSON documents can for example look like:
 
-```{.cpp file=src/cgi-newtonraphson.cpp}
-// this C++ snippet is stored as src/cgi-newtonraphson.hpp
+```{.cpp file=cgi/cgi-newtonraphson.cpp}
+// this C++ snippet is stored as cgi/cgi-newtonraphson.hpp
 #include <string>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -251,13 +251,13 @@ Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header onl
 This can be compiled with
 
 ```{.awk #build-cgi}
-g++ -Ideps src/cgi-newtonraphson.cpp -o apache2/cgi-bin/newtonraphson
+g++ -Icgi/deps/ -Icli/ cgi/cgi-newtonraphson.cpp -o cgi/apache2/cgi-bin/newtonraphson
 ```
 
 The CGI script can be tested directly with
 
 ```{.awk #test-cgi}
-echo '{"guess":-20, "epsilon":0.001}' | apache2/cgi-bin/newtonraphson
+echo '{"guess":-20, "epsilon":0.001}' | cgi/apache2/cgi-bin/newtonraphson
 ```
 
 It should output
@@ -271,10 +271,10 @@ Content-type: application/json
 }
 ```
 
-Example Apache config file to host executables in `./apache2/cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
+Example Apache config file to host executables in `cgi/apache2/cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
 
-```{.python file=apache2/apache2.conf}
-# this Apache2 configuration snippet is stored as apache2/apache2.conf
+```{.python file=cgi/apache2/apache2.conf}
+# this Apache2 configuration snippet is stored as cgi/apache2/apache2.conf
 ServerName 127.0.0.1
 Listen 8080
 LoadModule mpm_event_module /usr/lib/apache2/modules/mod_mpm_event.so

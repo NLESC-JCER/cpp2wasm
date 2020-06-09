@@ -1,4 +1,4 @@
-// this C++ snippet is stored as src/cgi-newtonraphson.hpp
+// this C++ snippet is stored as cgi/cgi-newtonraphson.hpp
 #include <string>
 #include <iostream>
 #include <nlohmann/json.hpp>

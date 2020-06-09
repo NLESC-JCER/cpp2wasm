@@ -22,7 +22,7 @@ All the commands in the [README.md](README.md) and [CONTRIBUTING.md](CONTRIBUTIN
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
 ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' *.md | grep -v Makefile | sort -u)
-COMPILED := cli/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
+COMPILED := cli/newtonraphson.exe src/py/newtonraphsonpy.*.so cgi/apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
 
 entangle: *.md
 	<<pandoc-tangle>>
@@ -52,10 +52,10 @@ cli/newtonraphson.exe: cli/cli-newtonraphson.cpp
 test-cli: cli/newtonraphson.exe
 	<<test-cli>>
 
-apache2/cgi-bin/newtonraphson: src/cgi-newtonraphson.cpp
+cgi/apache2/cgi-bin/newtonraphson: cgi/cgi-newtonraphson.cpp
 	<<build-cgi>>
 
-test-cgi: apache2/cgi-bin/newtonraphson
+test-cgi: cgi/apache2/cgi-bin/newtonraphson
 	<<test-cgi>>
 
 src/py/newtonraphsonpy.*.so: src/py-newtonraphson.cpp
