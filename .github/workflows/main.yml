@@ -108,7 +108,7 @@ jobs:
 
       - name: Build shared library and link to it
         run: |
-          make flask-link-newtonraphsonpy
+          make flask/newtonraphsonpy.*.so
 
       - name: Start web application in background
         run: |
