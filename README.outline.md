@@ -44,6 +44,15 @@ Introduce the example algorithm, as a CLI.
 
 # JavaScript web application
 
+- how to use wasm in webbrowser
+- long running with web worker
+- react, explain react/vue/angular here
+- json schema form
+- vega plot
+
+
+
+
 
 ---
 
