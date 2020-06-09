@@ -107,6 +107,9 @@ build-wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
 webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm: webassembly/wasm-newtonraphson.cpp
 	<<build-wasm>>
 
+react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
+	<<link-wasm>>
+
 host-files: build-wasm
 	<<host-files>>
 

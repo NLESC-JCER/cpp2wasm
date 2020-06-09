@@ -406,7 +406,7 @@ pip install flask
 We'll use the shared library that the openapi example also uses:
 
 ```{.awk #flask-link-newtonraphsonpy}
-	cd flask && ln -s ../openapi/newtonraphsonpy`python3-config --extension-suffix` . && cd -
+cd flask && ln -s ../openapi/newtonraphsonpy`python3-config --extension-suffix` . && cd -
 ```
 
 The web application has 3 kinds of pages:
@@ -1175,6 +1175,12 @@ ReactDOM.render(
   <App/>,
   document.getElementById('container')
 );
+```
+
+Make sure that the App can find the WebAssembly files by
+
+```{.awk #link-wasm}
+cd react && ln -s ../webassembly/newtonraphsonwasm.js . && ln -s ../webassembly/newtonraphsonwasm.wasm . && cd -
 ```
 
 Like before we also need to host the files in a web server with
