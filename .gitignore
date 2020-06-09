@@ -9,6 +9,7 @@ cypress/videos
 /cli/newtonraphson.exe
 /cgi/apache2/cgi-bin/newtonraphson
 /openapi/newtonraphsonpy.*.so
+/flask/newtonraphsonpy.*.so
 
 # Ignore entangled db
 .entangled/db.sqlite

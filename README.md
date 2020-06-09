@@ -403,6 +403,12 @@ The Flask Python library can be installed with
 pip install flask
 ```
 
+We'll use the shared library that the openapi example also uses:
+
+```{.awk #flask-link-newtonraphsonpy}
+	cd flask && ln -s openapi/newtonraphsonpy.*.so && cd -
+```
+
 The web application has 3 kinds of pages:
 
 1. a page with form and submit button,
