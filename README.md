@@ -313,7 +313,7 @@ Should return the following JSON document as a response
 ```json
 {
   "guess": -20,
-  "root":-1.000000
+  "root":-1.0000001181322415
 }
 ```
 
