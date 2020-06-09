@@ -4,6 +4,7 @@
 // this C++ code snippet is later referred to as <<algorithm>>
 #include "newtonraphson.hpp"
 #include "algebra.hpp"
+#include <math.h>
 
 using namespace algebra;
 
@@ -17,7 +18,11 @@ double NewtonRaphson::solve(double xin)
 {
   double x = xin;
   double delta_x = equation(x) / derivative(x);
-  while (abs(delta_x) >= tolerance)
+
+  std::cout << "initial guess: " << xin << std::endl;
+  std::cout << "initial tolerance: " << tolerance << std::endl;
+
+  while (fabs(delta_x) >= tolerance)
   {
     delta_x = equation(x) / derivative(x);
 
