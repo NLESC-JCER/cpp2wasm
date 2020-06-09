@@ -15,7 +15,7 @@ jobs:
       - name: Check all entangled files are in sync with Markdown
         run: make check
   sonarcloud:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     steps:
     - uses: actions/checkout@v2
       with:
@@ -48,6 +48,8 @@ jobs:
       run: make clean-compiled
     - name: Compile C++ files using wrapper
       run: ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make all
+    - name: Restore wasm
+      run: git restore src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm
     - name: Upload bw output
       uses: actions/upload-artifact@v2
       with:
