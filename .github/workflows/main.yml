@@ -106,6 +106,12 @@ jobs:
       - name: Install Python dependencies
         run: make pip-pybind11 && make pip-flask && make pip-celery && pip install httpie
 
+      - name: TEMP build so
+        shell: bash -l {0}
+        run: |
+          make openapi/newtonraphsonpy.*.so
+          cd flask && ln -s openapi/newtonraphsonpy.cpython-36m-x86_64-linux-gnu.so && cd -
+
       - name: Start web application in background
         run: |
           make run-webapp 2>&1 | tee ./run-webapp.log &
