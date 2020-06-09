@@ -113,8 +113,11 @@ react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm: webassembly/newtonraphs
 host-files: build-wasm
 	<<host-files>>
 
-test-wasm:
-	<<test-wasm>>
+test-wasm-webassembly:
+	<<test-wasm-webassembly>>
+
+test-wasm-react:
+	<<test-wasm-react>>
 
 init-git-hook:
 	<<hook-permission>>

@@ -96,8 +96,11 @@ react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm: webassembly/newtonraphs
 host-files: build-wasm
 	python3 -m http.server 8000
 
-test-wasm:
-	npx cypress run --config-file false
+test-wasm-webassembly:
+	npx cypress run --config-file false --spec 'cypress/integration/webassembly/*_spec.js'
+
+test-wasm-react:
+	npx cypress run --config-file false --spec 'cypress/integration/react/*_spec.js'
 
 init-git-hook:
 	chmod +x .githooks/pre-commit

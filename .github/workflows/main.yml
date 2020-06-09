@@ -157,7 +157,7 @@ jobs:
         run: make host-files 2>&1 | tee ./web-server.log &
 
       - name: Run tests
-        run: make test-wasm
+        run: make test-wasm-webassembly
 
       - name: Upload log of web server
         if: ${{ always() }}
@@ -173,14 +173,14 @@ jobs:
       - name: Install emscripten
         uses: mymindstorm/setup-emsdk@v4
 
-      - name: Build WebAssembly module
-        run: make build-wasm
+      - name: Build WebAssembly module and link to it from react/
+        run: make build-wasm && make react/newtonraphsonwasm.js
 
       - name: Start web server for hosting files in background
         run: make host-files 2>&1 | tee ./web-server.log &
 
       - name: Run tests
-        run: make test-wasm
+        run: make test-wasm-react
 
       - name: Upload log of web server
         if: ${{ always() }}
