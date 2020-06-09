@@ -36,7 +36,46 @@ jobs:
 
       - name: Run C++ test for CGI
         run: make test-cgi
-  python:
+  openapi:
+    # The type of runner that the job will run on
+    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+      fail-fast: true
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: "x64"
+
+      - name: Which Python
+        run: which python
+
+      - name: Install Python dependencies
+        run: make pip-pybind11 && make pip-connexion
+
+      - name: Run Python example
+        run: make test-py
+
+      - name: Start web service in background
+        run: make run-webservice 2>&1 | tee ./run-webservice.log &
+
+      - name: Test web service
+        run: make test-webservice
+
+      - name: Upload log of services
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: service-logs
+          path: ./run-*.log
+  flask:
     # The type of runner that the job will run on
     name: Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
