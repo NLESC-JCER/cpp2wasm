@@ -25,6 +25,8 @@ jobs:
       with:
         python-version: 3.8
         architecture: "x64"
+    - name: Install Python dependencies
+      run: make py-deps && pip install httpie
     - name: Install emscripten
       uses: mymindstorm/setup-emsdk@v4
     - name: Cache SonarCloud Build Wrapper
