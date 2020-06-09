@@ -4,7 +4,7 @@
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
 ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' *.md | grep -v Makefile | sort -u)
-COMPILED := cli/newtonraphson.exe openapi/newtonraphsonpy.*.so cgi/apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
+COMPILED := cli/newtonraphson.exe openapi/newtonraphsonpy.*.so cgi/apache2/cgi-bin/newtonraphson webassembly/newtonraphsonwasm.js  webassembly/newtonraphsonwasm.wasm
 
 entangle: *.md
 	docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md
@@ -82,9 +82,9 @@ run-celery-worker: openapi/newtonraphsonpy.*.so
 run-celery-webapp: openapi/newtonraphsonpy.*.so
 	python flask/webapp-celery.py
 
-build-wasm: src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm
+build-wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
 
-src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm: src/wasm-newtonraphson.cpp
+webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm: webassembly/wasm-newtonraphson.cpp
 	emcc --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
 
 host-files: build-wasm
