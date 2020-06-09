@@ -50,6 +50,8 @@ jobs:
       run: ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make all
     - name: Restore wasm
       run: git restore src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm
+    - name: Relativize bw-output
+      run: perl -pi -e 's@/home/runner/work/cpp2wasm/cpp2wasm@/github/workspace@g' bw-output/build-wrapper-dump.json
     - name: Upload bw output
       uses: actions/upload-artifact@v2
       with:
