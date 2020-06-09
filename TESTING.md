@@ -13,25 +13,25 @@ To visit a web page we need to start a simple web server with using Python
 python3 -m http.server 8000
 ```
 
-Let's, first write a test for the [direct WebAssembly example](http://localhost:8000/src/js/example.html).
+Let's, first write a test for the [direct WebAssembly example](http://localhost:8000/webassembly/example.html).
 
 ```{.js file=cypress/integration/example_spec.js}
 // this JavaScript snippet is run by cypress and is stored as cypress/integration/example_spec.js
-describe('src/js/example.html', () => {
+describe('webassembly/example.html', () => {
   it('should render -1.00', () => {
-    cy.visit('http://localhost:8000/src/js/example.html');
+    cy.visit('http://localhost:8000/webassembly/example.html');
     cy.get('#answer').contains('-1.00');
   });
 });
 ```
 
-Second, a test for the WebAssembly called through a [web worker](http://localhost:8000/src/js/example-web-worker.html).
+Second, a test for the WebAssembly called through a [web worker](http://localhost:8000/webassembly/example-web-worker.html).
 
 ```{.js file=cypress/integration/example-web-worker_spec.js}
 // this JavaScript snippet is run by cypress and is stored as cypress/integration/example-web-worker_spec.js
-describe('src/js/example-web-worker.html', () => {
+describe('webassembly/example-web-worker.html', () => {
   it('should render -1.00', () => {
-    cy.visit('http://localhost:8000/src/js/example-web-worker.html');
+    cy.visit('http://localhost:8000/webassembly/example-web-worker.html');
     cy.get('#answer').contains('-1.00');
   });
 });
