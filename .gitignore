@@ -18,3 +18,8 @@ cypress/videos
 # other ignores
 node_modules
 
+# SonarCloud
+.scannerwork
+build-wrapper-linux-x86.zip
+build-wrapper-linux-x86/
+bw-output/

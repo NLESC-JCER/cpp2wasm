@@ -35,11 +35,6 @@ function Plot({roots}) {
 
 function App() {
   const Form = JSONSchemaForm.default;
-  const uiSchema = {
-    "guess": {
-      "ui:widget": "range"
-    }
-  }
   const [formData, setFormData] = React.useState({
 
   });
