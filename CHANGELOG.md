@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Directory structure ([#67](https://github.com/NLESC-JCER/cpp2wasm/issues/67))
 * Makefile does less entangles ([#61](https://github.com/NLESC-JCER/cpp2wasm/issues/61))
+* Makefile is now using the user id and the user's group id as defined on the host system
 
 ## [0.3.0] -  2020-06-09
 

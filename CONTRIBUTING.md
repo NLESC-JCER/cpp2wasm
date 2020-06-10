@@ -116,8 +116,17 @@ Before you submit a pull request, check that it meets these guidelines:
 
 The [Entangled - Pandoc filters](https://github.com/entangled/filters) Docker image can be used to generate source code files from the Markdown files.
 
+First, store your user id and group as environment variables:
+
+```shell
+export HOST_UID=$(id -u)
+export HOST_GID=$(id -g)
+```
+
+Then,
+
 ```{.awk #pandoc-tangle}
-docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md
+docker run --rm --user ${HOST_UID}:${HOST_GID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md
 ```
 
 ## Generate code from Markdown and vice versa
@@ -149,12 +158,10 @@ The pre-commit hook script runs entangle using Docker and adds newly written fil
 #!/bin/sh
 # this shell script is stored as .githooks/pre-commit
 
-UID=$(id -u)
-
 echo 'Check entangled files are up to date'
 
 # Entangle Markdown to source code and store the output
-LOG=$(docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md 2>&1 > /dev/null)
+LOG=$(docker run --rm --user $(id -u):$(id -g) -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md 2>&1 > /dev/null)
 # Parse which filenames have been written from output
 FILES=$(echo $LOG | perl -ne 'print $1,"\n" if /^Writing \`(.*)\`./')
 [ -z "$FILES" ] && exit 0
@@ -162,6 +169,7 @@ echo $FILES
 
 echo 'Adding written files to commit'
 echo $FILES | xargs git add
+
 ```
 
 The hook must be made executable with
