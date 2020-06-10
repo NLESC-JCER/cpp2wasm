@@ -50,7 +50,7 @@ jobs:
       run: ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make all
     - name: Restore wasm
       # As we want to analyse files in git not files we just build
-      run: git restore src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm
+      run: git restore webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
     - name: Relativize bw-output
       # Build wrapper runs on CI server while sonar-scanner runs in Docker container need to adjust paths
       run: perl -pi -e 's@/home/runner/work/cpp2wasm/cpp2wasm@/github/workspace@g' bw-output/build-wrapper-dump.json
