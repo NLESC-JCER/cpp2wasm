@@ -299,7 +299,7 @@ ScriptAlias "/cgi-bin/" "cgi-bin/"
 Start Apache httpd web server using
 
 ```shell
-/usr/sbin/apache2 -X -d ./apache2
+/usr/sbin/apache2 -X -d ./cgi/apache2
 ```
 
 And in another shell call CGI script using curl
