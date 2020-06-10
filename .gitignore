@@ -11,10 +11,6 @@ cypress/videos
 /cgi/apache2/cgi-bin/newtonraphson
 /openapi/newtonraphsonpy.*.so
 /flask/newtonraphsonpy.*.so
-/webassembly/newtonraphsonwasm.js
-/webassembly/newtonraphsonwasm.wasm
-/react/newtonraphsonwasm.js
-/react/newtonraphsonwasm.wasm
 
 # Ignore entangled db
 .entangled/db.sqlite
