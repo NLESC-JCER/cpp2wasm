@@ -21,6 +21,7 @@
 [![Markdown Link Checker](https://github.com/NLESC-JCER/cpp2wasm/workflows/Check%20Markdown%20links/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3A%22Check%20Markdown%20links%22)
 [![Entangled](https://img.shields.io/badge/entangled-Use%20the%20source!-%2300aeff)](https://entangled.github.io/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3876112.svg)](https://doi.org/10.5281/zenodo.3876112)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=NLESC-JCER_cpp2wasm&metric=alert_status)](https://sonarcloud.io/dashboard?id=NLESC-JCER_cpp2wasm)
 
 Document describing a way that a researcher with a C++ algorithm can make it available as a web application. We will host the C++ algorithm as an web application in several different ways:
 
@@ -34,10 +35,38 @@ The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton
 The algorithm is explained in [this video series](https://www.youtube.com/watch?v=cOmAk82cr9M).
 The code we are using came from [geeksforgeeks.org](https://www.geeksforgeeks.org/program-for-newton-raphson-method/).
 
-The interface would like
+Let's first define the mathematical equation, which we will be searching for its root, and the derivative of it.
 
-```{.cpp file=src/newtonraphson.hpp}
-// this C++ snippet is stored as src/newtonraphson.hpp
+The equation and its derivative which we will use in this guide are $x^3 - x^2  + 2$ and $3x^2 - 2x$ respectively.
+The root is the value (X-coordinate) which makes the mathematical function (Y-coordinate) equal to `0`. In this equation the root is `-1`.
+
+[![Plotted equation](images/equation.svg)](https://www.wolframalpha.com/input/?i=x%5E3+-+x%5E2+%2B+2)
+
+```{.hpp file=cli/algebra.hpp}
+// this C++ code snippet is store as cli/algebra.hpp
+
+namespace algebra
+{
+
+// An example equation is x^3 - x^2  + 2
+double equation(double x)
+{
+  return x * x * x - x * x + 2;
+}
+
+// Derivative of the above equation which is 3*x^2 - 2*x
+double derivative(double x)
+{
+  return 3 * x * x - 2 * x;
+}
+
+} // namespace algebra
+```
+
+Next, we define the interface (C++ class).
+
+```{.cpp file=cli/newtonraphson.hpp}
+// this C++ snippet is stored as cli/newtonraphson.hpp
 #ifndef H_NEWTONRAPHSON_H
 #define H_NEWTONRAPHSON_H
 
@@ -47,7 +76,7 @@ namespace rootfinding {
   class NewtonRaphson {
     public:
       NewtonRaphson(double tolerancein);
-      double find(double xin);
+      double solve(double xin);
     private:
       double tolerance;
   };
@@ -56,37 +85,32 @@ namespace rootfinding {
 #endif
 ```
 
-The implementation would look like
+In this C++ class, `solve` function will be performing the root finding task. We now need to define the algorithm so that `solve` function does what it supposed to do.
+
+The implementation of the algorithm would look like
 
 ```{.cpp #algorithm}
 // this C++ code snippet is later referred to as <<algorithm>>
 #include "newtonraphson.hpp"
+#include "algebra.hpp"
+#include <math.h>
+
+using namespace algebra;
 
 namespace rootfinding
 {
 
-// An example function is x^3 - x^2  + 2
-double func(double x)
-{
-  return x * x * x - x * x + 2;
-}
-
-// Derivative of the above function which is 3*x*x - 2*x
-double derivFunc(double x)
-{
-  return 3 * x * x - 2 * x;
-}
-
 NewtonRaphson::NewtonRaphson(double tolerancein) : tolerance(tolerancein) {}
 
 // Function to find the root
-double NewtonRaphson::find(double xin)
+double NewtonRaphson::solve(double xin)
 {
   double x = xin;
-  double delta_x = func(x) / derivFunc(x);
-  while (abs(delta_x) >= tolerance)
+  double delta_x = equation(x) / derivative(x);
+
+  while (fabs(delta_x) >= tolerance)
   {
-    delta_x = func(x) / derivFunc(x);
+    delta_x = equation(x) / derivative(x);
 
     // x_new = x_old - f(x) / f'(x)
     x = x - delta_x;
@@ -98,11 +122,12 @@ double NewtonRaphson::find(double xin)
 } // namespace rootfinding
 ```
 
-A simple CLI program would look like
+We are now ready to call the algorithm in a simple CLI program. It would look like
 
-```{.cpp file=src/cli-newtonraphson.cpp}
-// this C++ snippet is stored as src/newtonraphson.cpp
+```{.cpp file=cli/cli-newtonraphson.cpp}
+// this C++ snippet is stored as cli/newtonraphson.cpp
 #include<bits/stdc++.h>
+#include <iomanip>
 
 <<algorithm>>
 
@@ -112,9 +137,12 @@ int main()
   double x0 = -20; // Initial values assumed
   double epsilon = 0.001;
   rootfinding::NewtonRaphson finder(epsilon);
-  double x1 = finder.find(x0);
+  double x1 = finder.solve(x0);
 
+  std::cout << std::fixed;
+  std::cout << std::setprecision(6);
   std::cout << "The value of the root is : " << x1 << std::endl;
+
   return 0;
 }
 ```
@@ -122,19 +150,19 @@ int main()
 Compile with
 
 ```{.awk #build-cli}
-g++ src/cli-newtonraphson.cpp -o bin/newtonraphson.exe
+g++ cli/cli-newtonraphson.cpp -o cli/newtonraphson.exe
 ```
 
 Run with
 
 ```{.awk #test-cli}
-./bin/newtonraphson.exe
+./cli/newtonraphson.exe
 ```
 
 Should output
 
 ```shell
-The value of the root is : -1.62292
+The value of the root is : -1.000000
 ```
 
 A C++ algorithm is a collection of functions/classes that can perform a mathematical computation.
@@ -190,13 +218,15 @@ And a valid document:
 
 ## CGI script
 
+![cgi](images/cgi.svg.png "CGI")
+
 The classic way to run programs when accessing a url is to use the Common Gateway Interface (CGI).
 In the [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.html) you can configure a directory as a ScriptAlias, when visiting a file inside that directory the file will be executed.
 The executable can read the request body from the stdin for and the response must be printed to the stdout.
 A response should consist of the content type such as ``application/json`` or ``text/html``, followed by the content itself. A web service which accepts and returns JSON documents can for example look like:
 
-```{.cpp file=src/cgi-newtonraphson.cpp}
-// this C++ snippet is stored as src/cgi-newtonraphson.hpp
+```{.cpp file=cgi/cgi-newtonraphson.cpp}
+// this C++ snippet is stored as cgi/cgi-newtonraphson.hpp
 #include <string>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -214,7 +244,7 @@ int main(int argc, char *argv[])
 
   // Find root
   rootfinding::NewtonRaphson finder(epsilon);
-  double root = finder.find(guess);
+  double root = finder.solve(guess);
 
   // Assemble response
   nlohmann::json response;
@@ -230,13 +260,13 @@ Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header onl
 This can be compiled with
 
 ```{.awk #build-cgi}
-g++ -Ideps src/cgi-newtonraphson.cpp -o apache2/cgi-bin/newtonraphson
+g++ -Icgi/deps/ -Icli/ cgi/cgi-newtonraphson.cpp -o cgi/apache2/cgi-bin/newtonraphson
 ```
 
 The CGI script can be tested directly with
 
 ```{.awk #test-cgi}
-echo '{"guess":-20, "epsilon":0.001}' | apache2/cgi-bin/newtonraphson
+echo '{"guess":-20, "epsilon":0.001}' | cgi/apache2/cgi-bin/newtonraphson
 ```
 
 It should output
@@ -246,14 +276,14 @@ Content-type: application/json
 
 {
   "guess": -20.0,
-  "root": -1.622923986083026
+  "root": -1.0000001181322415
 }
 ```
 
-Example Apache config file to host executables in `./apache2/cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
+Example Apache config file to host executables in `cgi/apache2/cgi-bin/` directory as `http://localhost:8080/cgi-bin/`.
 
-```{.python file=apache2/apache2.conf}
-# this Apache2 configuration snippet is stored as apache2/apache2.conf
+```{.python file=cgi/apache2/apache2.conf}
+# this Apache2 configuration snippet is stored as cgi/apache2/apache2.conf
 ServerName 127.0.0.1
 Listen 8080
 LoadModule mpm_event_module /usr/lib/apache2/modules/mod_mpm_event.so
@@ -269,7 +299,7 @@ ScriptAlias "/cgi-bin/" "cgi-bin/"
 Start Apache httpd web server using
 
 ```shell
-/usr/sbin/apache2 -X -d ./apache2
+/usr/sbin/apache2 -X -d ./cgi/apache2
 ```
 
 And in another shell call CGI script using curl
@@ -286,13 +316,15 @@ Should return the following JSON document as a response
 ```json
 {
   "guess": -20,
-  "root":-1.62292
+  "root":-1.0000001181322415
 }
 ```
 
 The problem with CGI scripts is when the program does some initialization, you have to wait for it each visit. It is better to do the initialization once when the web service is starting up.
 
 ## Web framework
+
+![flask](images/flask.svg.png "Flask")
 
 A web framework is an abstraction layer for making web applications. It takes care of mapping a request on a certain url to a user defined function. And mapping the return of a user defined function to a response like an HTML page or an error message.
 
@@ -318,8 +350,8 @@ Pybind11 requires a bindings to expose C++ constants/functions/enumerations/clas
 
 For example the bindings of `newtonraphson.hpp:NewtonRaphson` class would look like:
 
-```{.cpp file=src/py-newtonraphson.cpp}
-// this C++ snippet is stored as src/py-newtonraphson.cpp
+```{.cpp file=openapi/py-newtonraphson.cpp}
+// this C++ snippet is stored as openapi/py-newtonraphson.cpp
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 
@@ -330,8 +362,8 @@ namespace py = pybind11;
 PYBIND11_MODULE(newtonraphsonpy, m) {
     py::class_<rootfinding::NewtonRaphson>(m, "NewtonRaphson")
         .def(py::init<double>(), py::arg("epsilon"))
-        .def("find",
-             &rootfinding::NewtonRaphson::find,
+        .def("solve",
+             &rootfinding::NewtonRaphson::solve,
              py::arg("guess"),
              "Find root starting from initial guess"
         )
@@ -342,25 +374,26 @@ PYBIND11_MODULE(newtonraphsonpy, m) {
 Compile with
 
 ```{.awk #build-py}
-g++ -O3 -Wall -shared -std=c++14 -fPIC `python3 -m pybind11 --includes` \
-src/py-newtonraphson.cpp -o src/py/newtonraphsonpy`python3-config --extension-suffix`
+g++ -O3 -Wall -shared -std=c++14 -fPIC -Icli/ `python3 -m pybind11 --includes` \
+openapi/py-newtonraphson.cpp -o openapi/newtonraphsonpy`python3-config --extension-suffix`
 ```
 
 In Python it can be used:
 
-```{.python file=src/py/example.py}
-# this Python snippet is stored as src/py/example.py
+```{.python file=openapi/example.py}
+# this Python snippet is stored as openapi/example.py
 from newtonraphsonpy import NewtonRaphson
 
 finder = NewtonRaphson(epsilon=0.001)
-root = finder.find(guess=-20)
-print(root)
+root = finder.solve(guess=-20)
+print ("{0:.6f}".format(root))
+
 ```
 
 The Python example can be run with
 
 ```{.awk #test-py}
-python src/py/example.py
+python openapi/example.py
 ```
 
 It will output something like
@@ -378,6 +411,12 @@ The Flask Python library can be installed with
 
 ```{.awk #pip-flask}
 pip install flask
+```
+
+We'll use the shared library that the openapi example also uses:
+
+```{.awk #flask-link-newtonraphsonpy}
+cd flask && ln -s ../openapi/newtonraphsonpy`python3-config --extension-suffix` . && cd -
 ```
 
 The web application has 3 kinds of pages:
@@ -404,7 +443,7 @@ def form():
     </form>'''
 ```
 
-The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result html page. To get the submitted values we use the Flask global [request](https://flask.palletsprojects.com/en/1.1.x/quickstart/#accessing-request-data) object. To construct the returned html we use [f-strings](https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals) to replace the variable names with the variable values.
+The form will be submitted to the '/' path with the POST method. In the handler of this route we want to perform the calculation and return the result HTML page. To get the submitted values we use the Flask global [request](https://flask.palletsprojects.com/en/1.1.x/quickstart/#accessing-request-data) object. To construct the returned HTML we use [f-strings](https://docs.python.org/3/reference/lexical_analysis.html#formatted-string-literals) to replace the variable names with the variable values.
 
 ```{.python #py-calculate}
 # this Python code snippet is later referred to as <<py-calculate>>
@@ -415,7 +454,7 @@ def calculate():
 
   from newtonraphsonpy import NewtonRaphson
   finder = NewtonRaphson(epsilon)
-  root = finder.find(guess)
+  root = finder.solve(guess)
 
   return f'''<!doctype html>
     <p>With epsilon of {epsilon} and a guess of {guess} the found root is {root}.</p>'''
@@ -427,8 +466,8 @@ def calculate():
 
 Putting it all together in
 
-```{.python file=src/py/webapp.py}
-# this Python snippet is stored as src/py/webapp.py
+```{.python file=flask/webapp.py}
+# this Python snippet is stored as flask/webapp.py
 from flask import Flask, request
 app = Flask(__name__)
 
@@ -442,7 +481,7 @@ app.run(port=5001)
 And running it with
 
 ```{.awk #run-webapp}
-python src/py/webapp.py
+python flask/webapp.py
 ```
 
 To test we can visit [http://localhost:5001](http://localhost:5001) fill the form and press submit to get the result.
@@ -461,7 +500,7 @@ docker run --rm -d -p 6379:6379 --name some-redis redis
 To use Celery we must install the redis flavored version with
 
 ```{.awk #pip-celery}
-pip install celery[redis]==4.4.3
+pip install celery[redis]
 ```
 
 Let's set up a method that can be submitted to the Celery task queue.
@@ -476,8 +515,8 @@ capp = Celery('tasks', broker='redis://localhost:6379', backend='redis://localho
 When a method is decorated with the Celery task decorator then it can be submitted to the Celery task queue.
 We'll add some ``sleep``s to demonstrate what would happen with a long running calculation. We'll also tell Celery about in which step the calculation is; later, we can display this step to the user.
 
-```{.python file=src/py/tasks.py}
-# this Python snippet is stored as src/py/tasks.py
+```{.python file=flask/tasks.py}
+# this Python snippet is stored as flask/tasks.py
 import time
 
 <<celery-config>>
@@ -492,7 +531,7 @@ def calculate(self, epsilon, guess):
   if not self.request.called_directly:
     self.update_state(state='FINDING')
   time.sleep(5)
-  root = finder.find(guess)
+  root = finder.solve(guess)
   return {'root': root, 'guess': guess, 'epsilon':epsilon}
 ```
 
@@ -533,8 +572,8 @@ def result(jobid):
 
 Putting it all together
 
-```{.python file=src/py/webapp-celery.py}
-# this Python snippet is stored as src/py/webapp-celery.py
+```{.python file=flask/webapp-celery.py}
+# this Python snippet is stored as flask/webapp-celery.py
 from flask import Flask, render_template, request, redirect, url_for
 
 app = Flask(__name__)
@@ -552,16 +591,16 @@ if __name__ == '__main__':
 Start the web application like before with
 
 ```{.awk #run-celery-webapp}
-python src/py/webapp-celery.py
+python flask/webapp-celery.py
 ```
 
 Tasks will be run by the Celery worker. The worker can be started with
 
 ```{.awk #run-celery-worker}
-PYTHONPATH=src/py celery worker -A tasks
+PYTHONPATH=openapi celery worker -A tasks
 ```
 
-(The PYTHONPATH environment variable is set so the Celery worker can find the `tasks.py` and `newtonraphsonpy.*.so` files in the `src/py/` directory)
+(The PYTHONPATH environment variable is set so the Celery worker can find the `tasks.py` and `newtonraphsonpy.*.so` files in the `flask/` directory)
 
 To test the web service
 
@@ -577,6 +616,8 @@ docker stop some-redis
 
 ### Web service
 
+![swagger](images/swagger.svg.png "Swagger")
+
 A web application is meant for consumption by humans and web service is meant for consumption by machines or other programs.
 So instead of returning HTML pages a web service will accept and return machine readable documents like JSON documents. A web service is an application programming interface (API) based on web technologies.
 
@@ -590,8 +631,8 @@ For the Python based root finding web service, Connexion was used as the web fra
 
 The OpenAPI specification for performing root finding would look like
 
-```{.yaml file=src/py/openapi.yaml}
-# this yaml snippet is stored as src/py/openapi.yaml
+```{.yaml file=openapi/openapi.yaml}
+# this yaml snippet is stored as openapi/openapi.yaml
 openapi: 3.0.0
 info:
   title: Root finder
@@ -648,14 +689,14 @@ The request and response are in JSON format and adhere to their respective JSON 
 
 The operation identifier (`operationId`) in the specification gets translated by Connexion to a Python method that will be called when the path is requested. Connexion calls the function with the JSON parsed request body.
 
-```{.python file=src/py/api.py}
-# this Python snippet is stored as src/py/api.py
+```{.python file=openapi/api.py}
+# this Python snippet is stored as openapi/.py
 def calculate(body):
   epsilon = body['epsilon']
   guess = body['guess']
   from newtonraphsonpy import NewtonRaphson
   finder = NewtonRaphson(epsilon)
-  root = finder.find(guess)
+  root = finder.solve(guess)
   return {'root': root}
 ```
 
@@ -667,8 +708,8 @@ pip install connexion[swagger-ui]
 
 To run the web service we have to to tell Connexion which specification it should expose.
 
-```{.python file=src/py/webservice.py}
-# this Python snippet is stored as src/py/webservice.py
+```{.python file=openapi/webservice.py}
+# this Python snippet is stored as openapi/webservice.py
 import connexion
 
 app = connexion.App(__name__)
@@ -679,7 +720,7 @@ app.run(port=8080)
 The web service can be started with
 
 ```{.awk #run-webservice}
-python src/py/webservice.py
+python openapi/webservice.py
 ```
 
 We can try out the web service using the Swagger UI at [http://localhost:8080/ui/](http://localhost:8080/ui/).
@@ -690,6 +731,8 @@ curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/j
 ```
 
 ## JavaScript
+
+![wasm](images/wasm.svg.png "WebAssembly")
 
 JavaScript is the de facto programming language for web browsers.
 The JavaScript engine in the Chrome browser called V8 has been wrapped in a runtime engine called Node.js which can execute JavaScript code outside the browser.
@@ -704,8 +747,8 @@ Instead of writing code in the WebAssembly language, there are compilers that ca
 
 The binding of the C++ code will be
 
-```{.cpp file=src/wasm-newtonraphson.cpp}
-// this C++ snippet is stored as src/wasm-newtonraphson.cpp
+```{.cpp file=webassembly/wasm-newtonraphson.cpp}
+// this C++ snippet is stored as webassembly/wasm-newtonraphson.cpp
 #include <emscripten/bind.h>
 
 <<algorithm>>
@@ -715,19 +758,19 @@ using namespace emscripten;
 EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
   class_<rootfinding::NewtonRaphson>("NewtonRaphson")
     .constructor<double>()
-    .function("find", &rootfinding::NewtonRaphson::find)
+    .function("solve", &rootfinding::NewtonRaphson::solve)
     ;
 }
 ```
 
 The algorithm and binding can be compiled into a WebAssembly module with the Emscripten compiler called `emcc`.
-To make live easier we configure the compile command to generate a `src/js/newtonraphsonwasm.js` file which exports the `createModule` function.
+To make live easier we configure the compile command to generate a `webassembly/newtonraphsonwasm.js` file which exports the `createModule` function.
 
 ```{.awk #build-wasm}
-emcc --bind -o src/js/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule src/wasm-newtonraphson.cpp
+emcc -Icli/ --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
 ```
 
-The compilation also generates a `src/js/newtonraphsonwasm.wasm` file which will be loaded with the `createModule` function.
+The compilation also generates a `webassembly/newtonraphsonwasm.wasm` file which will be loaded with the `createModule` function.
 
 The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the JavaScript promise to resolve.
 
@@ -748,24 +791,21 @@ The root finder can be called with.
 const epsilon = 0.001;
 const finder = new module.NewtonRaphson(epsilon);
 const guess = -20;
-const root = finder.find(guess);
+const root = finder.solve(guess);
 ```
 
-Append the root answer to the html page using [document manipulation functions](https://developer.mozilla.org/en-US/docs/Web/API/ParentNode/append).
+Set the root answer to the HTML page using document manipulation functions: [getElementById](https://developer.mozilla.org/en-US/docs/Web/API/Document/getElementById), [innerHTML](https://developer.mozilla.org/en-US/docs/Web/API/Element/innerHTML). In order to display the result, we use a HTML element with an id of `answer`. This element is defined in the HTML page which we will define soon.
 
 ```{.js #render-answer}
-const answer = document.createElement('span');
-answer.id = 'answer';
-answer.append(root);
-document.body.append(answer);
+document.getElementById('answer').innerHTML = root.toFixed(2);
 ```
 
 To run the JavaScript in a web browser a HTML page is needed.
 To be able to use the `createModule` function, we will import the `newtonraphsonwasm.js` with a script tag.
 
-```{.html file=src/js/example.html}
+```{.html file=webassembly/example.html}
 <!doctype html>
-<!-- this HTML page is stored as src/js/example.html -->
+<!-- this HTML page is stored as webassembly/example.html -->
 <html lang="en">
   <head>
     <title>Example</title>
@@ -774,6 +814,9 @@ To be able to use the `createModule` function, we will import the `newtonraphson
       <<wasm-promise>>
     </script>
   </head>
+  <body>
+    <span id="answer"> </span>
+  </body>
 </html>
 ```
 
@@ -784,10 +827,10 @@ Python ships with a built-in web server, we will use it to host the all files of
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example.html](http://localhost:8000/src/js/example.html) to see the result of the calculation.
-Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html)
+Visit [http://localhost:8000/webassembly/example.html](http://localhost:8000/webassembly/example.html) to see the result of the calculation.
+Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/webassembly/example.html)
 
-[https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html](https://nlesc-jcer.github.io/cpp2wasm/src/js/example.html ':include :type=iframe width=100% height=60px').
+[https://nlesc-jcer.github.io/cpp2wasm/webassembly/example.html](https://nlesc-jcer.github.io/cpp2wasm/webassembly/example.html ':include :type=iframe width=100% height=60px').
 
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, executed by some JavaScript and rendered on a HTML page.
 
@@ -795,7 +838,7 @@ The result of root finding was calculated using the C++ algorithm compiled to a 
 
 Executing a long running C++ method will block the browser from running any other code like updating the user interface. In order to avoid this, the method can be run in the background using [web workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Using_web_workers). A web worker runs in its own thread and can be interacted with from JavaScript using messages.
 
-We need to instantiate a web worker which we will implement later in `src/js/worker.js`.
+We need to instantiate a web worker which we will implement later in `webassembly/worker.js`.
 
 ```{.js #worker-consumer}
 // this JavaScript snippet is later referred to as <<worker-consumer>>
@@ -823,8 +866,8 @@ onmessage = function(message) {
 
 Before we can handle the message we need to import the WebAssembly module.
 
-```{.js file=src/js/worker.js}
-// this JavaScript snippet is stored as src/js/worker.js
+```{.js file=webassembly/worker.js}
+// this JavaScript snippet is stored as webassembly/worker.js
 importScripts('newtonraphsonwasm.js');
 
 <<worker-provider-onmessage>>
@@ -849,7 +892,7 @@ Let's calculate the result (root) based on the payload parameters in the incomin
 const epsilon = message.data.payload.epsilon;
 const finder = new module.NewtonRaphson(epsilon);
 const guess = message.data.payload.guess;
-const root = finder.find(guess);
+const root = finder.solve(guess);
 ```
 
 And send the result back to the web worker consumer as a outgoing message.
@@ -878,9 +921,9 @@ worker.onmessage = function(message) {
 
 Like before we need a HTML page to run the JavaScript, but now we don't need to import the `newtonraphsonwasm.js` file here as it is imported in the `worker.js` file.
 
-```{.html file=src/js/example-web-worker.html}
+```{.html file=webassembly/example-web-worker.html}
 <!doctype html>
-<!-- this HTML page is stored as src/js/example-web-worker.html -->
+<!-- this HTML page is stored as webassembly/example-web-worker.html -->
 <html lang="en">
   <head>
     <title>Example web worker</title>
@@ -888,6 +931,9 @@ Like before we need a HTML page to run the JavaScript, but now we don't need to 
       <<worker-consumer>>
     </script>
   </head>
+  <body>
+    <span id="answer"> </span>
+  </body>
 </html>
 ```
 
@@ -897,14 +943,16 @@ Like before we also need to host the files in a web server with
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example-web-worker.html](http://localhost:8000/src/js/example-web-worker.html) to see the result of the calculation.
-Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-web-worker.html)
+Visit [http://localhost:8000/webassembly/example-web-worker.html](http://localhost:8000/webassembly/example-web-worker.html) to see the result of the calculation.
+Embedded below is the example hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/webassembly/example-web-worker.html)
 
-<iframe width="100%" height="60" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-web-worker.html" /></iframe>
+<iframe width="100%" height="60" src="https://nlesc-jcer.github.io/cpp2wasm/webassembly/example-web-worker.html" /></iframe>
 
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
 ## Single page application
+
+![react](images/react.svg.png "React")
 
 In the [Web application](#web-application) section, a common approach is to render an entire HTML page even if a subset of elements requires a change. With the advances in the web browser (JavaScript) engines including methods to fetch JSON documents from a web service, it has become possible to address this shortcoming. The so-called [Single Page Applications](https://en.wikipedia.org/wiki/Single-page_application) (SPA) enable changes to be made in a part of the page without rendering the entire page. To ease SPA development, a number of frameworks have been developed. The most popular front-end web frameworks are (as of July 2019):
 
@@ -916,16 +964,16 @@ Their pros and cons are summarized [here](https://en.wikipedia.org/wiki/Comparis
 
 For Newton-Raphson web application, we selected React because its small API footprint (light-weight) and the use of functional programming paradigm.
 
-The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the html, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
+The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the application only needs cheap static file hosting to host the HTML, js and wasm files. **The calculation will be done in the web browser on the end users machine instead of a server**.
 
 ### React component
 
 To render the React application we need a HTML tag as a container. We will give it the identifier `container` which will use later when
 we implement the React application in the `app.js` file.
 
-```{.html file=src/js/example-app.html}
+```{.html file=react/example-app.html}
 <!doctype html>
-<!-- this HTML page is stored as src/js/example-app.html -->
+<!-- this HTML page is stored as react/example-app.html -->
 <html lang="en">
   <head>
     <title>Example React application</title>
@@ -1058,6 +1106,12 @@ Like we did in the previous chapter we have to construct a web worker.
 const worker = new Worker('worker.js');
 ```
 
+The `worker.js` is the same as in the previous chapter so we re-use it by
+
+```{.awk #link-worker}
+cd react && ln -s ../webassembly/worker.js . && cd -
+```
+
 We have to post a message to the worker with the values from the form.
 
 ```{.jsx #handle-submit}
@@ -1107,11 +1161,11 @@ function Result(props) {
 
 We can combine the heading, form and result components and all the states and handleSubmit function into the `App` React component.
 
-```{.jsx file=src/js/app.js}
+```{.jsx file=react/app.js}
 <<heading-component>>
 <<result-component>>
 
-// this JavaScript snippet appenended to src/js/app.js
+// this JavaScript snippet appenended to react/app.js
 function App() {
   <<react-state>>
 
@@ -1131,12 +1185,24 @@ function App() {
 
 Finally we can render the `App` component to the HTML container with `container` as identifier.
 
-```{.jsx file=src/js/app.js}
-// this JavaScript snippet appenended to src/js/app.js
+```{.jsx file=react/app.js}
+// this JavaScript snippet appenended to react/app.js
 ReactDOM.render(
   <App/>,
   document.getElementById('container')
 );
+```
+
+Make sure that the App can find the WebAssembly files by
+
+```{.awk #link-webassembly-wasm}
+cd react && ln -s ../webassembly/newtonraphsonwasm.wasm . && cd -
+```
+
+and
+
+```{.awk #link-webassembly-js}
+cd react && ln -s ../webassembly/newtonraphsonwasm.js . && cd -
 ```
 
 Like before we also need to host the files in a web server with
@@ -1145,10 +1211,10 @@ Like before we also need to host the files in a web server with
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example-app.html](http://localhost:8000/src/js/example-app.html) to see the root answer.
-Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html)
+Visit [http://localhost:8000/react/example-app.html](http://localhost:8000/react/example-app.html) to see the root answer.
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/react/example-app.html)
 
-<iframe width="100%" height="160" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html" /></iframe>
+<iframe width="100%" height="160" src="https://nlesc-jcer.github.io/cpp2wasm/react/example-app.html" /></iframe>
 
 ### JSON schema powered form
 
@@ -1183,9 +1249,9 @@ const schema = {
 
 To render the application we need a HTML page. We will reuse the imports we did in the previous chapter.
 
-```{.html file=src/js/example-jsonschema-form.html}
+```{.html file=react/example-jsonschema-form.html}
 <!doctype html>
-<!-- this HTML page is stored as src/jsexample-jsonschema-form.html -->
+<!-- this HTML page is stored as react/example-jsonschema-form.html -->
 <html lang="en">
   <head>
     <title>Example JSON schema powered form</title>
@@ -1218,16 +1284,6 @@ The form [by default](https://react-jsonschema-form.readthedocs.io/en/latest/usa
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 ```
 
-The react-jsonschema-form component normally renders an integer with a updown selector. To use a range slider instead configure a [user interface schema](https://react-jsonschema-form.readthedocs.io/en/latest/quickstart/#form-uischema).
-
-```{.js #jsonschema-app}
-const uiSchema = {
-  "guess": {
-    "ui:widget": "range"
-  }
-}
-```
-
 The values in the form must be initialized and updated whenever the form changes.
 
 ```{.js #jsonschema-app}
@@ -1247,7 +1303,6 @@ The form can be rendered with
 ```{.jsx #jsonschema-form}
 { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
 <Form
-  uiSchema={uiSchema}
   schema={schema}
   formData={formData}
   onChange={handleChange}
@@ -1280,8 +1335,8 @@ function handleSubmit(submission, event) {
 
 The App component can be defined and rendered with.
 
-```{.jsx file=src/js/jsonschema-app.js}
-// this JavaScript snippet stored as src/js/jsonschema-app.js
+```{.jsx file=react/jsonschema-app.js}
+// this JavaScript snippet stored as react/jsonschema-app.js
 function App() {
   <<jsonschema-app>>
 
@@ -1302,8 +1357,8 @@ ReactDOM.render(
 
 The `Heading` and `Result` React component can be reused.
 
-```{.jsx file=src/js/jsonschema-app.js}
-// this JavaScript snippet appended to src/js/jsonschema-app.js
+```{.jsx file=react/jsonschema-app.js}
+// this JavaScript snippet appended to react/jsonschema-app.js
 <<heading-component>>
 <<result-component>>
 ```
@@ -1314,10 +1369,10 @@ Like before we also need to host the files in a web server with
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example-jsonschema-form.html](http://localhost:8000/src/js/example-jsonschema-form.html) to see the root answer.
-Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-app.html)
+Visit [http://localhost:8000/react/example-jsonschema-form.html](http://localhost:8000/react/example-jsonschema-form.html) to see the root answer.
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/react/example-app.html)
 
-<iframe width="100%" height="320" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-jsonschema-form.html" /></iframe>
+<iframe width="100%" height="320" src="https://nlesc-jcer.github.io/cpp2wasm/react/example-jsonschema-form.html" /></iframe>
 
 If you enter a negative number in the `epsilon` field the form will become invalid with a error message.
 
@@ -1423,7 +1478,7 @@ To measure the duration of a calculation we use the [performance.now()](https://
   // this JavaScript snippet appended to <<calculate-sweep>>
   const t0 = performance.now();
   const finder = new module.NewtonRaphson(epsilon);
-  const root = finder.find(guess);
+  const root = finder.solve(guess);
   const duration = performance.now() - t0;
 ```
 
@@ -1455,8 +1510,8 @@ postMessage({
 The sweep calculation snippet (`<<calculate-sweep>>`) must be run in a new web worker called `worker-sweep.js`.
 Like before we need to wait for the WebAssembly module to be initialized before we can start the calculation.
 
-```{.js file=src/js/worker-sweep.js}
-// this JavaScript snippet stored as src/js/worker-sweep.js
+```{.js file=react/worker-sweep.js}
+// this JavaScript snippet stored as react/worker-sweep.js
 importScripts('newtonraphsonwasm.js');
 
 onmessage = function(message) {
@@ -1542,19 +1597,14 @@ function Plot({roots}) {
 
 The App component can be defined and rendered with.
 
-```{.jsx file=src/js/plot-app.js}
-// this JavaScript snippet stored as src/js/plot-app.js
+```{.jsx file=react/plot-app.js}
+// this JavaScript snippet stored as react/plot-app.js
 <<heading-component>>
 
 <<plot-component>>
 
 function App() {
   const Form = JSONSchemaForm.default;
-  const uiSchema = {
-    "guess": {
-      "ui:widget": "range"
-    }
-  }
   const [formData, setFormData] = React.useState({
 
   });
@@ -1580,11 +1630,11 @@ ReactDOM.render(
 );
 ```
 
-The html page should look like
+The HTML page should look like
 
-```{.html file=src/js/example-plot.html}
+```{.html file=react/example-plot.html}
 <!doctype html>
-<!-- this HTML page is stored as src/js/plot-form.html -->
+<!-- this HTML page is stored as react/plot-form.html -->
 <html lang="en">
   <head>
     <title>Example plot</title>
@@ -1604,10 +1654,10 @@ Like before we also need to host the files in a web server with
 python3 -m http.server 8000
 ```
 
-Visit [http://localhost:8000/src/js/example-plot.html](http://localhost:8000/src/js/example-plot.html) to see the epsilon/duration plot.
+Visit [http://localhost:8000/react/example-plot.html](http://localhost:8000/react/example-plot.html) to see the epsilon/duration plot.
 
-Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/src/js/example-plot.html)
+Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/react/example-plot.html)
 
-<iframe width="100%" height="1450" src="https://nlesc-jcer.github.io/cpp2wasm/src/js/example-plot.html" /></iframe>
+<iframe width="100%" height="1450" src="https://nlesc-jcer.github.io/cpp2wasm/react/example-plot.html" /></iframe>
 
 After the submit button is pressed the plot should show that the first calculation took a bit longer then the rest.

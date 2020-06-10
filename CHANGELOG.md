@@ -7,11 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+* Directory structure ([#67](https://github.com/NLESC-JCER/cpp2wasm/issues/67))
+* Makefile does less entangles ([#61](https://github.com/NLESC-JCER/cpp2wasm/issues/61))
+
+## [0.3.0] -  2020-06-09
+
+### Added
+
+* C++ in SonarCloud analysis ([#73](https://github.com/NLESC-JCER/cpp2wasm/issues/73))
+* Plot of equation ([#30](https://github.com/NLESC-JCER/cpp2wasm/issues/30))
+
+### Fixed
+
+* Use fabs instead of abs to fix tolerance issue ([#79](https://github.com/NLESC-JCER/cpp2wasm/pull/79))
+* Precision of the result ([#79](https://github.com/NLESC-JCER/cpp2wasm/pull/79))
+
+## [0.2.0] -  2020-06-09
+
 ### Added
 
 * JSON schema powered form ([#27](https://github.com/NLESC-JCER/cpp2wasm/issues/27))
 * WebAssembly module ([#35](https://github.com/NLESC-JCER/cpp2wasm/issues/35))
 * Vega plot ([#15](https://github.com/NLESC-JCER/cpp2wasm/issues/15))
+* Check broken links ([#44](https://github.com/NLESC-JCER/cpp2wasm/issues/44))
+* Citable ([#40](https://github.com/NLESC-JCER/cpp2wasm/issues/40))
+* Issue templates ([#42](https://github.com/NLESC-JCER/cpp2wasm/issues/42))
+
+### Changed
+
+* have a separate code block for equations [#29](https://github.com/NLESC-JCER/cpp2wasm/issues/29) [#43](https://github.com/NLESC-JCER/cpp2wasm/issues/43)
+* the html answer field: set instead of appending
 
 ## [0.1.0] - 2020-06-04
 
@@ -27,5 +54,7 @@ Initial release.
 * Generated source code in repo ([#1](https://github.com/NLESC-JCER/cpp2wasm/issues/1))
 * Python chapter ([#8](https://github.com/NLESC-JCER/cpp2wasm/pull/8))
 
-[Unreleased]: https://github.com/olivierlacan/keep-a-changelog/compare/v0.1.0...HEAD
-[0.0.1]: https://github.com/olivierlacan/keep-a-changelog/releases/tag/v0.1.0
+[Unreleased]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/NLESC-JCER/cpp2wasm/releases/tag/v0.1.0

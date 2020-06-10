@@ -81,7 +81,7 @@ Ready to contribute? Here's how to set up `cpp2wasm` for local development.
     make entangle
     ```
 
-7. When `src/js/newtonraphsonwasm.js` changes, the WebAssembly module also has to be rebuilt. This will require [emscripten](README.md#accessing-c-function-from-JavaScript-in-web-browser). To rebuild the WebAssembly module run:
+7. When `cli/*hpp` or `webassembly/wasm-newtonraphson.cpp` changes, the WebAssembly module also has to be rebuilt. This will require [emscripten](README.md#accessing-c-function-from-JavaScript-in-web-browser). To rebuild the WebAssembly module run:
 
     ```shell
     make build-wasm
