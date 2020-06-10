@@ -32,9 +32,9 @@ $(ENTANGLED): entangle
 entangled-list:
 	@echo $(ENTANGLED)
 
-flask-deps: pip-pybind11 pip-flask
+flask-deps: pip-pybind11 pip-celery pip-flask
 
-openapi-deps: pip-pybind11 pip-celery pip-connexion
+openapi-deps: pip-pybind11 pip-connexion
 
 py-deps: flask-deps openapi-deps
 
