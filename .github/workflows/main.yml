@@ -58,7 +58,7 @@ jobs:
         run: which python
 
       - name: Install Python dependencies
-        run: make pip-pybind11 && make pip-connexion
+        run: make openapi-deps
 
       - name: Run Python example
         run: make test-py
@@ -66,7 +66,9 @@ jobs:
       - name: Start web service in background
         run: |
           make run-webservice 2>&1 | tee ./run-webservice.log &
-          sleep 2
+          # Wait for web service to spin up
+          sleep 1
+
       - name: Test web service
         run: make test-webservice
 
@@ -104,7 +106,7 @@ jobs:
         run: which python
 
       - name: Install Python dependencies
-        run: make pip-pybind11 && make pip-flask && make pip-celery && pip install httpie
+        run: make flask-deps && pip install httpie
 
       - name: Build shared library and link to it
         run: |
@@ -113,7 +115,8 @@ jobs:
       - name: Start web application in background
         run: |
           make run-webapp 2>&1 | tee ./run-webapp.log &
-          sleep 2
+          # Wait for web application to spin up
+          sleep 1
 
       - name: Test web application
         run: http --ignore-stdin -f localhost:5001 epsilon=0.001 guess=-20
@@ -130,6 +133,8 @@ jobs:
 
       - name: Test Celery web app
         run: |
+          # Wait for web celery app and worker to spin up
+          sleep 1
           http --ignore-stdin -hf localhost:5000 epsilon=0.001 guess=-20 | tee response.txt
           # Parse result url from response
           RESULT_URL=$(cat response.txt |grep Location |awk '{print $2}')
@@ -174,10 +179,10 @@ jobs:
         uses: mymindstorm/setup-emsdk@v4
 
       - name: Build WebAssembly module and link to it from react/
-        run: make build-wasm && make react/newtonraphsonwasm.js
+        run: make react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 
       - name: Start web server for hosting files in background
-        run: make host-files 2>&1 | tee ./web-server.log &
+        run: make host-react-files 2>&1 | tee ./web-server.log &
 
       - name: Run tests
         run: make test-wasm-react

@@ -14,7 +14,9 @@ $(ENTANGLED): entangle
 entangled-list:
 	@echo $(ENTANGLED)
 
-py-deps: pip-pybind11 pip-flask pip-celery pip-connexion
+flask-deps: pip-pybind11 pip-flask
+
+openapi-deps: pip-pybind11 pip-celery pip-connexion
 
 pip-pybind11:
 	pip install pybind11
@@ -28,26 +30,26 @@ pip-celery:
 pip-connexion:
 	pip install connexion[swagger-ui]
 
-cli/newtonraphson.exe: cli/cli-newtonraphson.cpp
+cli/newtonraphson.exe:
 	g++ cli/cli-newtonraphson.cpp -o cli/newtonraphson.exe
 
 test-cli: cli/newtonraphson.exe
 	./cli/newtonraphson.exe
 
-cgi/apache2/cgi-bin/newtonraphson: cgi/cgi-newtonraphson.cpp
+cgi/apache2/cgi-bin/newtonraphson:
 	g++ -Icgi/deps/ -Icli/ cgi/cgi-newtonraphson.cpp -o cgi/apache2/cgi-bin/newtonraphson
 
 test-cgi: cgi/apache2/cgi-bin/newtonraphson
 	echo '{"guess":-20, "epsilon":0.001}' | cgi/apache2/cgi-bin/newtonraphson
 
-openapi/newtonraphsonpy.*.so: openapi/py-newtonraphson.cpp
+openapi/newtonraphsonpy.*.so:
 	g++ -O3 -Wall -shared -std=c++14 -fPIC -Icli/ `python3 -m pybind11 --includes` \
 	openapi/py-newtonraphson.cpp -o openapi/newtonraphsonpy`python3-config --extension-suffix`
 
 flask/newtonraphsonpy.*.so: openapi/newtonraphsonpy.*.so
 	cd flask && ln -s ../openapi/newtonraphsonpy`python3-config --extension-suffix` . && cd -
 
-test-py: openapi/example.py openapi/newtonraphsonpy.*.so
+test-py: openapi/newtonraphsonpy.*.so
 	python openapi/example.py
 
 test: test-cli test-cgi test-py test-webservice
@@ -87,13 +89,19 @@ run-celery-webapp: flask/newtonraphsonpy.*.so
 
 build-wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
 
-webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm: webassembly/wasm-newtonraphson.cpp
+webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm:
 	emcc -Icli/ --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
 
-react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
-	cd react && ln -s ../webassembly/newtonraphsonwasm.js . && ln -s ../webassembly/newtonraphsonwasm.wasm . && cd -
+react/newtonraphsonwasm.wasm: webassembly/newtonraphsonwasm.wasm
+	cd react && ln -s ../webassembly/newtonraphsonwasm.wasm . && cd -
+
+react/newtonraphsonwasm.js: webassembly/newtonraphsonwasm.js
+	cd react && ln -s ../webassembly/newtonraphsonwasm.js . && cd -
 
 host-files: build-wasm
+	python3 -m http.server 8000
+
+host-react-files: react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 	python3 -m http.server 8000
 
 test-wasm-webassembly:

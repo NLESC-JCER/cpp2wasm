@@ -32,7 +32,9 @@ $(ENTANGLED): entangle
 entangled-list:
 	@echo $(ENTANGLED)
 
-py-deps: pip-pybind11 pip-flask pip-celery pip-connexion
+flask-deps: pip-pybind11 pip-flask
+
+openapi-deps: pip-pybind11 pip-celery pip-connexion
 
 pip-pybind11:
 	<<pip-pybind11>>
@@ -46,25 +48,25 @@ pip-celery:
 pip-connexion:
 	<<pip-connexion>>
 
-cli/newtonraphson.exe: cli/cli-newtonraphson.cpp
+cli/newtonraphson.exe:
 	<<build-cli>>
 
 test-cli: cli/newtonraphson.exe
 	<<test-cli>>
 
-cgi/apache2/cgi-bin/newtonraphson: cgi/cgi-newtonraphson.cpp
+cgi/apache2/cgi-bin/newtonraphson:
 	<<build-cgi>>
 
 test-cgi: cgi/apache2/cgi-bin/newtonraphson
 	<<test-cgi>>
 
-openapi/newtonraphsonpy.*.so: openapi/py-newtonraphson.cpp
+openapi/newtonraphsonpy.*.so:
 	<<build-py>>
 
 flask/newtonraphsonpy.*.so: openapi/newtonraphsonpy.*.so
 	<<flask-link-newtonraphsonpy>>
 
-test-py: openapi/example.py openapi/newtonraphsonpy.*.so
+test-py: openapi/newtonraphsonpy.*.so
 	<<test-py>>
 
 test: test-cli test-cgi test-py test-webservice
@@ -104,13 +106,19 @@ run-celery-webapp: flask/newtonraphsonpy.*.so
 
 build-wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
 
-webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm: webassembly/wasm-newtonraphson.cpp
+webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm:
 	<<build-wasm>>
 
-react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
-	<<link-wasm>>
+react/newtonraphsonwasm.wasm: webassembly/newtonraphsonwasm.wasm
+	<<link-wasm-wasm>>
+
+react/newtonraphsonwasm.js: webassembly/newtonraphsonwasm.js
+	<<link-wasm-js>>
 
 host-files: build-wasm
+	<<host-files>>
+
+host-react-files: react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 	<<host-files>>
 
 test-wasm-webassembly:
