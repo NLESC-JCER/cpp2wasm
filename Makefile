@@ -109,7 +109,10 @@ host-react-files: react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 test-webassembly:
 	npx cypress run --config-file false --spec 'cypress/integration/webassembly/*_spec.js'
 
-test-react:
+react/worker.js:
+	cd react && ln -s ../webassembly/worker.js . && cd -
+
+test-react: react/worker.js
 	npx cypress run --config-file false --spec 'cypress/integration/react/*_spec.js'
 
 init-git-hook:

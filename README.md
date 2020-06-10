@@ -1106,6 +1106,12 @@ Like we did in the previous chapter we have to construct a web worker.
 const worker = new Worker('worker.js');
 ```
 
+The `worker.js` is the same as in the previous chapter so we re-use it by
+
+```{.awk #link-worker}
+cd react && ln -s ../webassembly/worker.js . && cd -
+```
+
 We have to post a message to the worker with the values from the form.
 
 ```{.jsx #handle-submit}

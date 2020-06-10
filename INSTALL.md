@@ -126,7 +126,10 @@ host-react-files: react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 test-webassembly:
 	<<test-webassembly>>
 
-test-react:
+react/worker.js:
+	<<link-worker>>
+
+test-react: react/worker.js
 	<<test-react>>
 
 init-git-hook:
