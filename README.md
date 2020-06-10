@@ -1195,13 +1195,13 @@ ReactDOM.render(
 
 Make sure that the App can find the WebAssembly files by
 
-```{.awk #link-wasm-wasm}
+```{.awk #link-webassembly-wasm}
 cd react && ln -s ../webassembly/newtonraphsonwasm.wasm . && cd -
 ```
 
 and
 
-```{.awk #link-wasm-js}
+```{.awk #link-webassembly-js}
 cd react && ln -s ../webassembly/newtonraphsonwasm.js . && cd -
 ```
 

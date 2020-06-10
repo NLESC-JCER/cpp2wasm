@@ -112,10 +112,10 @@ webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm:
 	<<build-wasm>>
 
 react/newtonraphsonwasm.wasm: webassembly/newtonraphsonwasm.wasm
-	<<link-wasm-wasm>>
+	<<link-webassembly-wasm>>
 
 react/newtonraphsonwasm.js: webassembly/newtonraphsonwasm.js
-	<<link-wasm-js>>
+	<<link-webassembly-js>>
 
 host-webassembly-files: build-wasm
 	<<host-files>>
