@@ -1703,6 +1703,9 @@ Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.gi
 
 After the submit button is pressed the plot should show that the first calculation took a bit longer then the rest.
 
+
+<!--
+
 ---
 
 # Leftovers
@@ -1805,3 +1808,6 @@ framework was chosen as it minimalistic and has a large active community.
 
 JavaScript is the de facto programming language for web browsers. The JavaScript engine in the Chrome browser called V8
 has been wrapped in a runtime engine called Node.js which can execute JavaScript code outside the browser.
+
+
+-->
