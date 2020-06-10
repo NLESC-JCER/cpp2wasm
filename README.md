@@ -8,33 +8,13 @@
 
 ## Contents
 
-<!--
-- [Guide to make C++ available as a web application](#guide-to-make-c-available-as-a-web-application)
-  - [JSON schema](#json-schema)
-  - [CGI script](#cgi-script)
-  - [Web framework](#web-framework)
-  - [Python](#python)
-    - [Accessing C++ function from Python](#accessing-c-function-from-python)
-    - [Web application](#web-application)
-    - [Long running tasks](#long-running-tasks)
-    - [Web service](#web-service)
-  - [JavaScript](#JavaScript)
-    - [Accessing C++ function from JavaScript in web browser](#accessing-c-function-from-JavaScript-in-web-browser)
-    - [Executing long running methods in JavaScript](#executing-long-running-methods-in-JavaScript)
-  - [Single page application](#single-page-application)
-    - [React component](#react-component)
-    - [JSON schema powered form](#json-schema-powered-form)
-    - [Visualization](#visualization)
-
--->
-
 In this guide, we will describe 5 ways to make your C++ code available as a web application or web wervice
 
-1. Web service using Common Gateway Interface
-1. Python web service using Swagger/OpenAPI
-1. Python web application using Flask
-1. JavaScript web service using Emscriptem and WebAssembly
-1. JavaScript web application with React
+1. [Web service using Common Gateway Interface](#method-15-web-service-using-common-gateway-interface)
+1. [Python web service using Swagger/OpenAPI](#method-25-python-web-service-using-swagger-openapi)
+1. [Python web application using Flask](#method-35-python-web-application-using-flask)
+1. [JavaScript web service using Emscriptem and WebAssembly](#method-45-javaScript-web-service-using-emscriptem-and-webassembly)
+1. [JavaScript web application with React](#method-55-javaScript-web-application-with-react)
 
 This guide was written and tested on Linux operating system. The required dependencies to run this guide are described
 in the [INSTALL.md](INSTALL.md) document. If you want to contribute to the guide see [CONTRIBUTING.md](CONTRIBUTING.md).
