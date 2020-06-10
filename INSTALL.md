@@ -26,6 +26,8 @@ ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' *.md | g
 COMPILED := cli/newtonraphson.exe openapi/newtonraphsonpy.*.so flask/newtonraphsonpy.*.so cgi/apache2/cgi-bin/newtonraphson webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 
 entangle: *.md
+	HOST_UID := $(shell id -u)
+	HOST_GID := $(shell id -g)
 	<<pandoc-tangle>>
 
 $(ENTANGLED): entangle

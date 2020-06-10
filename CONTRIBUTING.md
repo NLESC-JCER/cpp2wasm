@@ -116,8 +116,17 @@ Before you submit a pull request, check that it meets these guidelines:
 
 The [Entangled - Pandoc filters](https://github.com/entangled/filters) Docker image can be used to generate source code files from the Markdown files.
 
+First, store your user id and group values as environment variables:
+
+```shell
+export HOST_UID=$(id -u)
+export HOST_GID=$(id -g)
+```
+
+Then,
+
 ```{.awk #pandoc-tangle}
-docker run --rm --user ${UID}:${UGROUP} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md
+docker run --rm --user ${HOST_UID}:${HOST_GID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md
 ```
 
 ## Generate code from Markdown and vice versa
