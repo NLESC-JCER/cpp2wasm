@@ -35,7 +35,7 @@ Introduce the example algorithm, as a CLI.
 # Python web application
 
 - web app v web service difference
-- explanation of what is a web framework
+- explanation of what is a web framework using @route decorator
 - long running tasks, celery
 
 # JavaScript web service
