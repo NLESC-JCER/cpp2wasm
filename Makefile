@@ -4,7 +4,7 @@
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
 ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' *.md | grep -v Makefile | sort -u)
-COMPILED := cli/newtonraphson.exe openapi/newtonraphsonpy.*.so flask/newtonraphsonpy.*.so cgi/apache2/cgi-bin/newtonraphson webassembly/newtonraphsonwasm.js  webassembly/newtonraphsonwasm.wasm
+COMPILED := cli/newtonraphson.exe openapi/newtonraphsonpy.*.so flask/newtonraphsonpy.*.so cgi/apache2/cgi-bin/newtonraphson webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 
 entangle: *.md
 	docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md
