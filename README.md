@@ -28,10 +28,10 @@ The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton
 algorithm is explained in [this video series](https://www.youtube.com/watch?v=cOmAk82cr9M). The code we are using came
 from [geeksforgeeks.org](https://www.geeksforgeeks.org/program-for-newton-raphson-method/).
 
-Let's first define the mathematical function and its derivative, which we need in order to find the root.
+Let's first define the mathematical equation and its derivative, which we need in order to find the root.
 
-The function and its derivative which we will use in this guide are $x^3 - x^2 + 2$ and $3x^2 - 2x$ respectively. The
-root is the value (x-coordinate) which makes the mathematical function (y-coordinate) equal to `0`. In this equation the
+The equation and its derivative which we will use in this guide are $x^3 - x^2 + 2$ and $3x^2 - 2x$ respectively. The
+root is the value (x-coordinate) which makes the mathematical equation (y-coordinate) equal to `0`. In this equation the
 root is `-1`.
 
 [![Plotted equation](images/equation.svg)](https://www.wolframalpha.com/input/?i=x%5E3+-+x%5E2+%2B+2)
