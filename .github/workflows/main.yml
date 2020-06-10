@@ -121,7 +121,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-          name: service-logs
+          name: openapi-service-logs
           path: ./run-*.log
   flask:
     # The type of runner that the job will run on
@@ -190,7 +190,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-          name: service-logs
+          name: flask-service-logs
           path: ./run-*.log
   webassembly:
     runs-on: ubuntu-latest
@@ -216,7 +216,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-          name: web-server-log
+          name: webassembly-service-log
           path: ./web-server.log
   react:
     runs-on: ubuntu-latest
@@ -239,5 +239,5 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-          name: web-server-log
+          name: react-service-log
           path: ./web-server.log
