@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] -  2020-06-10
+
 ### Changed
 
 * Directory structure ([#67](https://github.com/NLESC-JCER/cpp2wasm/issues/67))
@@ -54,7 +56,8 @@ Initial release.
 * Generated source code in repo ([#1](https://github.com/NLESC-JCER/cpp2wasm/issues/1))
 * Python chapter ([#8](https://github.com/NLESC-JCER/cpp2wasm/pull/8))
 
-[Unreleased]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.3.0...v0.4.0
 [0.3.0]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.2.0...v0.3.0
 [0.2.0]: https://github.com/NLESC-JCER/cpp2wasm/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/NLESC-JCER/cpp2wasm/releases/tag/v0.1.0
