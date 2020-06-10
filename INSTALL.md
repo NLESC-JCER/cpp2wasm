@@ -17,12 +17,12 @@ All the commands in the [README.md](README.md) and [CONTRIBUTING.md](CONTRIBUTIN
 
 ```{.makefile file=Makefile}
 # this Makefile snippet is stored as Makefile
-.PHONY: clean clean-compiled clean-entangled test all check entangle entangle-list py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files test-wasm
+.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check
 
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
 ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' *.md | grep -v Makefile | sort -u)
-COMPILED := bin/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
+COMPILED := cli/newtonraphson.exe openapi/newtonraphsonpy.*.so flask/newtonraphsonpy.*.so cgi/apache2/cgi-bin/newtonraphson webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 
 entangle: *.md
 	<<pandoc-tangle>>
@@ -32,7 +32,11 @@ $(ENTANGLED): entangle
 entangled-list:
 	@echo $(ENTANGLED)
 
-py-deps: pip-pybind11 pip-flask pip-celery pip-connexion
+flask-deps: pip-pybind11 pip-celery pip-flask
+
+openapi-deps: pip-pybind11 pip-connexion
+
+py-deps: flask-deps openapi-deps
 
 pip-pybind11:
 	<<pip-pybind11>>
@@ -46,22 +50,25 @@ pip-celery:
 pip-connexion:
 	<<pip-connexion>>
 
-bin/newtonraphson.exe: src/cli-newtonraphson.cpp
+cli/newtonraphson.exe:
 	<<build-cli>>
 
-test-cli: bin/newtonraphson.exe
+test-cli: cli/newtonraphson.exe
 	<<test-cli>>
 
-apache2/cgi-bin/newtonraphson: src/cgi-newtonraphson.cpp
+cgi/apache2/cgi-bin/newtonraphson:
 	<<build-cgi>>
 
-test-cgi: apache2/cgi-bin/newtonraphson
+test-cgi: cgi/apache2/cgi-bin/newtonraphson
 	<<test-cgi>>
 
-src/py/newtonraphsonpy.*.so: src/py-newtonraphson.cpp
+openapi/newtonraphsonpy.*.so:
 	<<build-py>>
 
-test-py: src/py/example.py src/py/newtonraphsonpy.*.so
+flask/newtonraphsonpy.*.so: openapi/newtonraphsonpy.*.so
+	<<flask-link-newtonraphsonpy>>
+
+test-py: openapi/newtonraphsonpy.*.so
 	<<test-py>>
 
 test: test-cli test-cgi test-py test-webservice
@@ -84,31 +91,46 @@ start-redis:
 stop-redis:
 	<<stop-redis>>
 
-run-webapp: src/py/newtonraphsonpy.*.so
+run-webapp: flask/newtonraphsonpy.*.so
 	<<run-webapp>>
 
-run-webservice: src/py/newtonraphsonpy.*.so
+run-webservice: openapi/newtonraphsonpy.*.so
 	<<run-webservice>>
 
 test-webservice:
 	<<test-webservice>>
 
-run-celery-worker: src/py/newtonraphsonpy.*.so
+run-celery-worker: flask/newtonraphsonpy.*.so
 	<<run-celery-worker>>
 
-run-celery-webapp: src/py/newtonraphsonpy.*.so
+run-celery-webapp: flask/newtonraphsonpy.*.so
 	<<run-celery-webapp>>
 
-build-wasm: src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm
+build-wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
 
-src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm: src/wasm-newtonraphson.cpp
+webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm:
 	<<build-wasm>>
 
-host-files: build-wasm
+react/newtonraphsonwasm.wasm: webassembly/newtonraphsonwasm.wasm
+	<<link-webassembly-wasm>>
+
+react/newtonraphsonwasm.js: webassembly/newtonraphsonwasm.js
+	<<link-webassembly-js>>
+
+host-webassembly-files: build-wasm
 	<<host-files>>
 
-test-wasm:
-	<<test-wasm>>
+host-react-files: react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
+	<<host-files>>
+
+test-webassembly:
+	<<test-webassembly>>
+
+react/worker.js:
+	<<link-worker>>
+
+test-react: react/worker.js
+	<<test-react>>
 
 init-git-hook:
 	<<hook-permission>>

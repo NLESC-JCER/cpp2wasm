@@ -50,7 +50,7 @@ jobs:
       run: ./build-wrapper-linux-x86/build-wrapper-linux-x86-64 --out-dir bw-output make all
     - name: Restore wasm
       # As we want to analyse files in git not files we just build
-      run: git restore src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm
+      run: git restore webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
     - name: Relativize bw-output
       # Build wrapper runs on CI server while sonar-scanner runs in Docker container need to adjust paths
       run: perl -pi -e 's@/home/runner/work/cpp2wasm/cpp2wasm@/github/workspace@g' bw-output/build-wrapper-dump.json
@@ -59,7 +59,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  cpp:
+  cli:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -68,11 +68,64 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
 
-      - name: Run C++ examples
-        run: make test-cli test-cgi
-  python:
+      - name: Run C++ test for CLI
+        run: make test-cli
+  cgi:
     # The type of runner that the job will run on
-    name: Python ${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Run C++ test for CGI
+        run: make test-cgi
+  openapi:
+    # The type of runner that the job will run on
+    name: openapi / python-${{ matrix.python-version }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8]
+      fail-fast: true
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v1
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: "x64"
+
+      - name: Which Python
+        run: which python
+
+      - name: Install Python dependencies
+        run: make openapi-deps
+
+      - name: Run Python example
+        run: make test-py
+
+      - name: Start web service in background
+        run: |
+          make run-webservice 2>&1 | tee ./run-webservice.log &
+          # Wait for web service to spin up
+          sleep 1
+
+      - name: Test web service
+        run: make test-webservice
+
+      - name: Upload log of services
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: openapi-service-logs
+          path: ./run-*.log
+  flask:
+    # The type of runner that the job will run on
+    name: flask / python-${{ matrix.python-version }}
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -98,34 +151,35 @@ jobs:
         run: which python
 
       - name: Install Python dependencies
-        run: make py-deps && pip install httpie
+        run: make flask-deps && pip install httpie
 
-      - name: Run Python example
-        run: make test-py
+      - name: Build shared library and link to it
+        run: |
+          make flask/newtonraphsonpy.*.so
 
       - name: Start web application in background
-        run: make run-webapp 2>&1 | tee ./run-webapp.log &
+        run: |
+          make run-webapp 2>&1 | tee ./run-webapp.log &
+          # Wait for web application to spin up
+          sleep 1
 
       - name: Test web application
         run: http --ignore-stdin -f localhost:5001 epsilon=0.001 guess=-20
 
-      - name: Start web service in background
-        run: make run-webservice 2>&1 | tee ./run-webservice.log &
-
-      - name: Test web service
-        run: make test-webservice
-
       - name: Start Celery web app in background
-        run: make run-celery-webapp 2>&1 | tee ./run-celery-webapp.log  &
+        run: |
+          make run-celery-webapp 2>&1 | tee ./run-celery-webapp.log  &
 
       - name: Start Celery worker in background
         run: |
-          cd src/py
+          cd flask
           PYTHONPATH=$PWD/../.. celery -A tasks worker 2>&1 | tee ./run-celery-worker.log &
           cd ../..
 
       - name: Test Celery web app
         run: |
+          # Wait for web celery app and worker to spin up
+          sleep 1
           http --ignore-stdin -hf localhost:5000 epsilon=0.001 guess=-20 | tee response.txt
           # Parse result url from response
           RESULT_URL=$(cat response.txt |grep Location |awk '{print $2}')
@@ -136,9 +190,9 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-          name: service-logs
+          name: flask-service-logs
           path: ./run-*.log
-  wasm:
+  webassembly:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -153,14 +207,37 @@ jobs:
         run: make build-wasm
 
       - name: Start web server for hosting files in background
-        run: make host-files 2>&1 | tee ./web-server.log &
+        run: make host-webassembly-files 2>&1 | tee ./web-server.log &
 
       - name: Run tests
-        run: make test-wasm
+        run: make test-webassembly
 
       - name: Upload log of web server
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-          name: web-server-log
+          name: webassembly-service-log
+          path: ./web-server.log
+  react:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Install emscripten
+        uses: mymindstorm/setup-emsdk@v4
+
+      - name: Build WebAssembly module and link to it from react/
+        run: make react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
+
+      - name: Start web server for hosting files in background
+        run: make host-react-files 2>&1 | tee ./web-server.log &
+
+      - name: Run tests
+        run: make test-react
+
+      - name: Upload log of web server
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: react-service-log
           path: ./web-server.log

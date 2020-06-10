@@ -1,10 +1,10 @@
 # this Makefile snippet is stored as Makefile
-.PHONY: clean clean-compiled clean-entangled test all check entangle entangle-list py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files test-wasm
+.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check
 
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
 ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' *.md | grep -v Makefile | sort -u)
-COMPILED := bin/newtonraphson.exe src/py/newtonraphsonpy.*.so apache2/cgi-bin/newtonraphson src/js/newtonraphsonwasm.js  src/js/newtonraphsonwasm.wasm
+COMPILED := cli/newtonraphson.exe openapi/newtonraphsonpy.*.so flask/newtonraphsonpy.*.so cgi/apache2/cgi-bin/newtonraphson webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 
 entangle: *.md
 	docker run --rm --user ${UID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md
@@ -14,7 +14,11 @@ $(ENTANGLED): entangle
 entangled-list:
 	@echo $(ENTANGLED)
 
-py-deps: pip-pybind11 pip-flask pip-celery pip-connexion
+flask-deps: pip-pybind11 pip-celery pip-flask
+
+openapi-deps: pip-pybind11 pip-connexion
+
+py-deps: flask-deps openapi-deps
 
 pip-pybind11:
 	pip install pybind11
@@ -28,24 +32,27 @@ pip-celery:
 pip-connexion:
 	pip install connexion[swagger-ui]
 
-bin/newtonraphson.exe: src/cli-newtonraphson.cpp
-	g++ src/cli-newtonraphson.cpp -o bin/newtonraphson.exe
+cli/newtonraphson.exe:
+	g++ cli/cli-newtonraphson.cpp -o cli/newtonraphson.exe
 
-test-cli: bin/newtonraphson.exe
-	./bin/newtonraphson.exe
+test-cli: cli/newtonraphson.exe
+	./cli/newtonraphson.exe
 
-apache2/cgi-bin/newtonraphson: src/cgi-newtonraphson.cpp
-	g++ -Ideps src/cgi-newtonraphson.cpp -o apache2/cgi-bin/newtonraphson
+cgi/apache2/cgi-bin/newtonraphson:
+	g++ -Icgi/deps/ -Icli/ cgi/cgi-newtonraphson.cpp -o cgi/apache2/cgi-bin/newtonraphson
 
-test-cgi: apache2/cgi-bin/newtonraphson
-	echo '{"guess":-20, "epsilon":0.001}' | apache2/cgi-bin/newtonraphson
+test-cgi: cgi/apache2/cgi-bin/newtonraphson
+	echo '{"guess":-20, "epsilon":0.001}' | cgi/apache2/cgi-bin/newtonraphson
 
-src/py/newtonraphsonpy.*.so: src/py-newtonraphson.cpp
-	g++ -O3 -Wall -shared -std=c++14 -fPIC `python3 -m pybind11 --includes` \
-	src/py-newtonraphson.cpp -o src/py/newtonraphsonpy`python3-config --extension-suffix`
+openapi/newtonraphsonpy.*.so:
+	g++ -O3 -Wall -shared -std=c++14 -fPIC -Icli/ `python3 -m pybind11 --includes` \
+	openapi/py-newtonraphson.cpp -o openapi/newtonraphsonpy`python3-config --extension-suffix`
 
-test-py: src/py/example.py src/py/newtonraphsonpy.*.so
-	python src/py/example.py
+flask/newtonraphsonpy.*.so: openapi/newtonraphsonpy.*.so
+	cd flask && ln -s ../openapi/newtonraphsonpy`python3-config --extension-suffix` . && cd -
+
+test-py: openapi/newtonraphsonpy.*.so
+	python openapi/example.py
 
 test: test-cli test-cgi test-py test-webservice
 
@@ -67,31 +74,46 @@ start-redis:
 stop-redis:
 	docker stop some-redis
 
-run-webapp: src/py/newtonraphsonpy.*.so
-	python src/py/webapp.py
+run-webapp: flask/newtonraphsonpy.*.so
+	python flask/webapp.py
 
-run-webservice: src/py/newtonraphsonpy.*.so
-	python src/py/webservice.py
+run-webservice: openapi/newtonraphsonpy.*.so
+	python openapi/webservice.py
 
 test-webservice:
 	curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 
-run-celery-worker: src/py/newtonraphsonpy.*.so
-	PYTHONPATH=src/py celery worker -A tasks
+run-celery-worker: flask/newtonraphsonpy.*.so
+	PYTHONPATH=openapi celery worker -A tasks
 
-run-celery-webapp: src/py/newtonraphsonpy.*.so
-	python src/py/webapp-celery.py
+run-celery-webapp: flask/newtonraphsonpy.*.so
+	python flask/webapp-celery.py
 
-build-wasm: src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm
+build-wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
 
-src/js/newtonraphsonwasm.js src/js/newtonraphsonwasm.wasm: src/wasm-newtonraphson.cpp
-	emcc --bind -o src/js/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule src/wasm-newtonraphson.cpp
+webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm:
+	emcc -Icli/ --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
 
-host-files: build-wasm
+react/newtonraphsonwasm.wasm: webassembly/newtonraphsonwasm.wasm
+	cd react && ln -s ../webassembly/newtonraphsonwasm.wasm . && cd -
+
+react/newtonraphsonwasm.js: webassembly/newtonraphsonwasm.js
+	cd react && ln -s ../webassembly/newtonraphsonwasm.js . && cd -
+
+host-webassembly-files: build-wasm
 	python3 -m http.server 8000
 
-test-wasm:
-	npx cypress run --config-file false
+host-react-files: react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
+	python3 -m http.server 8000
+
+test-webassembly:
+	npx cypress run --config-file false --spec 'cypress/integration/webassembly/*_spec.js'
+
+react/worker.js:
+	cd react && ln -s ../webassembly/worker.js . && cd -
+
+test-react: react/worker.js
+	npx cypress run --config-file false --spec 'cypress/integration/react/*_spec.js'
 
 init-git-hook:
 	chmod +x .githooks/pre-commit
