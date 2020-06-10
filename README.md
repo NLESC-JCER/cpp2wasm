@@ -11,7 +11,7 @@
 In this guide, we will describe 5 ways to make your C++ code available as a web application or web wervice
 
 1. [Web service using Common Gateway Interface](#method-15-web-service-using-common-gateway-interface)
-1. [Python web service using Swagger/OpenAPI](#method-25-python-web-service-using-swagger-openapi)
+1. [Python web service using Swagger/OpenAPI](#method-25-python-web-service-using-swaggeropenapi)
 1. [Python web application using Flask](#method-35-python-web-application-using-flask)
 1. [JavaScript web service using Emscriptem and WebAssembly](#method-45-javaScript-web-service-using-emscriptem-and-webassembly)
 1. [JavaScript web application with React](#method-55-javaScript-web-application-with-react)
