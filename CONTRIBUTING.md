@@ -116,7 +116,7 @@ Before you submit a pull request, check that it meets these guidelines:
 
 The [Entangled - Pandoc filters](https://github.com/entangled/filters) Docker image can be used to generate source code files from the Markdown files.
 
-First, store your user id and group values as environment variables:
+First, store your user id and group as environment variables:
 
 ```shell
 export HOST_UID=$(id -u)
