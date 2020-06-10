@@ -17,7 +17,7 @@ All the commands in the [README.md](README.md) and [CONTRIBUTING.md](CONTRIBUTIN
 
 ```{.makefile file=Makefile}
 # this Makefile snippet is stored as Makefile
-.PHONY: clean clean-compiled clean-entangled test all check entangle entangle-list py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files test-wasm
+.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check
 
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
@@ -35,6 +35,8 @@ entangled-list:
 flask-deps: pip-pybind11 pip-flask
 
 openapi-deps: pip-pybind11 pip-celery pip-connexion
+
+py-deps: flask-deps openapi-deps
 
 pip-pybind11:
 	<<pip-pybind11>>
@@ -115,17 +117,17 @@ react/newtonraphsonwasm.wasm: webassembly/newtonraphsonwasm.wasm
 react/newtonraphsonwasm.js: webassembly/newtonraphsonwasm.js
 	<<link-wasm-js>>
 
-host-files: build-wasm
+host-webassembly-files: build-wasm
 	<<host-files>>
 
 host-react-files: react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 	<<host-files>>
 
-test-wasm-webassembly:
-	<<test-wasm-webassembly>>
+test-webassembly:
+	<<test-webassembly>>
 
-test-wasm-react:
-	<<test-wasm-react>>
+test-react:
+	<<test-react>>
 
 init-git-hook:
 	<<hook-permission>>

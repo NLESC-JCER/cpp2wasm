@@ -1,5 +1,5 @@
 # this Makefile snippet is stored as Makefile
-.PHONY: clean clean-compiled clean-entangled test all check entangle entangle-list py-deps start-redis stop-redis run-webservice run-celery-webapp run-webapp build-wasm host-files test-wasm
+.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check
 
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
@@ -17,6 +17,8 @@ entangled-list:
 flask-deps: pip-pybind11 pip-flask
 
 openapi-deps: pip-pybind11 pip-celery pip-connexion
+
+py-deps: flask-deps openapi-deps
 
 pip-pybind11:
 	pip install pybind11
@@ -98,16 +100,16 @@ react/newtonraphsonwasm.wasm: webassembly/newtonraphsonwasm.wasm
 react/newtonraphsonwasm.js: webassembly/newtonraphsonwasm.js
 	cd react && ln -s ../webassembly/newtonraphsonwasm.js . && cd -
 
-host-files: build-wasm
+host-webassembly-files: build-wasm
 	python3 -m http.server 8000
 
 host-react-files: react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 	python3 -m http.server 8000
 
-test-wasm-webassembly:
+test-webassembly:
 	npx cypress run --config-file false --spec 'cypress/integration/webassembly/*_spec.js'
 
-test-wasm-react:
+test-react:
 	npx cypress run --config-file false --spec 'cypress/integration/react/*_spec.js'
 
 init-git-hook:

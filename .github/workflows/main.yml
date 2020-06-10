@@ -159,10 +159,10 @@ jobs:
         run: make build-wasm
 
       - name: Start web server for hosting files in background
-        run: make host-files 2>&1 | tee ./web-server.log &
+        run: make host-webassembly-files 2>&1 | tee ./web-server.log &
 
       - name: Run tests
-        run: make test-wasm-webassembly
+        run: make test-webassembly
 
       - name: Upload log of web server
         if: ${{ always() }}
@@ -185,7 +185,7 @@ jobs:
         run: make host-react-files 2>&1 | tee ./web-server.log &
 
       - name: Run tests
-        run: make test-wasm-react
+        run: make test-react
 
       - name: Upload log of web server
         if: ${{ always() }}
