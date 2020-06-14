@@ -7,7 +7,7 @@ To run the commands in the README.md the following items are required
 1. GNU C++ compiler (`g++`) and `make`, install with `sudo apt install -y build-essential`
 1. [Apache httpd server 2.4](http://httpd.apache.org/), install with `sudo apt install -y apache2`
 1. Python development, install with `sudo apt install -y python3-dev`
-1. [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html), includes a NodeJS installation
+1. [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html), includes a Node.js installation
 1. [Docker Engine](https://docs.docker.com/install/), setup so `docker` command can be run [without sudo](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
 1. [Perl](https://www.perl.org/), already installed on Linux
 
