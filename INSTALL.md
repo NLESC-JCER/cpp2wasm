@@ -118,7 +118,7 @@ react/newtonraphsonwasm.js: webassembly/newtonraphsonwasm.js
 	<<link-webassembly-js>>
 
 test-wasm-cli: build-wasm
-    <<test-wasm-cli>>
+	<<test-wasm-cli>>
 
 host-webassembly-files: build-wasm
 	<<host-files>>

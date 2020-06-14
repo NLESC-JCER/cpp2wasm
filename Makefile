@@ -101,7 +101,7 @@ react/newtonraphsonwasm.js: webassembly/newtonraphsonwasm.js
 	cd react && ln -s ../webassembly/newtonraphsonwasm.js . && cd -
 
 test-wasm-cli: build-wasm
-    node webassembly/cli.js 0.01 -20
+	node webassembly/cli.js 0.01 -20
 
 host-webassembly-files: build-wasm
 	python3 -m http.server 8000
