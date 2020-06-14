@@ -9,7 +9,10 @@
     - [Web application](#web-application)
     - [Long running tasks](#long-running-tasks)
     - [Web service](#web-service)
-  - [JavaScript](#JavaScript)
+  - [JavaScript web service](#javascript-web-service)
+    - [Accessing C++ function from Node.js with Emscripten](#accessing-c-function-from-nodejs-with-emscripten)
+    - [Web service with Fastify](#web-service-with-fastify)
+  - [JavaScript web application](#javascript-web-application)
     - [Accessing C++ function from JavaScript in web browser](#accessing-c-function-from-JavaScript-in-web-browser)
     - [Executing long running methods in JavaScript](#executing-long-running-methods-in-JavaScript)
   - [Single page application](#single-page-application)
@@ -730,14 +733,14 @@ Or by running a ``curl`` command like
 curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 ```
 
-## JavaScript
+## JavaScript web service
 
 ![wasm](images/wasm.svg.png "WebAssembly")
 
 JavaScript is the de facto programming language for web browsers.
 The JavaScript engine in the Chrome browser called V8 has been wrapped in a runtime engine called Node.js which can execute JavaScript code outside the browser.
 
-### Accessing C++ function from JavaScript in web browser
+### Accessing C++ function from NodeJS with Emscripten
 
 For a long time web browsers could only execute non-JavaScript code using plugins like Flash.
 Later tools where made that could transpile non-JavaScript code to JavaScript. The performance was less than running native code. To run code as fast as native code, the [WebAssembly](https://webassembly.org/) language was developed. WebAssembly is a low-level, [Assembly](https://en.wikipedia.org/wiki/Assembly_language)-like language with a compact binary format.
@@ -770,7 +773,178 @@ To make live easier we configure the compile command to generate a `webassembly/
 emcc -Icli/ --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
 ```
 
-The compilation also generates a `webassembly/newtonraphsonwasm.wasm` file which will be loaded with the `createModule` function.
+The compilation also generates a `webassembly/newtonraphsonwasm.wasm` file which exports a function called `createModule` which is used to initialize the WebAssembly module.
+
+```{.js #import-wasm}
+// this JavaScript snippet is later referred to as <<import-wasm>>
+const createModule = require('./newtonraphsonwasm.js')
+```
+
+The `createModule` function returns a Promise. We use [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) to keep the flow flat instead a nested promise chain for easier reading. The module returned by the await call contains the NewtonRaphson class we defined in the emscripten bindings.
+
+```{.js #find-root-js}
+// this JavaScript snippet is later referred to as <<find-root-js>>
+const { NewtonRaphson } = await createModule()
+```
+
+We create an object from NewtonRaphson class and find the root.
+We will define the `epsilon` and `guess` variables later when we call the code from the command line or from a web service.
+
+```{.js #find-root-js}
+// this JavaScript snippet is appended to <<find-root-js>>
+const finder = new NewtonRaphson(epsilon)
+const root = finder.solve(guess)
+```
+
+Let's get `epsilon` and `guess` from the [command line arguments](https://nodejs.org/dist/latest-v12.x/docs/api/process.html#process_process_argv), find the root and [print](https://nodejs.org/dist/latest-v12.x/docs/api/console.html) the result.
+We need to wrap in a async function as Node.js (version 12) does not like a bare `await`.
+
+```{.js file=webassembly/cli.js}
+// this JavaScript snippet stored as webassembly/cli.js
+<<import-wasm>>
+
+const main = async () => {
+  const epsilon = parseFloat(process.argv[2])
+  const guess = parseFloat(process.argv[3])
+  <<find-root-js>>
+  console.log(`Given epsilon of ${epsilon} and inital guess of ${guess} the found root is ${root.toPrecision(3)}`)
+}
+main()
+```
+
+```{.shell #test-wasm-cli}
+node webassembly/cli.js 0.01 -20
+```
+
+Should output `Given epsilon of 0.01 and inital guess of -20 the found root is -1.00`.
+
+### Web service with Fastify
+
+Node.js ships with a [low level http server](https://nodejs.org/en/knowledge/HTTP/servers/how-to-create-a-HTTP-server/) that can be used to write a web service, but we are going to use the [Fastify web framework](https://www.fastify.io/) as it supports multiple routes, async/await and JSON schemas.
+
+First we need to install Fastify with the Node.js package manager (npm). We will use `--no-save` option to skip saving the dependency in [package.json](https://docs.npmjs.com/files/package.json) as we are not publishing a package.
+
+```{.shell #npm-fastify}
+npm install --no-save fastify
+```
+
+Next we will import the WebAssembly module and Fastify.
+
+```{.js file=webassembly/webservice.js}
+// this JavaScript snippet stored as webassembly/webservice.js
+<<import-wasm>>
+const fastify = require('fastify')()
+```
+
+A handler can be defined which will process a request body JSON object containing the `epsilon` and `guess` and returns the found root. We will later configure fastify to call this method when visiting an url.
+
+```{.js file=webassembly/webservice.js}
+// this JavaScript snippet is appended to webassembly/webservice.js
+const handler = async ({body}) => {
+  const { epsilon, guess } = body
+  <<find-root-js>>
+  return { root }
+}
+```
+
+Fastify can use JSON-schema to validate the incoming request and and outgoing response.
+
+TODO move `request-schema` and `response-schema` to first use in Python web service.
+
+```{.json #request-schema}
+{
+   "type": "object",
+   "properties": {
+      "epsilon": {
+         "type": "number",
+         "minimum": 0
+      },
+      "guess": {
+         "type": "number"
+      }
+   },
+   "required": [
+      "epsilon",
+      "guess"
+   ],
+   "additionalProperties": false
+}
+```
+
+```{.json #response-schema}
+{
+  "type": "object",
+  "properties": {
+      "root": {
+        "type": "number"
+      }
+  },
+  "required": [
+      "root"
+  ],
+  "additionalProperties": false
+}
+```
+
+Define a Fastify route for a POST request to '/api/newtonraphson' url which calls the `handler` function. The request body must be validated against `<<request-schema>>` and the OK (code=200) response must be validated against `<<response-schema>>`.
+
+```{.js file=webassembly/webservice.js}
+// this JavaScript snippet is appended to webassembly/webservice.js
+fastify.route({
+  url: '/api/newtonraphson',
+  method: 'POST',
+  schema: {
+    body:
+        <<request-schema>>
+      ,
+      response: {
+        200:
+          <<response-schema>>
+      }
+  },
+  handler
+})
+```
+
+Listen on `http://127.0.0.1:3000` and die when an error is thrown.
+
+```{.js file=webassembly/webservice.js}
+// this JavaScript snippet is appended to webassembly/webservice.js
+const main = async () => {
+  try {
+    const host = '127.0.0.1'
+    const port = 3000
+    console.log(`Server listening on http://${host}:${port} (Press CTRL+C to quit)`)
+    await fastify.listen(port, host)
+  } catch (err) {
+    console.log(err)
+    process.exit(1)
+  }
+}
+main()
+```
+
+Run the web service with
+
+```{.shell #run-js-webservice}
+node webassembly/webservice.js
+```
+
+In another terminal test web service with
+
+```{.awk #test-js-webservice}
+curl -X POST "http://localhost:3000/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
+```
+
+Should return something like `{"root":-1.00...}`.
+
+TODO use https://nodejs.org/dist/latest-v12.x/docs/api/worker_threads.html to offload cpu calc.
+
+## JavaScript web application
+
+### Accessing C++ function from JavaScript in web browser
+
+We reuse the WebAssembly module we created in [previous chapter]((#accessing-c-function-from-nodejs-with-emscripten).
 
 The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the JavaScript promise to resolve.
 
