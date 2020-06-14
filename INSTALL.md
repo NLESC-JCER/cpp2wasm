@@ -7,7 +7,7 @@ To run the commands in the README.md the following items are required
 1. GNU C++ compiler (`g++`) and `make`, install with `sudo apt install -y build-essential`
 1. [Apache httpd server 2.4](http://httpd.apache.org/), install with `sudo apt install -y apache2`
 1. Python development, install with `sudo apt install -y python3-dev`
-1. [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html)
+1. [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html), includes a NodeJS installation
 1. [Docker Engine](https://docs.docker.com/install/), setup so `docker` command can be run [without sudo](https://docs.docker.com/engine/install/linux-postinstall/#manage-docker-as-a-non-root-user).
 1. [Perl](https://www.perl.org/), already installed on Linux
 
@@ -17,7 +17,7 @@ All the commands in the [README.md](README.md) and [CONTRIBUTING.md](CONTRIBUTIN
 
 ```{.makefile file=Makefile}
 # this Makefile snippet is stored as Makefile
-.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check
+.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check test-wasm-cli npm-fastify run-js-webservice test-js-webservice
 
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
@@ -117,6 +117,9 @@ react/newtonraphsonwasm.wasm: webassembly/newtonraphsonwasm.wasm
 react/newtonraphsonwasm.js: webassembly/newtonraphsonwasm.js
 	<<link-webassembly-js>>
 
+test-wasm-cli: build-wasm
+    <<test-wasm-cli>>
+
 host-webassembly-files: build-wasm
 	<<host-files>>
 
@@ -125,6 +128,15 @@ host-react-files: react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 
 test-webassembly:
 	<<test-webassembly>>
+
+npm-fastify:
+	<<npm-fastify>>
+
+run-js-webservice: build-wasm
+	<<run-js-webservice>>
+
+test-js-webservice:
+	<<test-js-webservice>>
 
 react/worker.js:
 	<<link-worker>>

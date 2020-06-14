@@ -206,6 +206,18 @@ jobs:
       - name: Build WebAssembly module
         run: make build-wasm
 
+      - name: Test from command line
+        run: make test-wasm-cli
+
+      - name: Install fastify
+        run: make npm-fastify
+
+      - name: Start web service in background
+        run: make run-js-webservice 2>&1 | tee ./web-service.log &
+
+      - name: Test web service, correct request
+        run: make test-js-webservice
+
       - name: Start web server for hosting files in background
         run: make host-webassembly-files 2>&1 | tee ./web-server.log &
 
@@ -216,7 +228,7 @@ jobs:
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
-          name: webassembly-service-log
+          name: webassembly-service-logs
           path: ./web-server.log
   react:
     runs-on: ubuntu-latest
