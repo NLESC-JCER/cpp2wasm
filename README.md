@@ -8,11 +8,11 @@
 
 In this guide, we will describe 5 ways to make your C++ code available as a web application or web wervice
 
-1. [Web service using Common Gateway Interface](#method-15-web-service-using-common-gateway-interface)
-1. [Python web service using OpenAPI](#method-25-python-web-service-using-swaggeropenapi)
-1. [Python web application using Flask](#method-35-python-web-application-using-flask)
-1. [JavaScript web service](#javascript-web-service)
-1. [JavaScript web application with React](#method-55-javaScript-web-application-with-react)
+1. [Web service using Common Gateway Interface](#web-service-using-common-gateway-interface)
+1. [Python web service using pybind11 and OpenAPI](#python-web-service)
+1. [Python web application using Flask and Celery](#python-web-application-using-flask)
+1. [JavaScript web service using Emscripten and Fastify](#javascript-web-service)
+1. [JavaScript web application using web worker and React](#javascript-web-application)
 
 This guide was written and tested on Linux operating system. The required dependencies to run this guide are described
 in the [INSTALL.md](INSTALL.md) document. If you want to contribute to the guide see [CONTRIBUTING.md](CONTRIBUTING.md).
@@ -158,7 +158,7 @@ It should return the following
 The value of the root is : -1.000000
 ```
 
-## Method 1/5: Web service using Common Gateway Interface
+## Web service using Common Gateway Interface
 
 ![cgi](images/cgi.svg.png "CGI")
 
@@ -273,9 +273,9 @@ Should return the following JSON document as a response
 The problem with CGI scripts is when the program does some initialization, you have to wait for it each visit. It is
 better to do the initialization once when the web service is starting up.
 
-## Method 2/5: Python web service using Swagger/OpenAPI
+## Python web service
 
-![swagger](images/swagger.svg.png "Swagger")
+![openapi](images/openapi.svg.png "OpenAPI")
 
 | Pros | Cons |
 | --- | --- |
@@ -353,6 +353,8 @@ It will output something like
 ```shell
 -1.0000001181322415
 ```
+
+### OpenAPI web service using connexion
 
 A web service has a number of paths or urls to which a request can be sent and a response received. The interface can be
 defined with the [OpenAPI specification](https://github.com/OAI/OpenAPI-Specification) (previously known as
@@ -473,7 +475,7 @@ running a ``curl`` command like
 curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 ```
 
-## Method 3/5: Python web application using Flask
+## Python web application using Flask
 
 ![flask](images/flask.svg.png "Flask")
 
@@ -566,7 +568,7 @@ python flask/webapp.py
 
 To test we can visit [http://localhost:5001](http://localhost:5001) fill the form and press submit to get the result.
 
-### Long-running tasks
+### Long-running tasks with Celery
 
 When performing a long calculation (more than 30 seconds), the end-user requires feedback of the progress. In a normal
 request/response cycle, feedback is only returned in the response. To give feedback during the calculation, the
@@ -826,7 +828,9 @@ curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/j
 | :heart: pro1 | :no_entry: con1 |
 | :heart: pro2 | :no_entry: con2 |
 
-### Accessing C++ function from NodeJS with Emscripten
+[JavaScript](https://developer.mozilla.org/en-US/docs/Web/javascript) is the de facto programming language for web browsers. The JavaScript engine in the Chrome browser called V8 has been wrapped in a runtime engine called [Node.js](http://nodejs.org/) which can execute JavaScript code outside the browser.
+
+### Accessing C++ function from Node.js with Emscripten
 
 For a long time web browsers could only execute non-JavaScript code using plugins like Flash. Later, tools where made
 that could transpile non-JavaScript code to JavaScript, but the performance was less than running native code. To run code
@@ -907,17 +911,19 @@ const main = async () => {
 main()
 ```
 
+Run the script with
+
 ```{.shell #test-wasm-cli}
 node webassembly/cli.js 0.01 -20
 ```
 
 Should output `Given epsilon of 0.01 and inital guess of -20 the found root is -1.00`.
 
-### Web service with Fastify
+### Web service using Fastify
 
 Node.js ships with a [low level http server](https://nodejs.org/en/knowledge/HTTP/servers/how-to-create-a-HTTP-server/) that can be used to write a web service, but we are going to use the [Fastify web framework](https://www.fastify.io/) as it supports multiple routes, async/await and JSON schemas.
 
-First we need to install Fastify with the Node.js package manager (npm). We will use `--no-save` option to skip saving the dependency in [package.json](https://docs.npmjs.com/files/package.json) as we are not publishing a package.
+First we need to install Fastify with the Node.js package manager ([npm](https://docs.npmjs.com/about-npm/)). We will use `--no-save` option to skip saving the dependency in [package.json](https://docs.npmjs.com/files/package.json) as we are not publishing a package.
 
 ```{.shell #npm-fastify}
 npm install --no-save fastify
@@ -1037,7 +1043,34 @@ TODO use https://nodejs.org/dist/latest-v12.x/docs/api/worker_threads.html to of
 
 ## JavaScript web application
 
-### Accessing C++ function from JavaScript in web browser
+![react](images/react.svg.png "React")
+
+| Pros | Cons |
+| --- | --- |
+| :heart: pro1 | :no_entry: con1 |
+| :heart: pro2 | :no_entry: con2 |
+
+In the [Web application](#web-application) section, a common approach is to render an entire HTML page even if a subset
+of elements requires a change. With the advances in the web browser (JavaScript) engines including methods to fetch JSON
+documents from a web service, it has become possible to address this shortcoming. The so-called [Single Page
+Applications](https://en.wikipedia.org/wiki/Single-page_application) (SPA) enable changes to be made in a part of the
+page without rendering the entire page. To ease SPA development, a number of frameworks have been developed. The most
+popular front-end web frameworks are (as of July 2019):
+
+- [React](https://reactjs.org/)
+- [Vue.js](https://vuejs.org/)
+- [Angular](https://angular.io/)
+
+Their pros and cons are summarized [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
+
+For Newton-Raphson web application, we selected React because of its small API and its use of functional programming.
+
+The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React
+application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the
+application only needs cheap static file hosting to host the HTML, js and wasm files. **The calculation will be done in
+the web browser on the end users machine instead of a server**.
+
+### Using WebAssembly module in web browser
 
 We reuse the WebAssembly module we created in [previous chapter]((#accessing-c-function-from-nodejs-with-emscripten).
 
@@ -1109,7 +1142,7 @@ of the calculation. Embedded below is the example hosted on
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, executed by some
 JavaScript and rendered on a HTML page.
 
-### Executing long running methods in JavaScript
+### Long-running tasks with web worker
 
 Executing a long running C++ method will block the browser from running any other code like updating the user interface.
 In order to avoid this, the method can be run in the background using [web
@@ -1232,36 +1265,7 @@ pages](https://nlesc-jcer.github.io/cpp2wasm/webassembly/example-web-worker.html
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web
 worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
-## Method 5/5: JavaScript web application with React
-
-![react](images/react.svg.png "React")
-
-| Pros | Cons |
-| --- | --- |
-| :heart: pro1 | :no_entry: con1 |
-| :heart: pro2 | :no_entry: con2 |
-
-In the [Web application](#web-application) section, a common approach is to render an entire HTML page even if a subset
-of elements requires a change. With the advances in the web browser (JavaScript) engines including methods to fetch JSON
-documents from a web service, it has become possible to address this shortcoming. The so-called [Single Page
-Applications](https://en.wikipedia.org/wiki/Single-page_application) (SPA) enable changes to be made in a part of the
-page without rendering the entire page. To ease SPA development, a number of frameworks have been developed. The most
-popular front-end web frameworks are (as of July 2019):
-
-- [React](https://reactjs.org/)
-- [Vue.js](https://vuejs.org/)
-- [Angular](https://angular.io/)
-
-Their pros and cons are summarized [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
-
-For Newton-Raphson web application, we selected React because of its small API and its use of functional programming.
-
-The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React
-application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the
-application only needs cheap static file hosting to host the HTML, js and wasm files. **The calculation will be done in
-the web browser on the end users machine instead of a server**.
-
-### React component
+### React components
 
 To render the React application we need a HTML element as a container. We will give it the identifier `container` which will
 use later when we implement the React application in the `app.js` file.
@@ -1688,10 +1692,11 @@ pages](https://nlesc-jcer.github.io/cpp2wasm/react/example-app.html)
 
 If you enter a negative number in the `epsilon` field the form will become invalid with a error message.
 
-### Visualization
+### Visualization with Vega-Lite
 
-The plots in web application can be made using [vega-lite](https://vega.github.io/vega-lite/). Vega-lite is a JS library
-which accepts a JSON document describing the plot.
+The plots in web application can be made using [Vega-Lite](https://vega.github.io/vega-lite/).
+Vega-Lite is a JavaScript library which describes a plot using a JSON document.
+In Vega-Lite the JSON Document is called a specification and can be compile to a lower level Vega specifcation to be rendered.
 
 To make an interesting plot we need more than one result. We are going to do a parameter sweep and measure how long each
 calculation takes.
@@ -1987,7 +1992,6 @@ Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.gi
 
 After the submit button is pressed the plot should show that the first calculation took a bit longer then the rest.
 
-
 <!--
 
 ---
@@ -2007,40 +2011,6 @@ sure root finder consumers know how to provide the input and what to expect from
 format](https://yaml.org/) was not chosen, because it is a superset of JSON and JSON has all the expressiveness root
 finder required. YAML allows for comments while this is not supported in JSON. Also JSON is the lingua franca for web
 services.
-
-An example of JSON schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://nlesc-jcer.github.io/cpp2wasm/NNRequest.json",
-  "type": "object",
-  "properties": {
-    "epsilon": {
-      "title": "Epsilon",
-      "type": "number",
-      "minimum": 0
-    },
-    "guess": {
-      "title": "Initial guess",
-      "type": "integer",
-      "minimum": -100,
-      "maximum": 100
-    }
-  },
-  "required": ["epsilon", "guess"],
-  "additionalProperties": false
-}
-```
-
-And a valid document:
-
-```json
-{
-  "epsilon": 0.001,
-  "guess": -20
-}
-```
 
 ---
  
