@@ -956,16 +956,16 @@ npm install --no-save fastify-oas
 
 Same as before we need to import the WebAssembly module and Fastify
 
-```{.js file=webassembly/openapi.js}
-// this JavaScript snippet is stored as webassembly/openapi.js
+```{.js #fastify-openapi-plugin}
+// this JavaScript snippet is later referred to as <<fastify-openapi-plugin>>
 <<import-wasm>>
 const fastify = require('fastify')()
 ```
 
 We need to import the plugin
 
-```{.js file=webassembly/openapi.js}
-// this JavaScript snippet is appended to webassembly/openapi.js
+```{.js #fastify-openapi-plugin}
+// this JavaScript snippet is appended to <<fastify-openapi-plugin>>
 const oas = require('fastify-oas')
 ```
 
@@ -977,8 +977,8 @@ Setting `exposeRoute` to true will make the plugin add the following routes:
 * [/documentation/index.html](http://localhost:3001/documentation/index.html) for Swagger UI
 * [/documentation/docs.html](http://localhost:3001/documentation/docs.html) for [ReDoc UI](https://github.com/Redocly/redoc)
 
-```{.js file=webassembly/openapi.js}
-// this JavaScript snippet is appended to webassembly/openapi.js
+```{.js #fastify-openapi-plugin}
+// this JavaScript snippet is appended to <<fastify-openapi-plugin>>
 fastify.register(oas, {
   swagger: {
     info: {
@@ -999,10 +999,18 @@ fastify.register(oas, {
 })
 ```
 
-In the route we would like to define example values. The JSON schema we defined for the request body in the [OpeAPI chapter](#openapi-web-service-using-connexion) does not allow an example field, but the OpenAPI specifaction does. So we inject the example here.
+Let's add the plugin to `webassembly/openapi.js` file with
 
 ```{.js file=webassembly/openapi.js}
 // this JavaScript snippet is appended to webassembly/openapi.js
+
+<<fastify-openapi-plugin>>
+```
+
+In the route we would like to define example values. The JSON schema we defined for the request body in the [OpeAPI chapter](#openapi-web-service-using-connexion) does not allow an example field, but the OpenAPI specifaction does. So we inject the example here.
+
+```{.js #fastify-openapi-route}
+// this JavaScript snippet is later referred to as <<fastify-openapi-route>>
 const requestBodySchema =
   <<request-schema>>
 requestBodySchema.example = {
@@ -1013,10 +1021,8 @@ requestBodySchema.example = {
 
 We need to define a route with the same handler as before and the schemas.
 
-```{.js file=webassembly/openapi.js}
-// this JavaScript snippet is appended to webassembly/openapi.js
-<<fastify-handler>>
-
+```{.js #fastify-openapi-route}
+// this JavaScript snippet is appended to <<fastify-openapi-route>>
 fastify.route({
   url: '/api/newtonraphson',
   method: 'POST',
@@ -1029,6 +1035,16 @@ fastify.route({
   },
   handler
 })
+```
+
+Let's add the handler and route to `webassembly/openapi.js` file with
+
+```{.js file=webassembly/openapi.js}
+// this JavaScript snippet is appended to webassembly/openapi.js
+
+<<fastify-handler>>
+
+<<fastify-openapi-route>>
 ```
 
 When the plugins have been loaded we have to initialize OpenAPI plugin with `fastify.oas()`, this will setup the plugin routes.
@@ -1069,9 +1085,121 @@ curl -X POST "http://localhost:3001/api/newtonraphson" -H "accept: application/j
 
 ### Long running task with worker threads
 
-The web service we made in the prevous chapter will block any other requests while the algorithm solving is running. This is due to the inner workings of Node.js. Node.js uses a single threaded event loop, so while an event is being handled Node.js is busy. Node.js uses callbacks and promises to handle long IO tasks efficiently. To use the CPU in parallel Node.js has [worker threads](https://nodejs.org/dist/latest-v12.x/docs/api/worker_threads.html).
+The web service we made in the prevous chapter will block any other requests while the algorithm solving is running. This is due to the inner workings of Node.js. Node.js uses a single threaded event loop, so while an event is being handled Node.js is busy. Node.js uses callbacks and promises to handle long IO tasks efficiently. To use the CPU in parallel Node.js has [worker threads](https://nodejs.org/dist/latest-v12.x/docs/api/worker_threads.html). We don't want to start a new thread each time a request is recieved to perform the calculation, we want to use a pool of waiting threads. So each request will be computed by a thread from the pool.
+Node.js gives use the low level primitives to create a thread. A thread pool is explained in the [Node.js documentation](https://nodejs.org/docs/latest-v12.x/api/async_hooks.html#async_hooks_using_asyncresource_for_a_worker_thread_pool), we could implement it here or use an existing package.
+On [npmjs](https://www.npmjs.com/search?q=worker%20thread%20pool) I found the [node-worker-threads-pool](https://www.npmjs.com/package/node-worker-threads-pool) package which is relativly similar to the version in the Node.js documentation, which is active and has a good number of downloads compared to the other search results.
 
-TODO rewrite of handler to use worker thread
+Let's use [node-worker-threads-pool](https://www.npmjs.com/package/node-worker-threads-pool) for our thread pool.
+
+Install the pool package with
+
+```{.shell #npm-threaded}
+npm install --no-save node-worker-threads-pool
+```
+
+Let's create a static pool of 4 threads. The pool should run the task defined in `webassembly/task.js`.
+
+```{.js file=webassembly/webservice-threaded.js}
+// this JavaScript snippet stored as webassembly/webservice-threaded.js
+const { StaticPool } = require('node-worker-threads-pool')
+const path = require('path')
+
+const task = path.resolve(__dirname, 'task.js')
+const pool = new StaticPool({
+  size: 4,
+  task
+});
+```
+
+The task defined in `webassembly/task.js` file needs to load the WebAssembly module with
+
+```{.js file=webassembly/task.js}
+// this JavaScript snippet stored as webassembly/task.js
+const createModule = require('./newtonraphsonwasm.js')
+```
+
+The task must be executed each time it recieves a message called `message` with the epsilon and initual guess as a parameter object from the [parentPort](https://nodejs.org/docs/latest-v12.x/api/worker_threads.html#worker_threads_worker_parentport).
+
+```{.js file=webassembly/task.js}
+// this JavaScript snippet appended to webassembly/task.js
+const { parentPort } = require('worker_threads')
+
+parentPort.on('message', async ({epsilon, guess}) => {
+```
+
+We must wait for the WebAsemmbly module to be initialized.
+
+```{.js file=webassembly/task.js}
+  // this JavaScript snippet appended to webassembly/task.js
+  const { NewtonRaphson } = await createModule()
+```
+
+Now we can find the root.
+
+```{.js file=webassembly/task.js}
+  // this JavaScript snippet appended to webassembly/task.js
+  const finder = new NewtonRaphson(epsilon)
+  const root = finder.solve(guess)
+```
+
+A send the result back to the parent.
+
+```{.js file=webassembly/task.js}
+  // this JavaScript snippet appended to webassembly/task.js
+  parentPort.postMessage(root)
+})
+```
+
+The web service handler needs to call the pool with `exec()` and wait for the result.
+By using `await` the main event loop is free to do other work while the work is being done in the thread.
+
+```{.js #fastify-handler-threaded}
+// this JavaScript snippet later referred to as <<fastify-handler-threaded>>
+
+const handler = async ({body}) => {
+  const { epsilon, guess } = body
+  const root = await pool.exec({epsilon, guess})
+  return { root }
+}
+```
+
+Similar to the previous chapter we register the OpenAPI plugin, define a route and listen on [http://127.0.0.1:3002](http://127.0.0.1:3002)
+
+```{.js file=webassembly/webservice-threaded.js}
+// this JavaScript snippet is appended to webassembly/webservice-threaded.js
+<<fastify-openapi-plugin>>
+
+<<fastify-handler-threaded>>
+
+<<fastify-openapi-route>>
+
+const main = async () => {
+  try {
+    await fastify.ready()
+    fastify.oas()
+    const host = '127.0.0.1'
+    const port = 3002
+    console.log(`Server listening on http://${host}:${port} (Press CTRL+C to quit)`)
+    await fastify.listen(port, host)
+  } catch (err) {
+    console.log(err)
+    process.exit(1)
+  }
+}
+main()
+```
+
+```{.shell #run-js-threaded}
+node webassembly/webservice-threaded.js
+```
+
+Test with
+
+```{.shell #test-js-threaded}
+curl -X POST "http://localhost:3002/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
+```
+
+Or goto [Swagger UI](http://localhost:3002/documentation/index.html) to try it out.
 
 ## JavaScript web application
 

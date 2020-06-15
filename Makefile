@@ -1,5 +1,5 @@
 # this Makefile snippet is stored as Makefile
-.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check test-wasm-cli npm-fopenapi-deps npm-fastify npm-openapi run-js-webservice test-js-webservice test-js-openapi run-js-openapi test-js-openapi
+.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check test-wasm-cli npm-fopenapi-deps npm-fastify npm-openapi run-js-webservice test-js-webservice test-js-openapi run-js-openapi test-js-openapi npm-threaded run-js-threaded test-js-threaded
 
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
@@ -112,13 +112,16 @@ host-react-files: react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 test-webassembly:
 	npx cypress run --config-file false --spec 'cypress/integration/webassembly/*_spec.js'
 
-js-deps: npm-fastify npm-openapi
+js-deps: npm-fastify npm-openapi npm-threaded
 
 npm-fastify:
 	npm install --no-save fastify
 
 npm-openapi:
 	npm install --no-save fastify-oas
+
+npm-threaded:
+	npm install --no-save node-worker-threads-pool
 
 run-js-webservice: build-wasm
 	node webassembly/webservice.js
@@ -131,6 +134,12 @@ run-js-openapi: build-wasm
 
 test-js-openapi:
 	curl -X POST "http://localhost:3001/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
+
+run-js-threaded: build-wasm
+	node webassembly/webservice-threaded.js
+
+test-js-threaded:
+	curl -X POST "http://localhost:3002/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 
 react/worker.js:
 	cd react && ln -s ../webassembly/worker.js . && cd -

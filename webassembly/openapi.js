@@ -1,10 +1,12 @@
-// this JavaScript snippet is stored as webassembly/openapi.js
+// this JavaScript snippet is appended to webassembly/openapi.js
+
+// this JavaScript snippet is later referred to as <<fastify-openapi-plugin>>
 // this JavaScript snippet is later referred to as <<import-wasm>>
 const createModule = require('./newtonraphsonwasm.js')
 const fastify = require('fastify')()
-// this JavaScript snippet is appended to webassembly/openapi.js
+// this JavaScript snippet is appended to <<fastify-openapi-plugin>>
 const oas = require('fastify-oas')
-// this JavaScript snippet is appended to webassembly/openapi.js
+// this JavaScript snippet is appended to <<fastify-openapi-plugin>>
 fastify.register(oas, {
   swagger: {
     info: {
@@ -24,6 +26,19 @@ fastify.register(oas, {
   exposeRoute: true
 })
 // this JavaScript snippet is appended to webassembly/openapi.js
+
+// this JavaScript snippet is later referred to as <<fastify-handler>>
+const handler = async ({body}) => {
+  const { epsilon, guess } = body
+  // this JavaScript snippet is later referred to as <<find-root-js>>
+  const { NewtonRaphson } = await createModule()
+  // this JavaScript snippet is appended to <<find-root-js>>
+  const finder = new NewtonRaphson(epsilon)
+  const root = finder.solve(guess)
+  return { root }
+}
+
+// this JavaScript snippet is later referred to as <<fastify-openapi-route>>
 const requestBodySchema =
   {
     "type": "object",
@@ -49,18 +64,7 @@ requestBodySchema.example = {
   epsilon: 0.001,
   guess: -20
 }
-// this JavaScript snippet is appended to webassembly/openapi.js
-// this JavaScript snippet is later referred to as <<fastify-handler>>
-const handler = async ({body}) => {
-  const { epsilon, guess } = body
-  // this JavaScript snippet is later referred to as <<find-root-js>>
-  const { NewtonRaphson } = await createModule()
-  // this JavaScript snippet is appended to <<find-root-js>>
-  const finder = new NewtonRaphson(epsilon)
-  const root = finder.solve(guess)
-  return { root }
-}
-
+// this JavaScript snippet is appended to <<fastify-openapi-route>>
 fastify.route({
   url: '/api/newtonraphson',
   method: 'POST',

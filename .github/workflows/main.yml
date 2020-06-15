@@ -230,6 +230,12 @@ jobs:
       - name: Test OpenAPI web service
         run: make test-js-openapi
 
+      - name: Start OpenAPI threaded web service in background
+        run: make run-js-threaded 2>&1 | tee ./run-threaded-web-service.log &
+
+      - name: Test OpenAPI threaded web service
+        run: make test-js-threaded
+
       - name: Upload log of services
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
