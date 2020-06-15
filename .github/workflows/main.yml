@@ -209,8 +209,8 @@ jobs:
       - name: Test from command line
         run: make test-wasm-cli
 
-      - name: Install fastify
-        run: make npm-fastify
+      - name: Install Node.js dependencies
+        run: make js-deps
 
       - name: Start web service in background
         run: make run-js-webservice 2>&1 | tee ./web-service.log &
