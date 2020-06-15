@@ -17,7 +17,7 @@ All the commands in the [README.md](README.md) and [CONTRIBUTING.md](CONTRIBUTIN
 
 ```{.makefile file=Makefile}
 # this Makefile snippet is stored as Makefile
-.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check test-wasm-cli npm-fastify run-js-webservice test-js-webservice
+.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check test-wasm-cli npm-fastify run-js-webservice test-js-webservice test-js-openapi run-js-openapi test-js-openapi
 
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
@@ -135,8 +135,14 @@ npm-fastify:
 run-js-webservice: build-wasm
 	<<run-js-webservice>>
 
-test-js-webservice:
-	<<test-js-webservice>>
+run-js-webservice: build-wasm
+	<<run-js-webservice>>
+
+run-js-openapi:
+	<<run-js-openapi>>
+
+test-js-openapi: build-wasm
+	<<test-js-openapi>>
 
 react/worker.js:
 	<<link-worker>>

@@ -1,5 +1,5 @@
 # this Makefile snippet is stored as Makefile
-.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check test-wasm-cli npm-fastify run-js-webservice test-js-webservice
+.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check test-wasm-cli npm-fastify run-js-webservice test-js-webservice test-js-openapi run-js-openapi test-js-openapi
 
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
@@ -118,8 +118,14 @@ npm-fastify:
 run-js-webservice: build-wasm
 	node webassembly/webservice.js
 
-test-js-webservice:
-	curl -X POST "http://localhost:3000/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
+run-js-webservice: build-wasm
+	node webassembly/webservice.js
+
+run-js-openapi:
+	node webassembly/openapi.js
+
+test-js-openapi: build-wasm
+	curl -X POST "http://localhost:3001/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 
 react/worker.js:
 	cd react && ln -s ../webassembly/worker.js . && cd -

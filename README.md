@@ -418,7 +418,7 @@ The JSON schema for the request body is
 }
 ```
 
-The response we want to return is
+The response body we want to return is
 
 ```json
 {
@@ -426,7 +426,7 @@ The response we want to return is
 }
 ```
 
-The JSON schema for the response is
+The JSON schema for the response body is
 
 ```{.json #response-schema}
 {
@@ -768,12 +768,11 @@ docker stop some-redis
 
 | Pros | Cons |
 | --- | --- |
-| :heart: pro1 | :no_entry: con1 |
-| :heart: pro2 | :no_entry: con2 |
+| :heart: JavaScript is popular language | :no_entry: Node.js uses legacy syntax |
 
 [JavaScript](https://developer.mozilla.org/en-US/docs/Web/javascript) is the de facto programming language for web browsers. The JavaScript engine in the Chrome browser called V8 has been wrapped in a runtime engine called [Node.js](http://nodejs.org/) which can execute JavaScript code outside the browser.
 
-### Accessing C++ function from Node.js with Emscripten
+### Accessing C++ function with Emscripten
 
 For a long time web browsers could only execute non-JavaScript code using plugins like Flash. Later, tools where made
 that could transpile non-JavaScript code to JavaScript, but the performance was less than running native code. To run code
@@ -809,13 +808,11 @@ EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
 
 The algorithm and binding can be compiled into a WebAssembly module with the Emscripten compiler called `emcc`. To make
 live easier we configure the compile command to generate a `webassembly/newtonraphsonwasm.js` file which exports the
-`createModule` function.
+`createModule` function. The `createModule` function loads and initializes the generated WebAssembly module called `webassembly/newtonraphsonwasm.wasm` for us.
 
 ```{.awk #build-wasm}
 emcc -Icli/ --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
 ```
-
-The compilation also generates a `webassembly/newtonraphsonwasm.wasm` file which exports a function called `createModule` which is used to initialize the WebAssembly module.
 
 ```{.js #import-wasm}
 // this JavaScript snippet is later referred to as <<import-wasm>>
@@ -882,8 +879,8 @@ const fastify = require('fastify')()
 
 A handler can be defined which will process a request body JSON object containing the `epsilon` and `guess` and returns the found root. We will later configure fastify to call this method when visiting an url.
 
-```{.js file=webassembly/webservice.js}
-// this JavaScript snippet is appended to webassembly/webservice.js
+```{.js fastify-handler}
+// this JavaScript snippet is later referred to as <<fastify-handler>>
 const handler = async ({body}) => {
   const { epsilon, guess } = body
   <<find-root-js>>
@@ -896,6 +893,8 @@ Fastify can use JSON-schema to validate the incoming request and and outgoing re
 Define a Fastify route for a POST request to '/api/newtonraphson' url which calls the `handler` function. The request body must be validated against `<<request-schema>>` and the OK (code=200) response must be validated against `<<response-schema>>` as defined in the [OpenAPI chapter](#openapi-web-service-using-connexion). By defining schemas we implicitly tell the web service it should accept and return `application/json` as content type.
 
 ```{.js file=webassembly/webservice.js}
+<<fastify-handler>>
+
 // this JavaScript snippet is appended to webassembly/webservice.js
 fastify.route({
   url: '/api/newtonraphson',
@@ -945,7 +944,131 @@ curl -X POST "http://localhost:3000/api/newtonraphson" -H "accept: application/j
 
 Should return something like `{"root":-1.00...}`.
 
-TODO use https://nodejs.org/dist/latest-v12.x/docs/api/worker_threads.html to offload cpu calc.
+### OpenAPI web service using fastify-oas
+
+The web service can't tell us which urls it has. We can use a OpenAPI specification for that. As the Fastify route already uses JSON schema for the request and response body we can not use the contract first approach, but we can generate the OpenAPI specification with the [fastify-oas](https://gitlab.com/m03geek/fastify-oas) plugin.
+
+Install the plugin with
+
+```{.shell #npm-openapi}
+npm install --no-save fastify-oas
+```
+
+Same as before we need to import the WebAssembly module and Fastify
+
+```{.js file=webassembly/openapi.js}
+<<import-wasm>>
+const fastify = require('fastify')()
+```
+
+We need to import the plugin
+
+```{.js file=webassembly/openapi.js}
+const oas = require('fastify-oas')
+```
+
+Next we need to register the OpenAPI plugin (oas)
+
+```{.js file=webassembly/openapi.js}
+fastify.register(oas, {
+  swagger: {
+    info: {
+      title: 'OpenAPI webservice for root finding with Newton-Raphson',
+      license: {
+        name: 'Apache-2.0',
+        url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+      },
+      version: '0.1.0'
+    },
+    consumes: ['application/json'],
+    produces: ['application/json'],
+    servers: [{
+      url: 'http://localhost:3001'
+    }]
+  },
+  exposeRoute: true
+})
+```
+
+In the route we would like to define example values. The JSON schema we defined for the request body in the [OpeAPI chapter](#openapi-web-service-using-connexion) does not allow an example field, but the OpenAPI specifaction does. So we inject the example here.
+
+```{.js file=webassembly/openapi.js}
+const requestBodySchema =
+  <<request-schema>>
+requestBodySchema.example = {
+  epsilon: 0.001,
+  guess: -20
+}
+```
+
+We need to define a route with the same handler as before and the schemas.
+
+```{.js file=webassembly/openapi.js}
+// this JavaScript snippet is appended to webassembly/openapi.js
+<<fastify-handler>>
+
+fastify.route({
+  url: '/api/newtonraphson',
+  method: 'POST',
+  schema: {
+    body: requestBodySchema,
+    response: {
+      200:
+        <<response-schema>>
+    }
+  },
+  handler
+})
+```
+
+When the plugins have been loaded we have to initialize OpenAPI plugin with `fastify.oas()`.
+This will add the following routes:
+
+* [/documentation/json](http://localhost:3001/documentation/json) for OpenAPI specification in JSON format
+* [/documentation/yaml](http://localhost:3001/documentation/yaml) for OpenAPI specification in YAML format
+* [/documentation/index.html](http://localhost:3001/documentation/index.html) for Swagger UI
+* [/documentation/docs.html](http://localhost:3001/documentation/docs.html) for [ReDoc UI](https://github.com/Redocly/redoc)
+
+After OpenAPI plugin has been initialized listen on [http://127.0.0.1:3001](http://127.0.0.1:3001) and die when an error is thrown.
+
+```{.js file=webassembly/openapi.js}
+// this JavaScript snippet is appended to webassembly/openapi.js
+const main = async () => {
+  try {
+    await fastify.ready()
+    fastify.oas()
+    const host = '127.0.0.1'
+    const port = 3001
+    console.log(`Server listening on http://${host}:${port} (Press CTRL+C to quit)`)
+    await fastify.listen(port, host)
+  } catch (err) {
+    console.log(err)
+    process.exit(1)
+  }
+}
+main()
+```
+
+Run the web service with
+
+```{.shell #run-js-openapi}
+node webassembly/openapi.js
+```
+
+The OpenAPI specification is generated in [JSON](http://localhost:3001/documentation/json) and [YAML](http://localhost:3001/documentation/yaml) format.
+Try the web service out by visiting the [Swagger UI](http://localhost:3001/documentation/index.html).
+
+Or try it out in another terminal with curl using
+
+```{.shell #test-js-openapi}
+curl -X POST "http://localhost:3001/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
+```
+
+### Long running task with worker threads
+
+The web service we made in the prevous chapter will block any other requests while the algorithm solving is running. This is due to the inner workings of Node.js. Node.js uses a single threaded event loop, so while an event is being handled Node.js is busy. Node.js uses callbacks and promises to handle long IO tasks efficiently. To use the CPU in parallel Node.js has [worker threads](https://nodejs.org/dist/latest-v12.x/docs/api/worker_threads.html).
+
+TODO rewrite of handler to use worker thread
 
 ## JavaScript web application
 
@@ -1171,7 +1294,7 @@ pages](https://nlesc-jcer.github.io/cpp2wasm/webassembly/example-web-worker.html
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web
 worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
-### React components
+### React application
 
 To render the React application we need a HTML element as a container. We will give it the identifier `container` which will
 use later when we implement the React application in the `app.js` file.

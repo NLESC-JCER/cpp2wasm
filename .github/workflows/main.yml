@@ -215,8 +215,14 @@ jobs:
       - name: Start web service in background
         run: make run-js-webservice 2>&1 | tee ./web-service.log &
 
-      - name: Test web service, correct request
+      - name: Test web service
         run: make test-js-webservice
+
+      - name: Start OpenAPI web service in background
+        run: make run-js-openapi 2>&1 | tee ./openapi-web-service.log &
+
+      - name: Test OpenAPI web service
+        run: make test-js-openapi
 
       - name: Start web server for hosting files in background
         run: make host-webassembly-files 2>&1 | tee ./web-server.log &
