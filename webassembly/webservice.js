@@ -2,7 +2,7 @@
 // this JavaScript snippet is later referred to as <<import-wasm>>
 const createModule = require('./newtonraphsonwasm.js')
 const fastify = require('fastify')()
-// this JavaScript snippet is appended to webassembly/webservice.js
+// this JavaScript snippet is later referred to as <<fastify-handler>>
 const handler = async ({body}) => {
   const { epsilon, guess } = body
   // this JavaScript snippet is later referred to as <<find-root-js>>
@@ -12,6 +12,7 @@ const handler = async ({body}) => {
   const root = finder.solve(guess)
   return { root }
 }
+
 // this JavaScript snippet is appended to webassembly/webservice.js
 fastify.route({
   url: '/api/newtonraphson',

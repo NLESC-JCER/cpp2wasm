@@ -879,7 +879,7 @@ const fastify = require('fastify')()
 
 A handler can be defined which will process a request body JSON object containing the `epsilon` and `guess` and returns the found root. We will later configure fastify to call this method when visiting an url.
 
-```{.js fastify-handler}
+```{.js #fastify-handler}
 // this JavaScript snippet is later referred to as <<fastify-handler>>
 const handler = async ({body}) => {
   const { epsilon, guess } = body
@@ -967,7 +967,7 @@ We need to import the plugin
 const oas = require('fastify-oas')
 ```
 
-Next we need to register the OpenAPI plugin (oas)
+Next we need to register the plugin (oas)
 
 ```{.js file=webassembly/openapi.js}
 fastify.register(oas, {
