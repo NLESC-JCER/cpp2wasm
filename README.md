@@ -957,6 +957,7 @@ npm install --no-save fastify-oas
 Same as before we need to import the WebAssembly module and Fastify
 
 ```{.js file=webassembly/openapi.js}
+// this JavaScript snippet is stored as webassembly/openapi.js
 <<import-wasm>>
 const fastify = require('fastify')()
 ```
@@ -964,12 +965,20 @@ const fastify = require('fastify')()
 We need to import the plugin
 
 ```{.js file=webassembly/openapi.js}
+// this JavaScript snippet is appended to webassembly/openapi.js
 const oas = require('fastify-oas')
 ```
 
-Next we need to register the plugin (oas)
+Next we need to register the plugin (oas) and configure the OpenAPI info fields.
+Setting `exposeRoute` to true will make the plugin add the following routes:
+
+* [/documentation/json](http://localhost:3001/documentation/json) for OpenAPI specification in JSON format
+* [/documentation/yaml](http://localhost:3001/documentation/yaml) for OpenAPI specification in YAML format
+* [/documentation/index.html](http://localhost:3001/documentation/index.html) for Swagger UI
+* [/documentation/docs.html](http://localhost:3001/documentation/docs.html) for [ReDoc UI](https://github.com/Redocly/redoc)
 
 ```{.js file=webassembly/openapi.js}
+// this JavaScript snippet is appended to webassembly/openapi.js
 fastify.register(oas, {
   swagger: {
     info: {
@@ -993,6 +1002,7 @@ fastify.register(oas, {
 In the route we would like to define example values. The JSON schema we defined for the request body in the [OpeAPI chapter](#openapi-web-service-using-connexion) does not allow an example field, but the OpenAPI specifaction does. So we inject the example here.
 
 ```{.js file=webassembly/openapi.js}
+// this JavaScript snippet is appended to webassembly/openapi.js
 const requestBodySchema =
   <<request-schema>>
 requestBodySchema.example = {
@@ -1021,15 +1031,8 @@ fastify.route({
 })
 ```
 
-When the plugins have been loaded we have to initialize OpenAPI plugin with `fastify.oas()`.
-This will add the following routes:
-
-* [/documentation/json](http://localhost:3001/documentation/json) for OpenAPI specification in JSON format
-* [/documentation/yaml](http://localhost:3001/documentation/yaml) for OpenAPI specification in YAML format
-* [/documentation/index.html](http://localhost:3001/documentation/index.html) for Swagger UI
-* [/documentation/docs.html](http://localhost:3001/documentation/docs.html) for [ReDoc UI](https://github.com/Redocly/redoc)
-
-After OpenAPI plugin has been initialized listen on [http://127.0.0.1:3001](http://127.0.0.1:3001) and die when an error is thrown.
+When the plugins have been loaded we have to initialize OpenAPI plugin with `fastify.oas()`, this will setup the plugin routes.
+Next we listen on [http://127.0.0.1:3001](http://127.0.0.1:3001) and die when an error is thrown.
 
 ```{.js file=webassembly/openapi.js}
 // this JavaScript snippet is appended to webassembly/openapi.js

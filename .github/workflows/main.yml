@@ -209,33 +209,33 @@ jobs:
       - name: Test from command line
         run: make test-wasm-cli
 
+      - name: Start web server for hosting files in background
+        run: make host-webassembly-files 2>&1 | tee ./run-host-service.log &
+
+      - name: Run tests
+        run: make test-webassembly
+
       - name: Install Node.js dependencies
         run: make js-deps
 
       - name: Start web service in background
-        run: make run-js-webservice 2>&1 | tee ./web-service.log &
+        run: make run-js-webservice 2>&1 | tee ./run-web-service.log &
 
       - name: Test web service
         run: make test-js-webservice
 
       - name: Start OpenAPI web service in background
-        run: make run-js-openapi 2>&1 | tee ./openapi-web-service.log &
+        run: make run-js-openapi 2>&1 | tee ./run-openapi-web-service.log &
 
       - name: Test OpenAPI web service
         run: make test-js-openapi
 
-      - name: Start web server for hosting files in background
-        run: make host-webassembly-files 2>&1 | tee ./web-server.log &
-
-      - name: Run tests
-        run: make test-webassembly
-
-      - name: Upload log of web server
+      - name: Upload log of services
         if: ${{ always() }}
         uses: actions/upload-artifact@v2
         with:
           name: webassembly-service-logs
-          path: ./web-server.log
+          path: ./run-*.log
   react:
     runs-on: ubuntu-latest
     steps:
