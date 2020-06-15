@@ -52,18 +52,28 @@ function App() {
         "type": "object",
         "properties": {
           "min": {
+            "title": "Minimum",
             "type": "number",
             "minimum": 0,
             "default": 0.0001
           },
           "max": {
+            "title": "Maximum",
             "type": "number",
             "minimum": 0,
             "default": 0.001
           },
           "step": {
+            "title": "Step",
             "type": "number",
-            "minimum": 0,
+            "enum": [
+              0.1,
+              0.01,
+              0.001,
+              0.0001,
+              0.00001,
+              0.000001
+            ],
             "default": 0.0001
           }
         },
@@ -73,14 +83,22 @@ function App() {
       "guess": {
         "title": "Initial guess",
         "type": "number",
-        "minimum": -100,
-        "maximum": 100,
         "default": -20
       }
     },
     "required": ["epsilon", "guess"],
     "additionalProperties": false
-  }
+  };
+  const uiSchema = {
+    "epsilon": {
+      "step": {
+        "ui:widget": "radio",
+        "ui:options": {
+          "inline": true
+        }
+      }
+    }
+  };
   // this JavaScript snippet is appended to <<plot-app>>
   const [roots, setRoots] = React.useState([]);
 
@@ -106,6 +124,7 @@ function App() {
       { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
       <Form
         schema={schema}
+        uiSchema={uiSchema}
         formData={formData}
         onChange={handleChange}
         onSubmit={handleSubmit}

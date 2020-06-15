@@ -19,29 +19,34 @@ fastify.route({
   schema: {
     body:
         {
-           "type": "object",
-           "properties": {
-              "epsilon": {
-                 "type": "number",
-                 "minimum": 0
-              },
-              "guess": {
-                 "type": "number"
-              }
-           },
-           "required": [
-              "epsilon",
-              "guess"
-           ],
-           "additionalProperties": false
+          "type": "object",
+          "description": "this JSON document is later referred to as <<request-schema>>",
+          "properties": {
+            "epsilon": {
+              "title": "Epsilon",
+              "type": "number",
+              "minimum": 0
+            },
+            "guess": {
+              "title": "Initial guess",
+              "type": "number"
+            }
+          },
+          "required": [
+            "epsilon",
+            "guess"
+          ],
+          "additionalProperties": false
         }
       ,
       response: {
         200:
           {
             "type": "object",
+            "description": "this JSON document is later referred to as <<response-schema>>",
             "properties": {
                 "root": {
+                  "title": "Root",
                   "type": "number"
                 }
             },

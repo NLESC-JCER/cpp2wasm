@@ -20,6 +20,9 @@ The [repo](https://github.com/NLESC-JCER/cpp2wasm) contains the files that can b
 guide. The code snippets can be [entangled](https://entangled.github.io/) to files using any of
 [these](CONTRIBUTING.md#tips) methods.
 
+A web application is meant for consumption by humans using [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML) pages and a web service is meant for consumption by machines or other
+programs. A web service will accept and return machine readable documents like [JSON (JavaScript Object Notation)](https://www.json.org/) documents.
+
 ## Example program: Newton-Raphson root finding
 
 The [Newton-Raphson root finding algorithm](https://en.wikipedia.org/wiki/Newton%27s_method) will be the use case. The
@@ -204,7 +207,7 @@ int main(int argc, char *argv[])
 }
 ```
 
-Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header-only library to convert a JSON string to
+Where [nlohmann/json.hpp](https://github.com/nlohmann/json/) is a JSON serialization/unserialization C++ header-only library to convert a JSON string to
 and from a data type.
 
 This can be compiled with
@@ -282,7 +285,14 @@ better to do the initialization once when the web service is starting up.
 | :heart: pro1 | :no_entry: con1 |
 | :heart: pro2 | :no_entry: con2 |
 
-### Accessing C++ functions from Python
+Writing a web service in C++ can be done, but other languages like Python are better equipped. Python has a big
+community making web applications, which resulted in a big ecosystem of web frameworks, template engines, tutorials.
+
+Python packages can be installed using `pip` from the [Python Package Index](https://pypi.org/). It is customary to work
+with [virtual environments](https://packaging.python.org/tutorials/installing-packages/#creating-virtual-environments)
+to isolate the dependencies for a certain application and not pollute the global OS paths.
+
+### Accessing C++ functions with pybind11
 
 To make a web application in Python, the C++ functions need to be called somehow. Python can call functions in a C++
 library if its functions use [Python.h datatypes](https://docs.python.org/3.7/extending/index.html). This requires a lot
@@ -372,6 +382,69 @@ tested with [Swagger UI](https://swagger.io/tools/swagger-ui/), which facilitate
 them out by constructing a request, and showing the curl command which can be used to call the web service. Swagger UI
 comes bundled with the Connexion framework.
 
+OpenAPI uses [JSON schema](https://json-schema.org/) to describe the shape of the request body and responses.
+
+The request body we want to accept is
+
+```json
+{
+  "epsilon": 0.001,
+  "guess": -20
+}
+```
+
+The JSON schema for the request body is
+
+```{.json #request-schema}
+{
+  "type": "object",
+  "description": "this JSON document is later referred to as <<request-schema>>",
+  "properties": {
+    "epsilon": {
+      "title": "Epsilon",
+      "type": "number",
+      "minimum": 0
+    },
+    "guess": {
+      "title": "Initial guess",
+      "type": "number"
+    }
+  },
+  "required": [
+    "epsilon",
+    "guess"
+  ],
+  "additionalProperties": false
+}
+```
+
+The response we want to return is
+
+```json
+{
+  "root": -1.00
+}
+```
+
+The JSON schema for the response is
+
+```{.json #response-schema}
+{
+  "type": "object",
+  "description": "this JSON document is later referred to as <<response-schema>>",
+  "properties": {
+      "root": {
+        "title": "Root",
+        "type": "number"
+      }
+  },
+  "required": [
+      "root"
+  ],
+  "additionalProperties": false
+}
+```
+
 The OpenAPI specification for performing root finding is:
 
 ```{.yaml file=openapi/openapi.yaml}
@@ -406,25 +479,9 @@ paths:
 components:
   schemas:
     NRRequest:
-      type: object
-      properties:
-        epsilon:
-          type: number
-          minimum: 0
-        guess:
-          type: number
-      required:
-        - epsilon
-        - guess
-      additionalProperties: false
+      <<request-schema>>
     NRResponse:
-      type: object
-      properties:
-        root:
-          type: number
-      required:
-        - root
-      additionalProperties: false
+      <<response-schema>>
 ```
 
 The webservice consists of a single path (``/api/newtonraphson``) with a POST method which receives a request and
@@ -484,6 +541,8 @@ curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/j
 | :heart: pro1 | :no_entry: con1 |
 | :heart: pro2 | :no_entry: con2 |
 
+The Python standard library ships with a [HTTP server](https://docs.python.org/3/library/http.server.html) which is very low level. A web framework is an abstraction layer for making writing web applications more pleasant. To write our web application we will use the [Flask](https://flask.palletsprojects.com/) web framework. Flask was chosen as it minimalistic and has a large active community.
+
 The Flask Python library can be installed with
 
 ```{.awk #pip-flask}
@@ -496,7 +555,7 @@ We'll use the shared library that the openapi example also uses:
 cd flask && ln -s ../openapi/newtonraphsonpy`python3-config --extension-suffix` . && cd -
 ```
 
-The web application has 3 kinds of pages:
+The web application has 3 pages:
 
 1. a page with form and submit button,
 2. a page to show the progress of the calculation
@@ -703,122 +762,6 @@ The redis server can be shut down with
 docker stop some-redis
 ```
 
-### Web service
-
-![swagger](images/swagger.svg.png "Swagger")
-
-A web application is meant for consumption by humans and web service is meant for consumption by machines or other programs.
-So instead of returning HTML pages a web service will accept and return machine readable documents like JSON documents. A web service is an application programming interface (API) based on web technologies.
-
-A web service has a number of paths or urls to which a request can be sent and a response received.
-The interface can be defined with [OpenAPI specification](https://github.com/OAI/OpenAPI-Specification) (previously known as [Swagger](https://swagger.io/)). The OpenAPI spec uses JSON schema to define request/response types. Making the JSON schema re-usable between the web service and command line interface.
-The OpenAPI specifiation can either be generated by the web service provider or be a static document or contract. The contract-first approach allows for both consumer and provider to come to an agreement on the contract and work more or less independently on implementation. The contract-first approach was used for the root finding web service.
-
-To make a web service which adheres to the OpenAPI specification contract, it is possible to generate a skeleton using the [generator](https://github.com/OpenAPITools/openapi-generator).
-Each time the contract changes the generator must be re-run. The generator uses the Python based web framework [Connexion](https://github.com/zalando/connexion).
-For the Python based root finding web service, Connexion was used as the web framework as it maps each path+method combination in the contract to a Python function and will handle the validation and serialization. The OpenAPI web service can be tested with [Swagger UI](https://swagger.io/tools/swagger-ui/), the UI allows browsing through the available paths, try them out by constructing a request and shows the curl command which can be used to call the web service. Swagger UI comes bundled with the Connexion framework.
-
-The OpenAPI specification for performing root finding would look like
-
-```{.yaml file=openapi/openapi.yaml}
-# this yaml snippet is stored as openapi/openapi.yaml
-openapi: 3.0.0
-info:
-  title: Root finder
-  license:
-    name: Apache-2.0
-    url: https://www.apache.org/licenses/LICENSE-2.0.html
-  version: 0.1.0
-paths:
-  /api/newtonraphson:
-    post:
-      description: Perform root finding with the Newton Raphson algorithm
-      operationId: api.calculate
-      requestBody:
-        content:
-          'application/json':
-            schema:
-              $ref: '#/components/schemas/NRRequest'
-            example:
-              epsilon: 0.001
-              guess: -20
-      responses:
-        '200':
-          description: The found root
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/NRResponse'
-components:
-  schemas:
-    NRRequest:
-      type: object
-      properties:
-        epsilon:
-          type: number
-          minimum: 0
-        guess:
-          type: number
-      required:
-        - epsilon
-        - guess
-      additionalProperties: false
-    NRResponse:
-      type: object
-      properties:
-        root:
-          type: number
-      required:
-        - root
-      additionalProperties: false
-```
-
-The webservice consists of a single path with the POST method which receives a request and returns a response.
-The request and response are in JSON format and adhere to their respective JSON schemas.
-
-The operation identifier (`operationId`) in the specification gets translated by Connexion to a Python method that will be called when the path is requested. Connexion calls the function with the JSON parsed request body.
-
-```{.python file=openapi/api.py}
-# this Python snippet is stored as openapi/.py
-def calculate(body):
-  epsilon = body['epsilon']
-  guess = body['guess']
-  from newtonraphsonpy import NewtonRaphson
-  finder = NewtonRaphson(epsilon)
-  root = finder.solve(guess)
-  return {'root': root}
-```
-
-To provide the `calculate` method as a web service we must install Connexion Python library (with the Swagger UI for later testing)
-
-```{.awk #pip-connexion}
-pip install connexion[swagger-ui]
-```
-
-To run the web service we have to to tell Connexion which specification it should expose.
-
-```{.python file=openapi/webservice.py}
-# this Python snippet is stored as openapi/webservice.py
-import connexion
-
-app = connexion.App(__name__)
-app.add_api('openapi.yaml', validate_responses=True)
-app.run(port=8080)
-```
-
-The web service can be started with
-
-```{.awk #run-webservice}
-python openapi/webservice.py
-```
-
-We can try out the web service using the Swagger UI at [http://localhost:8080/ui/](http://localhost:8080/ui/).
-Or by running a ``curl`` command like
-
-```{.awk #test-webservice}
-curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
-```
-
 ## JavaScript web service
 
 ![wasm](images/wasm.svg.png "WebAssembly")
@@ -950,44 +893,7 @@ const handler = async ({body}) => {
 
 Fastify can use JSON-schema to validate the incoming request and and outgoing response.
 
-TODO move `request-schema` and `response-schema` to first use in Python web service.
-
-```{.json #request-schema}
-{
-   "type": "object",
-   "properties": {
-      "epsilon": {
-         "type": "number",
-         "minimum": 0
-      },
-      "guess": {
-         "type": "number"
-      }
-   },
-   "required": [
-      "epsilon",
-      "guess"
-   ],
-   "additionalProperties": false
-}
-```
-
-```{.json #response-schema}
-{
-  "type": "object",
-  "properties": {
-      "root": {
-        "type": "number"
-      }
-  },
-  "required": [
-      "root"
-  ],
-  "additionalProperties": false
-}
-```
-
-Define a Fastify route for a POST request to '/api/newtonraphson' url which calls the `handler` function. The request body must be validated against `<<request-schema>>` and the OK (code=200) response must be validated against `<<response-schema>>`.
+Define a Fastify route for a POST request to '/api/newtonraphson' url which calls the `handler` function. The request body must be validated against `<<request-schema>>` and the OK (code=200) response must be validated against `<<response-schema>>` as defined in the [OpenAPI chapter](#openapi-web-service-using-connexion). By defining schemas we implicitly tell the web service it should accept and return `application/json` as content type.
 
 ```{.js file=webassembly/webservice.js}
 // this JavaScript snippet is appended to webassembly/webservice.js
@@ -1531,31 +1437,14 @@ The JSON schema can be used to generate a form. The form values will be validate
 JSON schema form for React is [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema-form) so we will
 write a web application with it.
 
-In the [Web service](#web-service) an OpenAPI specification was used to specify the request and response schema. For the
-form we need the request schema in JSON format which is
+In the [OpenAPI chapter](#openapi-web-service-using-connexion) a request and response schema was defined. For the
+form we need the request schema is
 
 ```{.js #jsonschema-app}
 // this JavaScript snippet is later referred to as <<jsonschema-app>>
-const schema = {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://nlesc-jcer.github.io/cpp2wasm/NNRequest.json",
-  "type": "object",
-  "properties": {
-    "epsilon": {
-      "title": "Epsilon",
-      "type": "number",
-      "minimum": 0
-    },
-    "guess": {
-      "title": "Initial guess",
-      "type": "integer",
-      "minimum": -100,
-      "maximum": 100
-    }
-  },
-  "required": ["epsilon", "guess"],
-  "additionalProperties": false
-}
+const schema =
+  <<request-schema>>
+;
 ```
 
 To render the application we need a HTML page. We will reuse the imports we did in the previous chapter.
@@ -1597,6 +1486,14 @@ with the class names must be imported from the Bootstrap CSS file.
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 ```
 
+The schema defines a description which we want to replace in the form. This can be done by defining a uiSchema
+
+```{.js #jsonschema-app}
+const uiSchema = {
+  "ui:description": "Find root using Newton-Raphson algorithm"
+}
+```
+
 The values in the form must be initialized and updated whenever the form changes.
 
 ```{.js #jsonschema-app}
@@ -1617,6 +1514,7 @@ The form can be rendered with
 { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
 <Form
   schema={schema}
+  uiSchema={uiSchema}
   formData={formData}
   onChange={handleChange}
   onSubmit={handleSubmit}
@@ -1713,18 +1611,28 @@ const schema = {
       "type": "object",
       "properties": {
         "min": {
+          "title": "Minimum",
           "type": "number",
           "minimum": 0,
           "default": 0.0001
         },
         "max": {
+          "title": "Maximum",
           "type": "number",
           "minimum": 0,
           "default": 0.001
         },
         "step": {
+          "title": "Step",
           "type": "number",
-          "minimum": 0,
+          "enum": [
+            0.1,
+            0.01,
+            0.001,
+            0.0001,
+            0.00001,
+            0.000001
+          ],
           "default": 0.0001
         }
       },
@@ -1734,14 +1642,27 @@ const schema = {
     "guess": {
       "title": "Initial guess",
       "type": "number",
-      "minimum": -100,
-      "maximum": 100,
       "default": -20
     }
   },
   "required": ["epsilon", "guess"],
   "additionalProperties": false
-}
+};
+```
+
+Let's render the epsilon step field as a radio group
+
+```{.js #plot-app}
+const uiSchema = {
+  "epsilon": {
+    "step": {
+      "ui:widget": "radio",
+      "ui:options": {
+        "inline": true
+      }
+    }
+  }
+};
 ```
 
 We need to rewrite the worker to perform a parameter sweep.
@@ -2022,46 +1943,14 @@ format like a table, chart/plot and download.
 
 The C++ code has the following characteristics:
 
-- A C++ algorithm which can be called as function in a C++ library or command line executable
-- The input and output files of the command line executables adhere to a JSON schema
-- Uses Makefile as build tool
-- Copies of C++ dependencies are in the git repository
+---
 
 ---
 
-A web application is meant for consumption by humans and web service is meant for consumption by machines or other
-programs. So instead of returning HTML pages a web service will accept and return machine readable documents like JSON
-documents. A web service is an application programming interface (API) based on web technologies.
-
-
----
-
-## Web framework
-
-A web framework is an abstraction layer for making web applications. It takes care of mapping a request on a certain url
-to a user defined function. And mapping the return of a user defined function to a response like an HTML page or an
-error message.
-
-## Python
-
-Writing a web application in C++ can be done, but other languages like Python are better equipped. Python has a big
-community making web applications, which resulted in a big ecosystem of web frameworks, template engines, tutorials.
-
-Python packages can be installed using `pip` from the [Python Package Index](https://pypi.org/). It is customary to work
-with [virtual environments](https://packaging.python.org/tutorials/installing-packages/#creating-virtual-environments)
-to isolate the dependencies for a certain application and not pollute the global OS paths.
 
 ### Web application
 
-Now that the C++ functions can be called from Python it is time to call the function from a web page. To assist in
-making a web application a web framework needs to be picked. The [Flask](https://flask.palletsprojects.com/) web
-framework was chosen as it minimalistic and has a large active community.
-
+Now that the C++ functions can be called from Python it is time to call the function from a web page.
 
 ---
-
-JavaScript is the de facto programming language for web browsers. The JavaScript engine in the Chrome browser called V8
-has been wrapped in a runtime engine called Node.js which can execute JavaScript code outside the browser.
-
-
 -->
