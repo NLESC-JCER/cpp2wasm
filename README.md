@@ -1237,6 +1237,7 @@ Or goto [Swagger UI](http://localhost:3002/documentation/index.html) to try it o
 
 In this chapter we created a web service which
 
+1. was written in JavaScript and executed with Node.js
 1. uses Emscripten to compile the C++ algorithm to WebAssembly module
 1. uses Fastify web framework to define routes
 1. validates requests and responses with a JSON schemas
