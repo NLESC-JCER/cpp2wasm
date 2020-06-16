@@ -141,7 +141,8 @@ test-js-webservice:
 
 test-js-webservice-invalid:
 	wget --content-on-error --quiet --output-document=- \
-	  --header='Content-Type: application/json' \
+	  --header="accept: application/json" \
+	  --header="Content-Type: application/json" \
 	  --post-data '{"epilon":0.001,"guess":-20}' \
 	  http://localhost:3000/api/newtonraphson
 

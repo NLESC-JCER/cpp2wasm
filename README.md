@@ -979,7 +979,8 @@ To test the validation, call the web service with a typo in the epsilon field na
 
 ```{.shell #test-js-webservice-invalid}
 wget --content-on-error --quiet --output-document=- \
-  --header='Content-Type: application/json' \
+  --header="accept: application/json" \
+  --header="Content-Type: application/json" \
   --post-data '{"epilon":0.001,"guess":-20}' \
   http://localhost:3000/api/newtonraphson
 ```
@@ -1283,7 +1284,7 @@ The `module` variable contains the `NewtonRaphson` class we defined in the bindi
 The root finder can be called with
 
 ```{.js #wasm-calculate}
-// this JavaScript snippet is later referred to as <<wasm-calculate>>
+// this JavaScript snippet is before referred to as <<wasm-calculate>>
 const epsilon = 0.001;
 const finder = new module.NewtonRaphson(epsilon);
 const guess = -20;
