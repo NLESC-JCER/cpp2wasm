@@ -8,8 +8,6 @@ const pool = new StaticPool({
 // this JavaScript snippet is appended to webassembly/webservice-threaded.js
 // this JavaScript snippet is later referred to as <<fastify-openapi-plugin>>
 // this JavaScript snippet is later referred to as <<import-wasm-fastify>>
-// this JavaScript snippet is later referred to as <<import-wasm>>
-const createModule = require('./newtonraphsonwasm.js')
 const fastify = require('fastify')()
 // this JavaScript snippet is appended to <<fastify-openapi-plugin>>
 const oas = require('fastify-oas')

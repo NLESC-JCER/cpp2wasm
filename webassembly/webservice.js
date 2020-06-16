@@ -1,9 +1,9 @@
 // this JavaScript snippet stored as webassembly/webservice.js
 // this JavaScript snippet is later referred to as <<import-wasm-fastify>>
+const fastify = require('fastify')()
 // this JavaScript snippet is later referred to as <<import-wasm>>
 const createModule = require('./newtonraphsonwasm.js')
-const fastify = require('fastify')()
-
+// this JavaScript snippet appended to webassembly/webservice.js
 // this JavaScript snippet is later referred to as <<fastify-handler>>
 const handler = async ({body}) => {
   const { epsilon, guess } = body

@@ -882,12 +882,19 @@ First we need to install Fastify with the Node.js package manager called [npm](h
 npm install --no-save fastify
 ```
 
-Next we will import the WebAssembly module and Fastify.
+The Fastify web framework can be imported with require.
 
-```{.js #import-wasm-fastify}
+```{.js #import-fastify}
 // this JavaScript snippet is later referred to as <<import-wasm-fastify>>
-<<import-wasm>>
 const fastify = require('fastify')()
+```
+
+Let's start the web service file by importing Fastify and the WebAssembly module with
+
+```{.js file=webassembly/webservice.js}
+// this JavaScript snippet stored as webassembly/webservice.js
+<<import-fastify>>
+<<import-wasm>>
 ```
 
 A handler function can be defined which will process a request `body` JSON object containing the `epsilon` and `guess` and returns the found root. We will later configure Fastify to call this method when visiting an url.
@@ -906,9 +913,7 @@ Fastify can use JSON-schema to validate the incoming request and and outgoing re
 Define a Fastify route for a POST request to `/api/newtonraphson` url which calls the `handler` function. The request body must be validated against `<<request-schema>>` and the OK (code=200) response must be validated against `<<response-schema>>` as defined in the [OpenAPI chapter](#openapi-web-service-using-connexion). By defining schemas we implicitly tell the web service it should accept and return `application/json` as content type.
 
 ```{.js file=webassembly/webservice.js}
-// this JavaScript snippet stored as webassembly/webservice.js
-<<import-wasm-fastify>>
-
+// this JavaScript snippet appended to webassembly/webservice.js
 <<fastify-handler>>
 
 fastify.route({
@@ -1005,11 +1010,11 @@ Install the plugin with
 npm install --no-save fastify-oas
 ```
 
-Same as before we need to import the WebAssembly module and Fastify
+Same as before we need to import Fastify
 
 ```{.js #fastify-openapi-plugin}
 // this JavaScript snippet is later referred to as <<fastify-openapi-plugin>>
-<<import-wasm-fastify>>
+<<import-fastify>>
 ```
 
 We need to import the plugin
@@ -1082,10 +1087,12 @@ fastify.route({
 })
 ```
 
-Let's add the plugin, the handler and route to `webassembly/openapi.js` file with
+Let's load the WebAssembly module, add the plugin, add the handler and add the route to `webassembly/openapi.js` file with
 
 ```{.js file=webassembly/openapi.js}
 // this JavaScript snippet is stored as webassembly/openapi.js
+<<import-wasm>>
+
 <<fastify-openapi-plugin>>
 
 <<fastify-handler>>

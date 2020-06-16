@@ -1,8 +1,9 @@
 // this JavaScript snippet is stored as webassembly/openapi.js
-// this JavaScript snippet is later referred to as <<fastify-openapi-plugin>>
-// this JavaScript snippet is later referred to as <<import-wasm-fastify>>
 // this JavaScript snippet is later referred to as <<import-wasm>>
 const createModule = require('./newtonraphsonwasm.js')
+
+// this JavaScript snippet is later referred to as <<fastify-openapi-plugin>>
+// this JavaScript snippet is later referred to as <<import-wasm-fastify>>
 const fastify = require('fastify')()
 // this JavaScript snippet is appended to <<fastify-openapi-plugin>>
 const oas = require('fastify-oas')
