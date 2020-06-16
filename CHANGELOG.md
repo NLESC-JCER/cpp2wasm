@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+* JavaScript web service chapter ([#83](https://github.com/NLESC-JCER/cpp2wasm/issues/83))
+
 ## [0.4.0] -  2020-06-10
 
 ### Changed
