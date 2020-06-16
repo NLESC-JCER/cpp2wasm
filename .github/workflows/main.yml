@@ -224,6 +224,9 @@ jobs:
       - name: Test web service
         run: make test-js-webservice
 
+      - name: Test web service with invalid request
+        run: make test-js-webservice-invalid || test $? -eq 2
+
       - name: Start OpenAPI web service in background
         run: make run-js-openapi 2>&1 | tee ./run-openapi-web-service.log &
 

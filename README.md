@@ -258,8 +258,8 @@ Start Apache httpd web server using
 And in another shell call CGI script using curl
 
 ```shell
-curl --header "Content-Type: application/json" \
-  --request POST \
+curl --request POST \
+  --header "Content-Type: application/json" \
   --data '{"guess":-20, "epsilon":0.001}' \
   http://localhost:8080/cgi-bin/newtonraphson
 ```
@@ -529,7 +529,11 @@ We can try out the web service using the Swagger UI at [http://localhost:8080/ui
 running a ``curl`` command like
 
 ```{.awk #test-webservice}
-curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
+curl --request POST \
+  --header "accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data '{"epsilon":0.001,"guess":-20}' \
+  http://localhost:8080/api/newtonraphson
 ```
 
 ## Python web application using Flask
@@ -956,21 +960,28 @@ node webassembly/webservice.js
 In another terminal test web service with
 
 ```{.shell #test-js-webservice}
-curl -X POST "http://localhost:3000/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
+curl --request POST \
+  --header "accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data '{"epsilon":0.001,"guess":-20}' \
+  http://localhost:3000/api/newtonraphson
 ```
 
-Should return something like 
+Should return something like
 
 ```json
 {
-  "root": -1.00...
+  "root": -1.0000001181322415
 }
 ```
 
-To test the validation call the web service with a typo in the epsilon field name
+To test the validation, call the web service with a typo in the epsilon field name
 
 ```{.shell #test-js-webservice-invalid}
-curl -X POST "http://localhost:3000/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epilon\":0.001,\"guess\":-20}"
+wget --content-on-error --quiet --output-document=- \
+  --header='Content-Type: application/json' \
+  --post-data '{"epilon":0.001,"guess":-20}' \
+  http://localhost:3000/api/newtonraphson
 ```
 
 Should return an error like
@@ -1101,7 +1112,11 @@ Try the web service out by visiting the [Swagger UI](http://localhost:3001/docum
 Or try it out in another terminal with curl using
 
 ```{.shell #test-js-openapi}
-curl -X POST "http://localhost:3001/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
+curl --request POST \
+  --header "Content-Type: application/json" \
+  --header "accept: application/json" \
+  --data '{"guess":-20, "epsilon":0.001}' \
+  http://localhost:3001/api/newtonraphson
 ```
 
 ### Long running task with worker threads
@@ -1203,7 +1218,11 @@ node webassembly/webservice-threaded.js
 Test with
 
 ```{.shell #test-js-threaded}
-curl -X POST "http://localhost:3002/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
+curl --request POST \
+  --header "Content-Type: application/json" \
+  --header "accept: application/json" \
+  --data '{"guess":-20, "epsilon":0.001}' \
+  http://localhost:3002/api/newtonraphson
 ```
 
 Or goto [Swagger UI](http://localhost:3002/documentation/index.html) to try it out. Do not forget to switch to the `http://localhost:3002` server in the servers pull down.

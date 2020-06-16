@@ -17,7 +17,7 @@ All the commands in the [README.md](README.md) and [CONTRIBUTING.md](CONTRIBUTIN
 
 ```{.makefile file=Makefile}
 # this Makefile snippet is stored as Makefile
-.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check test-wasm-cli npm-fopenapi-deps npm-fastify npm-openapi run-js-webservice test-js-webservice test-js-openapi run-js-openapi test-js-openapi npm-threaded run-js-threaded test-js-threaded
+.PHONY: clean clean-compiled clean-entangled test all entangle entangle-list py-deps test-cgi test-cli test-py start-redis stop-redis run-webservice test-webservice run-celery-worker run-celery-webapp run-webapp build-wasm host-webassembly-files host-react-files test-webassembly test-react init-git-hook check test-wasm-cli npm-fopenapi-deps npm-fastify npm-openapi run-js-webservice test-js-webservice test-js-webservice-invalid test-js-openapi run-js-openapi test-js-openapi npm-threaded run-js-threaded test-js-threaded
 
 UID := $(shell id -u)
 # Prevent suicide by excluding Makefile
@@ -145,6 +145,9 @@ run-js-webservice: build-wasm
 
 test-js-webservice:
 	<<test-js-webservice>>
+
+test-js-webservice-invalid:
+	<<test-js-webservice-invalid>>
 
 run-js-openapi: build-wasm
 	<<run-js-openapi>>
