@@ -769,6 +769,7 @@ docker stop some-redis
 | Pros | Cons |
 | --- | --- |
 | :heart: JavaScript is popular language | :no_entry: Node.js uses legacy syntax |
+| :heart: Same language on server as in web browser | :no_entry: Requires server infrastructure for calculations |
 
 [JavaScript](https://developer.mozilla.org/en-US/docs/Web/javascript) is the de facto programming language for web browsers. The JavaScript engine in the Chrome browser called V8 has been wrapped in a runtime engine called [Node.js](http://nodejs.org/) which can execute JavaScript code outside the browser.
 
@@ -778,13 +779,13 @@ For a long time web browsers could only execute non-JavaScript code using plugin
 that could transpile non-JavaScript code to JavaScript, but the performance was less than running native code. To run code
 as fast as native code, the [WebAssembly](https://webassembly.org/) language was developed. WebAssembly is a low-level,
 [Assembly](https://en.wikipedia.org/wiki/Assembly_language)-like language with a compact binary format. The binary
-format is stored as a WebAssembly module or `*.wasm` file, which can be loaded by all modern web browsers.
+format is stored as a WebAssembly module or `*.wasm` file, which can be loaded by all modern web browsers and by Node.js on the server.
 
 Instead of writing code in the WebAssembly language, there are compilers that can take C++/C code and compile it to
-wasm. [Emscripten](https://emscripten.org) is the most popular C++ to wasm compiler. Emscripten has been successfully
+a WebAssembly module. [Emscripten](https://emscripten.org) is the most popular C++ to WebAssembly compiler. Emscripten has been successfully
 used to port game engines like the Unreal engine to the browser making it possible to have complex 3D games in the
 browser without needing to install anything else than the web browser. To call C++ code (which has been compiled to
-wasm) from JavaScript, a binding is required. The binding will map C++ constructs to their JavaScript equivalent and
+a WebAssembly module) from JavaScript, a binding is required. The binding will map C++ constructs to their JavaScript equivalent and
 back. The binding called [embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#embind)
 is declared in a C++ file which is included in the compilation.
 
@@ -806,28 +807,32 @@ EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
 }
 ```
 
-The algorithm and binding can be compiled into a WebAssembly module with the Emscripten compiler called `emcc`. To make
-live easier we configure the compile command to generate a `webassembly/newtonraphsonwasm.js` file which exports the
-`createModule` function. The `createModule` function loads and initializes the generated WebAssembly module called `webassembly/newtonraphsonwasm.wasm` for us.
+The algorithm and binding can be compiled into a WebAssembly module with the Emscripten compiler called `emcc`. The C++ headers are located in the `cli/` directory so add it to the include path.
+To make live easier we configure the compile command to generate a `webassembly/newtonraphsonwasm.js` file which exports the `createModule` function.
+The `createModule` function loads and initializes the generated WebAssembly module called `webassembly/newtonraphsonwasm.wasm` for us. The last argument of the compiler is the C++ file with the emscripten bindings.
 
 ```{.awk #build-wasm}
-emcc -Icli/ --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
+emcc -Icli/ -o webassembly/newtonraphsonwasm.js \
+  -s MODULARIZE=1 -s EXPORT_NAME=createModule \
+  --bind webassembly/wasm-newtonraphson.cpp
 ```
+
+To use the WebAssembly module in Node.js we need to import it with
 
 ```{.js #import-wasm}
 // this JavaScript snippet is later referred to as <<import-wasm>>
 const createModule = require('./newtonraphsonwasm.js')
 ```
 
-The `createModule` function returns a Promise. We use [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) to keep the flow flat instead a nested promise chain for easier reading. The module returned by the await call contains the NewtonRaphson class we defined in the emscripten bindings.
+The `createModule` function returns a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). We use [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) to keep the flow flat instead a nested promise chain for easier reading. The module returned by the await call contains the NewtonRaphson class we defined in the emscripten bindings.
 
 ```{.js #find-root-js}
 // this JavaScript snippet is later referred to as <<find-root-js>>
 const { NewtonRaphson } = await createModule()
 ```
 
-We create an object from NewtonRaphson class and find the root.
-We will define the `epsilon` and `guess` variables later when we call the code from the command line or from a web service.
+We create an object from the NewtonRaphson class and find the root.
+We will define the `epsilon` and `guess` variables later when we call the code from the command line or from a web service or from a web application.
 
 ```{.js #find-root-js}
 // this JavaScript snippet is appended to <<find-root-js>>
@@ -835,8 +840,8 @@ const finder = new NewtonRaphson(epsilon)
 const root = finder.solve(guess)
 ```
 
-Let's get `epsilon` and `guess` from the [command line arguments](https://nodejs.org/dist/latest-v12.x/docs/api/process.html#process_process_argv), find the root and [print](https://nodejs.org/dist/latest-v12.x/docs/api/console.html) the result.
-We need to wrap in a async function as Node.js (version 12) does not like a bare `await`.
+Let's write a command line script to test the WebAssembly module. We get the `epsilon` and `guess` from the [command line arguments](https://nodejs.org/dist/latest-v12.x/docs/api/process.html#process_process_argv), find the root with the WebAssembly module and [print](https://nodejs.org/dist/latest-v12.x/docs/api/console.html) the result.
+We need to wrap in a async function as Node.js (version 12) does support a top level `await`.
 
 ```{.js file=webassembly/cli.js}
 // this JavaScript snippet stored as webassembly/cli.js
@@ -858,6 +863,8 @@ node webassembly/cli.js 0.01 -20
 ```
 
 Should output `Given epsilon of 0.01 and inital guess of -20 the found root is -1.00`.
+
+In this chapter we executed the Newton-Raphson algorithm on the command line in JavaScript with Node.js by compiling the C++ code to a WebAssembly module with emscripten.
 
 ### Web service using Fastify
 

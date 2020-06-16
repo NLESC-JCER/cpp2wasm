@@ -92,7 +92,9 @@ run-celery-webapp: flask/newtonraphsonpy.*.so
 build-wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm
 
 webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm:
-	emcc -Icli/ --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
+	emcc -Icli/ -o webassembly/newtonraphsonwasm.js \
+	  -s MODULARIZE=1 -s EXPORT_NAME=createModule \
+	  --bind webassembly/wasm-newtonraphson.cpp
 
 react/newtonraphsonwasm.wasm: webassembly/newtonraphsonwasm.wasm
 	cd react && ln -s ../webassembly/newtonraphsonwasm.wasm . && cd -
