@@ -773,7 +773,7 @@ docker stop some-redis
 
 [JavaScript](https://developer.mozilla.org/en-US/docs/Web/javascript) is the de facto programming language for web browsers. The JavaScript engine in the Chrome browser called V8 has been wrapped in a runtime engine called [Node.js](http://nodejs.org/) which can execute JavaScript code outside the browser.
 
-### Accessing C++ function with Emscripten
+### Accessing C++ functions with Emscripten
 
 For a long time web browsers could only execute non-JavaScript code using plugins like Flash. Later, tools where made
 that could transpile non-JavaScript code to JavaScript, but the performance was less than running native code. To run code
@@ -828,15 +828,15 @@ The `createModule` function returns a [Promise](https://developer.mozilla.org/en
 
 ```{.js #find-root-js}
 // this JavaScript snippet is later referred to as <<find-root-js>>
-const { NewtonRaphson } = await createModule()
+const module = await createModule()
 ```
 
-We create an object from the NewtonRaphson class and find the root.
+We create an object from the module.NewtonRaphson class and find the root.
 We will define the `epsilon` and `guess` variables later when we call the code from the command line or from a web service or from a web application.
 
 ```{.js #find-root-js}
 // this JavaScript snippet is appended to <<find-root-js>>
-const finder = new NewtonRaphson(epsilon)
+const finder = new module.NewtonRaphson(epsilon)
 const root = finder.solve(guess)
 ```
 
@@ -851,7 +851,8 @@ const main = async () => {
   const epsilon = parseFloat(process.argv[2])
   const guess = parseFloat(process.argv[3])
   <<find-root-js>>
-  console.log(`Given epsilon of ${epsilon} and inital guess of ${guess} the found root is ${root.toPrecision(3)}`)
+  const msg = 'Given epsilon of %d and inital guess of %d the found root is %s'
+  console.log(msg, epsilon, guess, root.toPrecision(3))
 }
 main()
 ```
@@ -868,9 +869,10 @@ In this chapter we executed the Newton-Raphson algorithm on the command line in 
 
 ### Web service using Fastify
 
+Now that we can execute the C++ code from JavaScript we are ready to wrap it up in a web service.
 Node.js ships with a [low level http server](https://nodejs.org/en/knowledge/HTTP/servers/how-to-create-a-HTTP-server/) that can be used to write a web service, but we are going to use the [Fastify web framework](https://www.fastify.io/) as it supports multiple routes, async/await and JSON schemas.
 
-First we need to install Fastify with the Node.js package manager ([npm](https://docs.npmjs.com/about-npm/)). We will use `--no-save` option to skip saving the dependency in [package.json](https://docs.npmjs.com/files/package.json) as we are not publishing a package.
+First we need to install Fastify with the Node.js package manager called [npm](https://docs.npmjs.com/about-npm/). We will use `--no-save` option to skip saving the dependency in [package.json](https://docs.npmjs.com/files/package.json) as we are not publishing a package.
 
 ```{.shell #npm-fastify}
 npm install --no-save fastify
@@ -878,13 +880,13 @@ npm install --no-save fastify
 
 Next we will import the WebAssembly module and Fastify.
 
-```{.js file=webassembly/webservice.js}
-// this JavaScript snippet stored as webassembly/webservice.js
+```{.js #import-wasm-fastify}
+// this JavaScript snippet is later referred to as <<import-wasm-fastify>>
 <<import-wasm>>
 const fastify = require('fastify')()
 ```
 
-A handler can be defined which will process a request body JSON object containing the `epsilon` and `guess` and returns the found root. We will later configure fastify to call this method when visiting an url.
+A handler function can be defined which will process a request `body` JSON object containing the `epsilon` and `guess` and returns the found root. We will later configure Fastify to call this method when visiting an url.
 
 ```{.js #fastify-handler}
 // this JavaScript snippet is later referred to as <<fastify-handler>>
@@ -897,44 +899,52 @@ const handler = async ({body}) => {
 
 Fastify can use JSON-schema to validate the incoming request and and outgoing response.
 
-Define a Fastify route for a POST request to '/api/newtonraphson' url which calls the `handler` function. The request body must be validated against `<<request-schema>>` and the OK (code=200) response must be validated against `<<response-schema>>` as defined in the [OpenAPI chapter](#openapi-web-service-using-connexion). By defining schemas we implicitly tell the web service it should accept and return `application/json` as content type.
+Define a Fastify route for a POST request to `/api/newtonraphson` url which calls the `handler` function. The request body must be validated against `<<request-schema>>` and the OK (code=200) response must be validated against `<<response-schema>>` as defined in the [OpenAPI chapter](#openapi-web-service-using-connexion). By defining schemas we implicitly tell the web service it should accept and return `application/json` as content type.
 
 ```{.js file=webassembly/webservice.js}
+// this JavaScript snippet stored as webassembly/webservice.js
+<<import-wasm-fastify>>
+
 <<fastify-handler>>
 
-// this JavaScript snippet is appended to webassembly/webservice.js
 fastify.route({
   url: '/api/newtonraphson',
   method: 'POST',
   schema: {
     body:
-        <<request-schema>>
-      ,
-      response: {
-        200:
-          <<response-schema>>
-      }
+      <<request-schema>>
+    ,
+    response: {
+      200:
+        <<response-schema>>
+    }
   },
   handler
 })
 ```
 
-Listen on `http://127.0.0.1:3000` and die when an error is thrown.
+Now that the route have been defined we can tell Fastify to listen on `http://127.0.0.1:<port>` for requests and die when an error is thrown.
 
-```{.js file=webassembly/webservice.js}
-// this JavaScript snippet is appended to webassembly/webservice.js
-const main = async () => {
+```{.js #fastify-listen}
+// this JavaScript snippet is later referred to as <<fastify-listen>>
+const main = async (port) => {
   try {
     const host = '127.0.0.1'
-    const port = 3000
-    console.log(`Server listening on http://${host}:${port} (Press CTRL+C to quit)`)
+    console.log('Server listening on http://%s:%d (Press CTRL+C to quit)', host, port)
     await fastify.listen(port, host)
   } catch (err) {
     console.log(err)
     process.exit(1)
   }
 }
-main()
+```
+
+Let's listen on `http://127.0.0.1:3000`
+
+```{.js file=webassembly/webservice.js}
+// this JavaScript snippet is appended to webassembly/webservice.js
+<<fastify-listen>>
+main(3000)
 ```
 
 Run the web service with
@@ -945,15 +955,37 @@ node webassembly/webservice.js
 
 In another terminal test web service with
 
-```{.awk #test-js-webservice}
+```{.shell #test-js-webservice}
 curl -X POST "http://localhost:3000/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 ```
 
-Should return something like `{"root":-1.00...}`.
+Should return something like 
+
+```json
+{
+  "root": -1.00...
+}
+```
+
+To test the validation call the web service with a typo in the epsilon field name
+
+```{.shell #test-js-webservice-invalid}
+curl -X POST "http://localhost:3000/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epilon\":0.001,\"guess\":-20}"
+```
+
+Should return an error like
+
+```json
+{
+  "statusCode": 400,
+  "error": "Bad Request",
+  "message": "body should have required property 'epsilon'"
+}
+```
 
 ### OpenAPI web service using fastify-oas
 
-The web service can't tell us which urls it has. We can use a OpenAPI specification for that. As the Fastify route already uses JSON schema for the request and response body we can not use the contract first approach, but we can generate the OpenAPI specification with the [fastify-oas](https://gitlab.com/m03geek/fastify-oas) plugin.
+The web service we made in the previous chapter can not tell us which urls or routes it has. We can use a OpenAPI specification for that. As Fastify routes already use JSON schemas for the request body and response body we can generate the OpenAPI specification with the [fastify-oas](https://gitlab.com/m03geek/fastify-oas) plugin.
 
 Install the plugin with
 
@@ -965,8 +997,7 @@ Same as before we need to import the WebAssembly module and Fastify
 
 ```{.js #fastify-openapi-plugin}
 // this JavaScript snippet is later referred to as <<fastify-openapi-plugin>>
-<<import-wasm>>
-const fastify = require('fastify')()
+<<import-wasm-fastify>>
 ```
 
 We need to import the plugin
@@ -976,12 +1007,13 @@ We need to import the plugin
 const oas = require('fastify-oas')
 ```
 
-Next we need to register the plugin (oas) and configure the OpenAPI info fields.
-Setting `exposeRoute` to true will make the plugin add the following routes:
+Next we need to register the plugin (oas) and configure it.
+Configure the plugin by setting the OpenAPI info fields and set all paths to consume/produce the `application/json` content type and set the urls of the web service.
+Lastly setting `exposeRoute` to true will make the plugin add the following routes:
 
 * [/documentation/json](http://localhost:3001/documentation/json) for OpenAPI specification in JSON format
 * [/documentation/yaml](http://localhost:3001/documentation/yaml) for OpenAPI specification in YAML format
-* [/documentation/index.html](http://localhost:3001/documentation/index.html) for Swagger UI
+* [/documentation/index.html](http://localhost:3001/documentation/index.html) for [Swagger UI](https://swagger.io/tools/swagger-ui/)
 * [/documentation/docs.html](http://localhost:3001/documentation/docs.html) for [ReDoc UI](https://github.com/Redocly/redoc)
 
 ```{.js #fastify-openapi-plugin}
@@ -989,7 +1021,7 @@ Setting `exposeRoute` to true will make the plugin add the following routes:
 fastify.register(oas, {
   swagger: {
     info: {
-      title: 'OpenAPI webservice for root finding with Newton-Raphson',
+      title: 'Root finder',
       license: {
         name: 'Apache-2.0',
         url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
@@ -1000,33 +1032,27 @@ fastify.register(oas, {
     produces: ['application/json'],
     servers: [{
       url: 'http://localhost:3001'
+    }, {
+      url: 'http://localhost:3002'
     }]
   },
   exposeRoute: true
 })
 ```
 
-Let's add the plugin to `webassembly/openapi.js` file with
-
-```{.js file=webassembly/openapi.js}
-// this JavaScript snippet is appended to webassembly/openapi.js
-
-<<fastify-openapi-plugin>>
-```
-
 In the route we would like to define example values. The JSON schema we defined for the request body in the [OpeAPI chapter](#openapi-web-service-using-connexion) does not allow an example field, but the OpenAPI specifaction does. So we inject the example here.
 
 ```{.js #fastify-openapi-route}
 // this JavaScript snippet is later referred to as <<fastify-openapi-route>>
-const requestBodySchema =
+const requestSchemaWithExample =
   <<request-schema>>
-requestBodySchema.example = {
+requestSchemaWithExample.example = {
   epsilon: 0.001,
   guess: -20
 }
 ```
 
-We need to define a route with the same handler as before and the schemas.
+We need to define a route using the same handler as before and the schemas with example request body.
 
 ```{.js #fastify-openapi-route}
 // this JavaScript snippet is appended to <<fastify-openapi-route>>
@@ -1034,7 +1060,7 @@ fastify.route({
   url: '/api/newtonraphson',
   method: 'POST',
   schema: {
-    body: requestBodySchema,
+    body: requestSchemaWithExample,
     response: {
       200:
         <<response-schema>>
@@ -1044,35 +1070,23 @@ fastify.route({
 })
 ```
 
-Let's add the handler and route to `webassembly/openapi.js` file with
+Let's add the plugin, the handler and route to `webassembly/openapi.js` file with
 
 ```{.js file=webassembly/openapi.js}
-// this JavaScript snippet is appended to webassembly/openapi.js
+// this JavaScript snippet is stored as webassembly/openapi.js
+<<fastify-openapi-plugin>>
 
 <<fastify-handler>>
 
 <<fastify-openapi-route>>
 ```
 
-When the plugins have been loaded we have to initialize OpenAPI plugin with `fastify.oas()`, this will setup the plugin routes.
-Next we listen on [http://127.0.0.1:3001](http://127.0.0.1:3001) and die when an error is thrown.
+Next we listen on [http://127.0.0.1:3001](http://127.0.0.1:3001).
 
 ```{.js file=webassembly/openapi.js}
 // this JavaScript snippet is appended to webassembly/openapi.js
-const main = async () => {
-  try {
-    await fastify.ready()
-    fastify.oas()
-    const host = '127.0.0.1'
-    const port = 3001
-    console.log(`Server listening on http://${host}:${port} (Press CTRL+C to quit)`)
-    await fastify.listen(port, host)
-  } catch (err) {
-    console.log(err)
-    process.exit(1)
-  }
-}
-main()
+<<fastify-listen>>
+main(3001)
 ```
 
 Run the web service with
@@ -1092,9 +1106,11 @@ curl -X POST "http://localhost:3001/api/newtonraphson" -H "accept: application/j
 
 ### Long running task with worker threads
 
-The web service we made in the prevous chapter will block any other requests while the algorithm solving is running. This is due to the inner workings of Node.js. Node.js uses a single threaded event loop, so while an event is being handled Node.js is busy. Node.js uses callbacks and promises to handle long IO tasks efficiently. To use the CPU in parallel Node.js has [worker threads](https://nodejs.org/dist/latest-v12.x/docs/api/worker_threads.html). We don't want to start a new thread each time a request is recieved to perform the calculation, we want to use a pool of waiting threads. So each request will be computed by a thread from the pool.
-Node.js gives use the low level primitives to create a thread. A thread pool is explained in the [Node.js documentation](https://nodejs.org/docs/latest-v12.x/api/async_hooks.html#async_hooks_using_asyncresource_for_a_worker_thread_pool), we could implement it here or use an existing package.
-On [npmjs](https://www.npmjs.com/search?q=worker%20thread%20pool) I found the [node-worker-threads-pool](https://www.npmjs.com/package/node-worker-threads-pool) package which is relativly similar to the version in the Node.js documentation, which is active and has a good number of downloads compared to the other search results.
+The web service we made in the prevous chapter will block any other requests while the algorithm solving is running. This is due to the inner workings of Node.js. Node.js uses a single threaded event loop, so while an event is being handled Node.js is busy. Node.js uses callbacks and promises to handle long IO tasks efficiently. 
+
+To use the CPU in parallel Node.js has [worker threads](https://nodejs.org/dist/latest-v12.x/docs/api/worker_threads.html). We don't want to start a new thread each time a request is recieved to perform the calculation, we want to use a pool of waiting threads. So each request will be computed by a thread from the pool.
+Node.js gives use the low level primitives to create a thread. A thread pool implementation is explained in the [Node.js documentation](https://nodejs.org/docs/latest-v12.x/api/async_hooks.html#async_hooks_using_asyncresource_for_a_worker_thread_pool), we could copy it here or use an existing package.
+On [npmjs](https://www.npmjs.com/search?q=worker%20thread%20pool) I found the [node-worker-threads-pool](https://www.npmjs.com/package/node-worker-threads-pool) package which is relativly similar to the version in the Node.js documentation, it is active and has a good number of stars/downloads compared to the other search results.
 
 Let's use [node-worker-threads-pool](https://www.npmjs.com/package/node-worker-threads-pool) for our thread pool.
 
@@ -1104,31 +1120,38 @@ Install the pool package with
 npm install --no-save node-worker-threads-pool
 ```
 
-Let's create a static pool of 4 threads. The pool should run the task defined in `webassembly/task.js`.
+Let's create a static pool of 4 threads which runs the task defined in `./webassembly/task.js` as a worker thread.
 
 ```{.js file=webassembly/webservice-threaded.js}
 // this JavaScript snippet stored as webassembly/webservice-threaded.js
 const { StaticPool } = require('node-worker-threads-pool')
-const path = require('path')
 
-const task = path.resolve(__dirname, 'task.js')
 const pool = new StaticPool({
   size: 4,
-  task
+  task: './webassembly/task.js'
 });
 ```
 
-The task defined in `webassembly/task.js` file needs to load the WebAssembly module with
+The web service handler has to call `pool.exec()` to perform the calculation in the worker thread and wait for the result.
+By using `await` the main event loop of Node.js is free to do other work while the work is being done in the worker thread.
 
-```{.js file=webassembly/task.js}
-// this JavaScript snippet stored as webassembly/task.js
-const createModule = require('./newtonraphsonwasm.js')
+```{.js #fastify-handler-threaded}
+// this JavaScript snippet later referred to as <<fastify-handler-threaded>>
+
+const handler = async ({body}) => {
+  const { epsilon, guess } = body
+  const root = await pool.exec({epsilon, guess})
+  return { root }
+}
 ```
 
-The task must be executed each time it recieves a message called `message` with the epsilon and initual guess as a parameter object from the [parentPort](https://nodejs.org/docs/latest-v12.x/api/worker_threads.html#worker_threads_worker_parentport).
+The `pool.exec({epsilon, guess})` will cause an emit of an event with 'message' as name and `{epsilon, guess}` as argument in the task.
+
+In the task, each time we get a 'message' event on the [parentPort](https://nodejs.org/docs/latest-v12.x/api/worker_threads.html#worker_threads_worker_parentport) we want to perform the calculation.
 
 ```{.js file=webassembly/task.js}
 // this JavaScript snippet appended to webassembly/task.js
+<<import-wasm>>
 const { parentPort } = require('worker_threads')
 
 parentPort.on('message', async ({epsilon, guess}) => {
@@ -1149,25 +1172,12 @@ Now we can find the root.
   const root = finder.solve(guess)
 ```
 
-A send the result back to the parent.
+And send the result back to the web service handler by posting a message to the port of the parent thread.
 
 ```{.js file=webassembly/task.js}
   // this JavaScript snippet appended to webassembly/task.js
   parentPort.postMessage(root)
 })
-```
-
-The web service handler needs to call the pool with `exec()` and wait for the result.
-By using `await` the main event loop is free to do other work while the work is being done in the thread.
-
-```{.js #fastify-handler-threaded}
-// this JavaScript snippet later referred to as <<fastify-handler-threaded>>
-
-const handler = async ({body}) => {
-  const { epsilon, guess } = body
-  const root = await pool.exec({epsilon, guess})
-  return { root }
-}
 ```
 
 Similar to the previous chapter we register the OpenAPI plugin, define a route and listen on [http://127.0.0.1:3002](http://127.0.0.1:3002)
@@ -1180,21 +1190,11 @@ Similar to the previous chapter we register the OpenAPI plugin, define a route a
 
 <<fastify-openapi-route>>
 
-const main = async () => {
-  try {
-    await fastify.ready()
-    fastify.oas()
-    const host = '127.0.0.1'
-    const port = 3002
-    console.log(`Server listening on http://${host}:${port} (Press CTRL+C to quit)`)
-    await fastify.listen(port, host)
-  } catch (err) {
-    console.log(err)
-    process.exit(1)
-  }
-}
-main()
+<<fastify-listen>>
+main(3002)
 ```
+
+Run the web service with
 
 ```{.shell #run-js-threaded}
 node webassembly/webservice-threaded.js
@@ -1206,7 +1206,15 @@ Test with
 curl -X POST "http://localhost:3002/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
 ```
 
-Or goto [Swagger UI](http://localhost:3002/documentation/index.html) to try it out.
+Or goto [Swagger UI](http://localhost:3002/documentation/index.html) to try it out. Do not forget to switch to the `http://localhost:3002` server in the servers pull down.
+
+In this chapter we created a web service which
+
+1. uses Emscripten to compile the C++ algorithm to WebAssembly module
+1. uses Fastify web framework to define routes
+1. validates requests and responses with a JSON schemas
+1. generates an OpenAPI specfication
+1. performs the calculation in a worker thread from a thread pool
 
 ## JavaScript web application
 
@@ -1239,10 +1247,9 @@ the web browser on the end users machine instead of a server**.
 
 ### Using WebAssembly module in web browser
 
-We reuse the WebAssembly module we created in [previous chapter]((#accessing-c-function-from-nodejs-with-emscripten).
+We reuse the WebAssembly module we created in [previous chapter](#accessing-c-functions-with-emscripten).
 
-The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the
-JavaScript promise to resolve.
+The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the JavaScript promise to resolve.
 
 ```{.js #wasm-promise}
 // this JavaScript snippet is later referred to as <<wasm-promise>>

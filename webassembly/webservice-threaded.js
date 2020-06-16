@@ -1,14 +1,13 @@
 // this JavaScript snippet stored as webassembly/webservice-threaded.js
 const { StaticPool } = require('node-worker-threads-pool')
-const path = require('path')
 
-const task = path.resolve(__dirname, 'task.js')
 const pool = new StaticPool({
   size: 4,
-  task
+  task: './webassembly/task.js'
 });
 // this JavaScript snippet is appended to webassembly/webservice-threaded.js
 // this JavaScript snippet is later referred to as <<fastify-openapi-plugin>>
+// this JavaScript snippet is later referred to as <<import-wasm-fastify>>
 // this JavaScript snippet is later referred to as <<import-wasm>>
 const createModule = require('./newtonraphsonwasm.js')
 const fastify = require('fastify')()
@@ -18,7 +17,7 @@ const oas = require('fastify-oas')
 fastify.register(oas, {
   swagger: {
     info: {
-      title: 'OpenAPI webservice for root finding with Newton-Raphson',
+      title: 'Root finder',
       license: {
         name: 'Apache-2.0',
         url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
@@ -29,6 +28,8 @@ fastify.register(oas, {
     produces: ['application/json'],
     servers: [{
       url: 'http://localhost:3001'
+    }, {
+      url: 'http://localhost:3002'
     }]
   },
   exposeRoute: true
@@ -43,7 +44,7 @@ const handler = async ({body}) => {
 }
 
 // this JavaScript snippet is later referred to as <<fastify-openapi-route>>
-const requestBodySchema =
+const requestSchemaWithExample =
   {
     "type": "object",
     "description": "this JSON document is later referred to as <<request-schema>>",
@@ -64,7 +65,7 @@ const requestBodySchema =
     ],
     "additionalProperties": false
   }
-requestBodySchema.example = {
+requestSchemaWithExample.example = {
   epsilon: 0.001,
   guess: -20
 }
@@ -73,7 +74,7 @@ fastify.route({
   url: '/api/newtonraphson',
   method: 'POST',
   schema: {
-    body: requestBodySchema,
+    body: requestSchemaWithExample,
     response: {
       200:
         {
@@ -95,17 +96,15 @@ fastify.route({
   handler
 })
 
-const main = async () => {
+// this JavaScript snippet is later referred to as <<fastify-listen>>
+const main = async (port) => {
   try {
-    await fastify.ready()
-    fastify.oas()
     const host = '127.0.0.1'
-    const port = 3002
-    console.log(`Server listening on http://${host}:${port} (Press CTRL+C to quit)`)
+    console.log('Server listening on http://%s:%d (Press CTRL+C to quit)', host, port)
     await fastify.listen(port, host)
   } catch (err) {
     console.log(err)
     process.exit(1)
   }
 }
-main()
+main(3002)
