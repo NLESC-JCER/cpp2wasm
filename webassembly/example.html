@@ -7,7 +7,7 @@
     <script>
       // this JavaScript snippet is later referred to as <<wasm-promise>>
       createModule().then((module) => {
-        // this JavaScript snippet is later referred to as <<wasm-calculate>>
+        // this JavaScript snippet is before referred to as <<wasm-calculate>>
         const epsilon = 0.001;
         const finder = new module.NewtonRaphson(epsilon);
         const guess = -20;

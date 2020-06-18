@@ -1,28 +1,33 @@
 // this JavaScript snippet stored as react/jsonschema-app.js
 function App() {
   // this JavaScript snippet is later referred to as <<jsonschema-app>>
-  const schema = {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "$id": "https://nlesc-jcer.github.io/cpp2wasm/NNRequest.json",
-    "type": "object",
-    "properties": {
-      "epsilon": {
-        "title": "Epsilon",
-        "type": "number",
-        "minimum": 0
+  const schema =
+    {
+      "type": "object",
+      "description": "this JSON document is later referred to as <<request-schema>>",
+      "properties": {
+        "epsilon": {
+          "title": "Epsilon",
+          "type": "number",
+          "minimum": 0
+        },
+        "guess": {
+          "title": "Initial guess",
+          "type": "number"
+        }
       },
-      "guess": {
-        "title": "Initial guess",
-        "type": "integer",
-        "minimum": -100,
-        "maximum": 100
-      }
-    },
-    "required": ["epsilon", "guess"],
-    "additionalProperties": false
-  }
+      "required": [
+        "epsilon",
+        "guess"
+      ],
+      "additionalProperties": false
+    }
+  ;
   // this JavaScript snippet is appended to <<jsonschema-app>>
   const Form = JSONSchemaForm.default;
+  const uiSchema = {
+    "ui:description": "Find root using Newton-Raphson algorithm"
+  }
   // this JavaScript snippet is appended to <<jsonschema-app>>
   const [formData, setFormData] = React.useState({
     epsilon: 0.001,
@@ -57,6 +62,7 @@ function App() {
       { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
       <Form
         schema={schema}
+        uiSchema={uiSchema}
         formData={formData}
         onChange={handleChange}
         onSubmit={handleSubmit}

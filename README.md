@@ -1,26 +1,27 @@
+# Guide to make C++ available as a web application
+
 [![CI](https://github.com/NLESC-JCER/cpp2wasm/workflows/CI/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3ACI)
 [![Markdown Link Checker](https://github.com/NLESC-JCER/cpp2wasm/workflows/Check%20Markdown%20links/badge.svg)](https://github.com/NLESC-JCER/cpp2wasm/actions?query=workflow%3A%22Check%20Markdown%20links%22)
 [![Entangled](https://img.shields.io/badge/entangled-Use%20the%20source!-%2300aeff)](https://entangled.github.io/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.3876112.svg)](https://doi.org/10.5281/zenodo.3876112)
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=NLESC-JCER_cpp2wasm&metric=alert_status)](https://sonarcloud.io/dashboard?id=NLESC-JCER_cpp2wasm)
 
-# Five ways to host your C++ program online
-
-## Contents
-
 In this guide, we will describe 5 ways to make your C++ code available as a web application or web wervice
 
-1. [Web service using Common Gateway Interface](#method-15-web-service-using-common-gateway-interface)
-1. [Python web service using Swagger/OpenAPI](#method-25-python-web-service-using-swaggeropenapi)
-1. [Python web application using Flask](#method-35-python-web-application-using-flask)
-1. [JavaScript web service using Emscriptem and WebAssembly](#method-45-javaScript-web-service-using-emscriptem-and-webassembly)
-1. [JavaScript web application with React](#method-55-javaScript-web-application-with-react)
+1. [Web service using Common Gateway Interface](#web-service-using-common-gateway-interface)
+1. [Python web service using pybind11 and OpenAPI](#python-web-service)
+1. [Python web application using Flask and Celery](#python-web-application-using-flask)
+1. [JavaScript web service using Emscripten and Fastify](#javascript-web-service)
+1. [JavaScript web application using web worker and React](#javascript-web-application)
 
 This guide was written and tested on Linux operating system. The required dependencies to run this guide are described
 in the [INSTALL.md](INSTALL.md) document. If you want to contribute to the guide see [CONTRIBUTING.md](CONTRIBUTING.md).
 The [repo](https://github.com/NLESC-JCER/cpp2wasm) contains the files that can be made from the code snippets in this
 guide. The code snippets can be [entangled](https://entangled.github.io/) to files using any of
 [these](CONTRIBUTING.md#tips) methods.
+
+A web application is meant for consumption by humans using [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML) pages and a web service is meant for consumption by machines or other
+programs. A web service will accept and return machine readable documents like [JSON (JavaScript Object Notation)](https://www.json.org/) documents.
 
 ## Example program: Newton-Raphson root finding
 
@@ -160,20 +161,20 @@ It should return the following
 The value of the root is : -1.000000
 ```
 
-## Method 1/5: Web service using Common Gateway Interface
+## Web service using Common Gateway Interface
 
 ![cgi](images/cgi.svg.png "CGI")
 
 | Pros | Cons |
 | --- | --- |
-| :heart: pro1 | :no_entry: con1 |
-| :heart: pro2 | :no_entry: con2 |
+| :heart: Very few moving parts, just C++ and Apache | :no_entry: Verbose Apache configuration |
+| :heart: Ancient proven technology | :no_entry: Unsuitable for long initialization or calculations |
 
 The classic way to run programs when accessing a url is to use the Common Gateway Interface (CGI). In the 
 [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.html) you can configure a directory as a
-``ScriptAlias``, when visiting a file inside that directory the file will be executed. The executable can read the
-request body from the ``stdin`` and the response must be printed to the ``stdout``. A response should consist of a
-content type such as ``application/json`` or ``text/html``, followed by the content itself. A web service which accepts
+`ScriptAlias`, when visiting a file inside that directory the file will be executed. The executable can read the
+request body from the `stdin` and the response must be printed to the `stdout`. A response should consist of a
+content type such as `application/json` or `text/html`, followed by the content itself. A web service which accepts
 and returns JSON documents can for example look like:
 
 ```{.cpp file=cgi/cgi-newtonraphson.cpp}
@@ -206,7 +207,7 @@ int main(int argc, char *argv[])
 }
 ```
 
-Where `nlohmann/json.hpp` is a JSON serialization/unserialization C++ header-only library to convert a JSON string to
+Where [nlohmann/json.hpp](https://github.com/nlohmann/json/) is a JSON serialization/unserialization C++ header-only library to convert a JSON string to
 and from a data type.
 
 This can be compiled with
@@ -257,8 +258,8 @@ Start Apache httpd web server using
 And in another shell call CGI script using curl
 
 ```shell
-curl --header "Content-Type: application/json" \
-  --request POST \
+curl --request POST \
+  --header "Content-Type: application/json" \
   --data '{"guess":-20, "epsilon":0.001}' \
   http://localhost:8080/cgi-bin/newtonraphson
 ```
@@ -275,21 +276,28 @@ Should return the following JSON document as a response
 The problem with CGI scripts is when the program does some initialization, you have to wait for it each visit. It is
 better to do the initialization once when the web service is starting up.
 
-## Method 2/5: Python web service using Swagger/OpenAPI
+## Python web service
 
-![swagger](images/swagger.svg.png "Swagger")
+![openapi](images/openapi.svg.png "OpenAPI")
 
 | Pros | Cons |
 | --- | --- |
-| :heart: pro1 | :no_entry: con1 |
-| :heart: pro2 | :no_entry: con2 |
+| :heart: Python is great glue language | :no_entry: Pure Python is slower than C++ |
+| :heart: Web service discoverable and documented with OpenAPI specification | :no_entry: Exception thrown from C++ has number instead of message   |
 
-### Accessing C++ functions from Python
+Writing a web service in C++ can be done, but other languages like Python are better equipped. Python has a big
+community making web applications, which resulted in a big ecosystem of web frameworks, template engines, tutorials.
+
+Python packages can be installed using `pip` from the [Python Package Index](https://pypi.org/). It is customary to work
+with [virtual environments](https://packaging.python.org/tutorials/installing-packages/#creating-virtual-environments)
+to isolate the dependencies for a certain application and not pollute the global OS paths.
+
+### Accessing C++ functions with pybind11
 
 To make a web application in Python, the C++ functions need to be called somehow. Python can call functions in a C++
 library if its functions use [Python.h datatypes](https://docs.python.org/3.7/extending/index.html). This requires a lot
 of boilerplate and conversions, several tools are out there that make the boilerplate/conversions much simpler. The tool
-we chose to use is [pybind11](https://github.com/pybind/pybind11) as it is currently (May 2019) actively maintained and
+we chose to use is [pybind11](https://github.com/pybind/pybind11) as it is currently (May 2020) actively maintained and
 is a header-only library.
 
 To use ``pybind11``, it must installed with ``pip``
@@ -356,6 +364,8 @@ It will output something like
 -1.0000001181322415
 ```
 
+### OpenAPI web service using connexion
+
 A web service has a number of paths or urls to which a request can be sent and a response received. The interface can be
 defined with the [OpenAPI specification](https://github.com/OAI/OpenAPI-Specification) (previously known as
 [Swagger](https://swagger.io/)). The OpenAPI specification defines how requests and responses should look.
@@ -371,6 +381,69 @@ in the contract to a Python function and will handle the validation and serializ
 tested with [Swagger UI](https://swagger.io/tools/swagger-ui/), which facilitates browsing through the available paths, trying
 them out by constructing a request, and showing the curl command which can be used to call the web service. Swagger UI
 comes bundled with the Connexion framework.
+
+OpenAPI uses [JSON schema](https://json-schema.org/) to describe the shape of the request body and responses.
+
+The request body we want to accept is
+
+```json
+{
+  "epsilon": 0.001,
+  "guess": -20
+}
+```
+
+The JSON schema for the request body is
+
+```{.json #request-schema}
+{
+  "type": "object",
+  "description": "this JSON document is later referred to as <<request-schema>>",
+  "properties": {
+    "epsilon": {
+      "title": "Epsilon",
+      "type": "number",
+      "minimum": 0
+    },
+    "guess": {
+      "title": "Initial guess",
+      "type": "number"
+    }
+  },
+  "required": [
+    "epsilon",
+    "guess"
+  ],
+  "additionalProperties": false
+}
+```
+
+The response body we want to return is
+
+```json
+{
+  "root": -1.00
+}
+```
+
+The JSON schema for the response body is
+
+```{.json #response-schema}
+{
+  "type": "object",
+  "description": "this JSON document is later referred to as <<response-schema>>",
+  "properties": {
+      "root": {
+        "title": "Root",
+        "type": "number"
+      }
+  },
+  "required": [
+      "root"
+  ],
+  "additionalProperties": false
+}
+```
 
 The OpenAPI specification for performing root finding is:
 
@@ -406,25 +479,9 @@ paths:
 components:
   schemas:
     NRRequest:
-      type: object
-      properties:
-        epsilon:
-          type: number
-          minimum: 0
-        guess:
-          type: number
-      required:
-        - epsilon
-        - guess
-      additionalProperties: false
+      <<request-schema>>
     NRResponse:
-      type: object
-      properties:
-        root:
-          type: number
-      required:
-        - root
-      additionalProperties: false
+      <<response-schema>>
 ```
 
 The webservice consists of a single path (``/api/newtonraphson``) with a POST method which receives a request and
@@ -434,7 +491,7 @@ The operation identifier (`operationId`) in the specification gets translated by
 be called when the path is requested. Connexion calls the function with the JSON parsed request body.
 
 ```{.python file=openapi/api.py}
-# this Python snippet is stored as openapi/.py
+# this Python snippet is stored as openapi/api.py
 def calculate(body):
   epsilon = body['epsilon']
   guess = body['guess']
@@ -472,17 +529,22 @@ We can try out the web service using the Swagger UI at [http://localhost:8080/ui
 running a ``curl`` command like
 
 ```{.awk #test-webservice}
-curl -X POST "http://localhost:8080/api/newtonraphson" -H "accept: application/json" -H "Content-Type: application/json" -d "{\"epsilon\":0.001,\"guess\":-20}"
+curl --request POST \
+  --header "accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data '{"epsilon":0.001,"guess":-20}' \
+  http://localhost:8080/api/newtonraphson
 ```
 
-## Method 3/5: Python web application using Flask
+## Python web application using Flask
 
 ![flask](images/flask.svg.png "Flask")
 
 | Pros | Cons |
 | --- | --- |
-| :heart: pro1 | :no_entry: con1 |
-| :heart: pro2 | :no_entry: con2 |
+| :heart: Use ecosystem to reduce own code | :no_entry: Lots of moving parts: web service + worker + redis queue |
+
+The Python standard library ships with a [HTTP server](https://docs.python.org/3/library/http.server.html) which is very low level. A web framework is an abstraction layer for making writing web applications more pleasant. To write our web application we will use the [Flask](https://flask.palletsprojects.com/) web framework. Flask was chosen as it minimalistic and has a large active community.
 
 The Flask Python library can be installed with
 
@@ -496,7 +558,7 @@ We'll use the shared library that the openapi example also uses:
 cd flask && ln -s ../openapi/newtonraphsonpy`python3-config --extension-suffix` . && cd -
 ```
 
-The web application has 3 kinds of pages:
+The web application has 3 pages:
 
 1. a page with form and submit button,
 2. a page to show the progress of the calculation
@@ -568,7 +630,15 @@ python flask/webapp.py
 
 To test we can visit [http://localhost:5001](http://localhost:5001) fill the form and press submit to get the result.
 
-### Long-running tasks
+The form should look like
+
+![Flask form](images/flask-form.png "Flask form")
+
+After pressing submit the result should look like
+
+![Flask result](images/flask-result.png "Flask result")
+
+### Long-running tasks with Celery
 
 When performing a long calculation (more than 30 seconds), the end-user requires feedback of the progress. In a normal
 request/response cycle, feedback is only returned in the response. To give feedback during the calculation, the
@@ -685,7 +755,7 @@ python flask/webapp-celery.py
 Tasks will be run by the Celery worker. The worker can be started with
 
 ```{.awk #run-celery-worker}
-PYTHONPATH=openapi celery worker -A tasks
+PYTHONPATH=flask celery worker -A tasks
 ```
 
 (The PYTHONPATH environment variable is set so the Celery worker can find the `tasks.py` and `newtonraphsonpy.*.so`
@@ -694,8 +764,17 @@ files in the `flask/` directory)
 To test the web service
 
 1. Go to [http://localhost:5000](http://localhost:5000),
+
+    ![Celery form](images/celery-form.png "Celery form")
+
 2. Submit form,
 3. Refresh result page until progress states are replaced with result.
+
+    ![Celery sleep initializing](images/celery-init.png "Celery sleep initializing")
+
+    ![Celery sleep finding](images/celery-finding.png "Celery sleep finding")
+
+    ![Celery result](images/celery-result.png "Celery result")
 
 The redis server can be shut down with
 
@@ -703,28 +782,30 @@ The redis server can be shut down with
 docker stop some-redis
 ```
 
-## Method 4/5: JavaScript web service using Emscriptem and WebAssembly
+## JavaScript web service
 
 ![wasm](images/wasm.svg.png "WebAssembly")
 
 | Pros | Cons |
 | --- | --- |
-| :heart: pro1 | :no_entry: con1 |
-| :heart: pro2 | :no_entry: con2 |
+| :heart: JavaScript is a popular language | :no_entry: OpenAPI spec and JSON schema are sligthly out of sync |
+| :heart: Same language on server as in web browser | :no_entry: Requires server infrastructure for calculations |
 
-### Accessing C++ function from JavaScript in web browser
+[JavaScript](https://developer.mozilla.org/en-US/docs/Web/javascript) is the de facto programming language for web browsers. The JavaScript engine in the Chrome browser called V8 has been wrapped in a runtime engine called [Node.js](http://nodejs.org/) which can execute JavaScript code outside the browser.
+
+### Accessing C++ functions with Emscripten
 
 For a long time web browsers could only execute non-JavaScript code using plugins like Flash. Later, tools where made
 that could transpile non-JavaScript code to JavaScript, but the performance was less than running native code. To run code
 as fast as native code, the [WebAssembly](https://webassembly.org/) language was developed. WebAssembly is a low-level,
 [Assembly](https://en.wikipedia.org/wiki/Assembly_language)-like language with a compact binary format. The binary
-format is stored as a WebAssembly module or `*.wasm` file, which can be loaded by all modern web browsers.
+format is stored as a WebAssembly module or `*.wasm` file, which can be loaded by all modern web browsers and by Node.js on the server.
 
 Instead of writing code in the WebAssembly language, there are compilers that can take C++/C code and compile it to
-wasm. [Emscripten](https://emscripten.org) is the most popular C++ to wasm compiler. Emscripten has been successfully
+a WebAssembly module. [Emscripten](https://emscripten.org) is the most popular C++ to WebAssembly compiler. Emscripten has been successfully
 used to port game engines like the Unreal engine to the browser making it possible to have complex 3D games in the
 browser without needing to install anything else than the web browser. To call C++ code (which has been compiled to
-wasm) from JavaScript, a binding is required. The binding will map C++ constructs to their JavaScript equivalent and
+a WebAssembly module) from JavaScript, a binding is required. The binding will map C++ constructs to their JavaScript equivalent and
 back. The binding called [embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#embind)
 is declared in a C++ file which is included in the compilation.
 
@@ -746,19 +827,473 @@ EMSCRIPTEN_BINDINGS(newtonraphsonwasm) {
 }
 ```
 
-The algorithm and binding can be compiled into a WebAssembly module with the Emscripten compiler called `emcc`. To make
-live easier we configure the compile command to generate a `webassembly/newtonraphsonwasm.js` file which exports the
-`createModule` function.
+The algorithm and binding can be compiled into a WebAssembly module with the Emscripten compiler called `emcc`. The C++ headers are located in the `cli/` directory so add it to the include path.
+To make live easier we configure the compile command to generate a `webassembly/newtonraphsonwasm.js` file which exports the `createModule` function.
+The `createModule` function loads and initializes the generated WebAssembly module called `webassembly/newtonraphsonwasm.wasm` for us. The last argument of the compiler is the C++ file with the emscripten bindings.
 
 ```{.awk #build-wasm}
-emcc -Icli/ --bind -o webassembly/newtonraphsonwasm.js -s MODULARIZE=1 -s EXPORT_NAME=createModule webassembly/wasm-newtonraphson.cpp
+emcc -Icli/ -o webassembly/newtonraphsonwasm.js \
+  -s MODULARIZE=1 -s EXPORT_NAME=createModule \
+  --bind webassembly/wasm-newtonraphson.cpp
 ```
 
-The compilation also generates a `webassembly/newtonraphsonwasm.wasm` file which will be loaded with the `createModule`
-function.
+To use the WebAssembly module in Node.js we need to import it with
 
-The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the
-JavaScript promise to resolve.
+```{.js #import-wasm}
+// this JavaScript snippet is later referred to as <<import-wasm>>
+const createModule = require('./newtonraphsonwasm.js')
+```
+
+The `createModule` function returns a [Promise](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise). We use [await](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await) to keep the flow flat instead a nested promise chain for easier reading. The module returned by the await call contains the NewtonRaphson class we defined in the emscripten bindings.
+
+```{.js #find-root-js}
+// this JavaScript snippet is later referred to as <<find-root-js>>
+const module = await createModule()
+```
+
+We create an object from the module.NewtonRaphson class and find the root.
+We will define the `epsilon` and `guess` variables later when we call the code from the command line or from a web service or from a web application.
+
+```{.js #find-root-js}
+// this JavaScript snippet is appended to <<find-root-js>>
+const finder = new module.NewtonRaphson(epsilon)
+const root = finder.solve(guess)
+```
+
+Let's write a command line script to test the WebAssembly module. We get the `epsilon` and `guess` from the [command line arguments](https://nodejs.org/dist/latest-v12.x/docs/api/process.html#process_process_argv), find the root with the WebAssembly module and [print](https://nodejs.org/dist/latest-v12.x/docs/api/console.html) the result.
+We need to wrap in a async function as Node.js (version 12) does support a top level `await`.
+
+```{.js file=webassembly/cli.js}
+// this JavaScript snippet stored as webassembly/cli.js
+<<import-wasm>>
+
+const main = async () => {
+  const epsilon = parseFloat(process.argv[2])
+  const guess = parseFloat(process.argv[3])
+  <<find-root-js>>
+  const msg = 'Given epsilon of %d and inital guess of %d the found root is %s'
+  console.log(msg, epsilon, guess, root.toPrecision(3))
+}
+main()
+```
+
+Run the script with
+
+```{.shell #test-wasm-cli}
+node webassembly/cli.js 0.01 -20
+```
+
+Should output `Given epsilon of 0.01 and inital guess of -20 the found root is -1.00`.
+
+In this chapter we executed the Newton-Raphson algorithm on the command line in JavaScript with Node.js by compiling the C++ code to a WebAssembly module with emscripten.
+
+### Web service using Fastify
+
+Now that we can execute the C++ code from JavaScript we are ready to wrap it up in a web service.
+Node.js ships with a [low level http server](https://nodejs.org/en/knowledge/HTTP/servers/how-to-create-a-HTTP-server/) that can be used to write a web service, but we are going to use the [Fastify web framework](https://www.fastify.io/) as it supports multiple routes, async/await and JSON schemas.
+
+First we need to install Fastify with the Node.js package manager called [npm](https://docs.npmjs.com/about-npm/). We will use `--no-save` option to skip saving the dependency in [package.json](https://docs.npmjs.com/files/package.json) as we are not publishing a package.
+
+```{.shell #npm-fastify}
+npm install --no-save fastify
+```
+
+The Fastify web framework can be imported with require.
+
+```{.js #import-fastify}
+// this JavaScript snippet is later referred to as <<import-wasm-fastify>>
+const fastify = require('fastify')()
+```
+
+Let's start the web service file by importing Fastify and the WebAssembly module with
+
+```{.js file=webassembly/webservice.js}
+// this JavaScript snippet stored as webassembly/webservice.js
+<<import-fastify>>
+<<import-wasm>>
+```
+
+A handler function can be defined which will process a request `body` JSON object containing the `epsilon` and `guess` and returns the found root. We will later configure Fastify to call this method when visiting an url.
+
+```{.js #fastify-handler}
+// this JavaScript snippet is later referred to as <<fastify-handler>>
+const handler = async ({body}) => {
+  const { epsilon, guess } = body
+  <<find-root-js>>
+  return { root }
+}
+```
+
+Fastify can use JSON-schema to validate the incoming request and and outgoing response.
+
+Define a Fastify route for a POST request to `/api/newtonraphson` url which calls the `handler` function. The request body must be validated against `<<request-schema>>` and the OK (code=200) response must be validated against `<<response-schema>>` as defined in the [OpenAPI chapter](#openapi-web-service-using-connexion). By defining schemas we implicitly tell the web service it should accept and return `application/json` as content type.
+
+```{.js file=webassembly/webservice.js}
+// this JavaScript snippet appended to webassembly/webservice.js
+<<fastify-handler>>
+
+fastify.route({
+  url: '/api/newtonraphson',
+  method: 'POST',
+  schema: {
+    body:
+      <<request-schema>>
+    ,
+    response: {
+      200:
+        <<response-schema>>
+    }
+  },
+  handler
+})
+```
+
+Now that the route have been defined we can tell Fastify to listen on `http://127.0.0.1:<port>` for requests and die when an error is thrown.
+
+```{.js #fastify-listen}
+// this JavaScript snippet is later referred to as <<fastify-listen>>
+const main = async (port) => {
+  try {
+    const host = '127.0.0.1'
+    console.log('Server listening on http://%s:%d (Press CTRL+C to quit)', host, port)
+    await fastify.listen(port, host)
+  } catch (err) {
+    console.log(err)
+    process.exit(1)
+  }
+}
+```
+
+Let's listen on `http://127.0.0.1:3000`
+
+```{.js file=webassembly/webservice.js}
+// this JavaScript snippet is appended to webassembly/webservice.js
+<<fastify-listen>>
+main(3000)
+```
+
+Run the web service with
+
+```{.shell #run-js-webservice}
+node webassembly/webservice.js
+```
+
+In another terminal test web service with
+
+```{.shell #test-js-webservice}
+curl --request POST \
+  --header "accept: application/json" \
+  --header "Content-Type: application/json" \
+  --data '{"epsilon":0.001,"guess":-20}' \
+  http://localhost:3000/api/newtonraphson
+```
+
+Should return something like
+
+```json
+{
+  "root": -1.0000001181322415
+}
+```
+
+To test the validation, call the web service with a typo in the epsilon field name
+
+```{.shell #test-js-webservice-invalid}
+wget --content-on-error --quiet --output-document=- \
+  --header="accept: application/json" \
+  --header="Content-Type: application/json" \
+  --post-data '{"epilon":0.001,"guess":-20}' \
+  http://localhost:3000/api/newtonraphson
+```
+
+Should return an error like
+
+```json
+{
+  "statusCode": 400,
+  "error": "Bad Request",
+  "message": "body should have required property 'epsilon'"
+}
+```
+
+### OpenAPI web service using fastify-oas
+
+The web service we made in the previous chapter can not tell us which urls or routes it has. We can use a OpenAPI specification for that. As Fastify routes already use JSON schemas for the request body and response body we can generate the OpenAPI specification with the [fastify-oas](https://gitlab.com/m03geek/fastify-oas) plugin.
+
+Install the plugin with
+
+```{.shell #npm-openapi}
+npm install --no-save fastify-oas
+```
+
+Same as before we need to import Fastify
+
+```{.js #fastify-openapi-plugin}
+// this JavaScript snippet is later referred to as <<fastify-openapi-plugin>>
+<<import-fastify>>
+```
+
+We need to import the plugin
+
+```{.js #fastify-openapi-plugin}
+// this JavaScript snippet is appended to <<fastify-openapi-plugin>>
+const oas = require('fastify-oas')
+```
+
+Next we need to register the plugin (oas) and configure it.
+Configure the plugin by setting the OpenAPI info fields and set all paths to consume/produce the `application/json` content type and set the urls of the web service.
+Lastly setting `exposeRoute` to true will make the plugin add the following routes:
+
+* [/documentation/json](http://localhost:3001/documentation/json) for OpenAPI specification in JSON format
+* [/documentation/yaml](http://localhost:3001/documentation/yaml) for OpenAPI specification in YAML format
+* [/documentation/index.html](http://localhost:3001/documentation/index.html) for [Swagger UI](https://swagger.io/tools/swagger-ui/)
+* [/documentation/docs.html](http://localhost:3001/documentation/docs.html) for [ReDoc UI](https://github.com/Redocly/redoc)
+
+```{.js #fastify-openapi-plugin}
+// this JavaScript snippet is appended to <<fastify-openapi-plugin>>
+fastify.register(oas, {
+  swagger: {
+    info: {
+      title: 'Root finder',
+      license: {
+        name: 'Apache-2.0',
+        url: 'https://www.apache.org/licenses/LICENSE-2.0.html'
+      },
+      version: '0.1.0'
+    },
+    consumes: ['application/json'],
+    produces: ['application/json'],
+    servers: [{
+      url: 'http://localhost:3001'
+    }, {
+      url: 'http://localhost:3002'
+    }]
+  },
+  exposeRoute: true
+})
+```
+
+In the route we would like to define example values. The JSON schema we defined for the request body in the [OpeAPI chapter](#openapi-web-service-using-connexion) does not allow an example field, but the OpenAPI specifaction does. So we inject the example here.
+
+```{.js #fastify-openapi-route}
+// this JavaScript snippet is later referred to as <<fastify-openapi-route>>
+const requestSchemaWithExample =
+  <<request-schema>>
+requestSchemaWithExample.example = {
+  epsilon: 0.001,
+  guess: -20
+}
+```
+
+We need to define a route using the same handler as before and the schemas with example request body.
+
+```{.js #fastify-openapi-route}
+// this JavaScript snippet is appended to <<fastify-openapi-route>>
+fastify.route({
+  url: '/api/newtonraphson',
+  method: 'POST',
+  schema: {
+    body: requestSchemaWithExample,
+    response: {
+      200:
+        <<response-schema>>
+    }
+  },
+  handler
+})
+```
+
+Let's load the WebAssembly module, add the plugin, add the handler and add the route to `webassembly/openapi.js` file with
+
+```{.js file=webassembly/openapi.js}
+// this JavaScript snippet is stored as webassembly/openapi.js
+<<import-wasm>>
+
+<<fastify-openapi-plugin>>
+
+<<fastify-handler>>
+
+<<fastify-openapi-route>>
+```
+
+Next we listen on [http://127.0.0.1:3001](http://127.0.0.1:3001).
+
+```{.js file=webassembly/openapi.js}
+// this JavaScript snippet is appended to webassembly/openapi.js
+<<fastify-listen>>
+main(3001)
+```
+
+Run the web service with
+
+```{.shell #run-js-openapi}
+node webassembly/openapi.js
+```
+
+The OpenAPI specification is generated in [JSON](http://localhost:3001/documentation/json) and [YAML](http://localhost:3001/documentation/yaml) format.
+Try the web service out by visiting the [Swagger UI](http://localhost:3001/documentation/index.html).
+
+Or try it out in another terminal with curl using
+
+```{.shell #test-js-openapi}
+curl --request POST \
+  --header "Content-Type: application/json" \
+  --header "accept: application/json" \
+  --data '{"guess":-20, "epsilon":0.001}' \
+  http://localhost:3001/api/newtonraphson
+```
+
+### Long running task with worker threads
+
+The web service we made in the prevous chapter will block any other requests while the algorithm solving is running. This is due to the inner workings of Node.js. Node.js uses a single threaded event loop, so while an event is being handled Node.js is busy. Node.js uses callbacks and promises to handle long IO tasks efficiently. 
+
+To use the CPU in parallel Node.js has [worker threads](https://nodejs.org/dist/latest-v12.x/docs/api/worker_threads.html). We don't want to start a new thread each time a request is recieved to perform the calculation, we want to use a pool of waiting threads. So each request will be computed by a thread from the pool.
+Node.js gives use the low level primitives to create a thread. A thread pool implementation is explained in the [Node.js documentation](https://nodejs.org/docs/latest-v12.x/api/async_hooks.html#async_hooks_using_asyncresource_for_a_worker_thread_pool), we could copy it here or use an existing package.
+On [npmjs](https://www.npmjs.com/search?q=worker%20thread%20pool) I found the [node-worker-threads-pool](https://www.npmjs.com/package/node-worker-threads-pool) package which is relativly similar to the version in the Node.js documentation, it is active and has a good number of stars/downloads compared to the other search results.
+
+Let's use [node-worker-threads-pool](https://www.npmjs.com/package/node-worker-threads-pool) for our thread pool.
+
+Install the pool package with
+
+```{.shell #npm-threaded}
+npm install --no-save node-worker-threads-pool
+```
+
+Let's create a static pool of 4 threads which runs the task defined in `./webassembly/task.js` as a worker thread.
+
+```{.js file=webassembly/webservice-threaded.js}
+// this JavaScript snippet stored as webassembly/webservice-threaded.js
+const { StaticPool } = require('node-worker-threads-pool')
+
+const pool = new StaticPool({
+  size: 4,
+  task: './webassembly/task.js'
+});
+```
+
+The web service handler has to call `pool.exec()` to perform the calculation in the worker thread and wait for the result.
+By using `await` the main event loop of Node.js is free to do other work while the work is being done in the worker thread.
+
+```{.js #fastify-handler-threaded}
+// this JavaScript snippet later referred to as <<fastify-handler-threaded>>
+
+const handler = async ({body}) => {
+  const { epsilon, guess } = body
+  const root = await pool.exec({epsilon, guess})
+  return { root }
+}
+```
+
+The `pool.exec({epsilon, guess})` will cause an emit of an event with 'message' as name and `{epsilon, guess}` as argument in the task.
+
+In the task, each time we get a 'message' event on the [parentPort](https://nodejs.org/docs/latest-v12.x/api/worker_threads.html#worker_threads_worker_parentport) we want to perform the calculation.
+
+```{.js file=webassembly/task.js}
+// this JavaScript snippet appended to webassembly/task.js
+<<import-wasm>>
+const { parentPort } = require('worker_threads')
+
+parentPort.on('message', async ({epsilon, guess}) => {
+```
+
+We must wait for the WebAsemmbly module to be initialized.
+
+```{.js file=webassembly/task.js}
+  // this JavaScript snippet appended to webassembly/task.js
+  const { NewtonRaphson } = await createModule()
+```
+
+Now we can find the root.
+
+```{.js file=webassembly/task.js}
+  // this JavaScript snippet appended to webassembly/task.js
+  const finder = new NewtonRaphson(epsilon)
+  const root = finder.solve(guess)
+```
+
+And send the result back to the web service handler by posting a message to the port of the parent thread.
+
+```{.js file=webassembly/task.js}
+  // this JavaScript snippet appended to webassembly/task.js
+  parentPort.postMessage(root)
+})
+```
+
+Similar to the previous chapter we register the OpenAPI plugin, define a route and listen on [http://127.0.0.1:3002](http://127.0.0.1:3002)
+
+```{.js file=webassembly/webservice-threaded.js}
+// this JavaScript snippet is appended to webassembly/webservice-threaded.js
+<<fastify-openapi-plugin>>
+
+<<fastify-handler-threaded>>
+
+<<fastify-openapi-route>>
+
+<<fastify-listen>>
+main(3002)
+```
+
+Run the web service with
+
+```{.shell #run-js-threaded}
+node webassembly/webservice-threaded.js
+```
+
+Test with
+
+```{.shell #test-js-threaded}
+curl --request POST \
+  --header "Content-Type: application/json" \
+  --header "accept: application/json" \
+  --data '{"guess":-20, "epsilon":0.001}' \
+  http://localhost:3002/api/newtonraphson
+```
+
+Or goto [Swagger UI](http://localhost:3002/documentation/index.html) to try it out. Do not forget to switch to the `http://localhost:3002` server in the servers pull down.
+
+In this chapter we created a web service which
+
+1. was written in JavaScript and executed with Node.js
+1. uses Emscripten to compile the C++ algorithm to WebAssembly module
+1. uses Fastify web framework to define routes
+1. validates requests and responses with a JSON schemas
+1. generates an OpenAPI specfication
+1. performs the calculation in a worker thread from a thread pool
+
+## JavaScript web application
+
+![react](images/react.svg.png "React")
+
+| Pros | Cons |
+| --- | --- |
+| :heart: No server infrastucture required except file hosting | :no_entry: Big learning curve |
+| :heart: Ecosystem allows for building application with few lines  | :no_entry: Requires modern web browser |
+
+In the [Web application](#web-application) section, a common approach is to render an entire HTML page even if a subset
+of elements requires a change. With the advances in the web browser (JavaScript) engines including methods to fetch JSON
+documents from a web service, it has become possible to address this shortcoming. The so-called [Single Page
+Applications](https://en.wikipedia.org/wiki/Single-page_application) (SPA) enable changes to be made in a part of the
+page without rendering the entire page. To ease SPA development, a number of frameworks have been developed. The most
+popular front-end web frameworks are (as of June 2020):
+
+* [React](https://reactjs.org/)
+* [Vue.js](https://vuejs.org/)
+* [Angular](https://angular.io/)
+
+Their pros and cons are summarized [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
+
+For Newton-Raphson web application, we selected React because of its small API and its use of functional programming.
+
+The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React
+application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the
+application only needs cheap static file hosting to host the HTML, js and wasm files. **The calculation will be done in
+the web browser on the end users machine instead of a server**.
+
+### Using WebAssembly module in web browser
+
+We reuse the WebAssembly module we created in [previous chapter](#accessing-c-functions-with-emscripten).
+
+The WebAssembly module must be loaded and initialized by calling the `createModule` function and waiting for the JavaScript promise to resolve.
 
 ```{.js #wasm-promise}
 // this JavaScript snippet is later referred to as <<wasm-promise>>
@@ -773,7 +1308,7 @@ The `module` variable contains the `NewtonRaphson` class we defined in the bindi
 The root finder can be called with
 
 ```{.js #wasm-calculate}
-// this JavaScript snippet is later referred to as <<wasm-calculate>>
+// this JavaScript snippet is before referred to as <<wasm-calculate>>
 const epsilon = 0.001;
 const finder = new module.NewtonRaphson(epsilon);
 const guess = -20;
@@ -825,7 +1360,7 @@ of the calculation. Embedded below is the example hosted on
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, executed by some
 JavaScript and rendered on a HTML page.
 
-### Executing long running methods in JavaScript
+### Long-running tasks with web worker
 
 Executing a long running C++ method will block the browser from running any other code like updating the user interface.
 In order to avoid this, the method can be run in the background using [web
@@ -948,36 +1483,7 @@ pages](https://nlesc-jcer.github.io/cpp2wasm/webassembly/example-web-worker.html
 The result of root finding was calculated using the C++ algorithm compiled to a WebAssembly module, imported in a web
 worker (separate thread), executed by JavaScript with messages to/from the web worker and rendered on a HTML page.
 
-## Method 5/5: JavaScript web application with React
-
-![react](images/react.svg.png "React")
-
-| Pros | Cons |
-| --- | --- |
-| :heart: pro1 | :no_entry: con1 |
-| :heart: pro2 | :no_entry: con2 |
-
-In the [Web application](#web-application) section, a common approach is to render an entire HTML page even if a subset
-of elements requires a change. With the advances in the web browser (JavaScript) engines including methods to fetch JSON
-documents from a web service, it has become possible to address this shortcoming. The so-called [Single Page
-Applications](https://en.wikipedia.org/wiki/Single-page_application) (SPA) enable changes to be made in a part of the
-page without rendering the entire page. To ease SPA development, a number of frameworks have been developed. The most
-popular front-end web frameworks are (as of July 2019):
-
-- [React](https://reactjs.org/)
-- [Vue.js](https://vuejs.org/)
-- [Angular](https://angular.io/)
-
-Their pros and cons are summarized [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
-
-For Newton-Raphson web application, we selected React because of its small API and its use of functional programming.
-
-The C++ algorithm is compiled into a wasm file using bindings. When a calculation form is submitted in the React
-application a web worker loads the wasm file, starts the calculation, renders the result. With this architecture the
-application only needs cheap static file hosting to host the HTML, js and wasm files. **The calculation will be done in
-the web browser on the end users machine instead of a server**.
-
-### React component
+### React application
 
 To render the React application we need a HTML element as a container. We will give it the identifier `container` which will
 use later when we implement the React application in the `app.js` file.
@@ -1243,31 +1749,14 @@ The JSON schema can be used to generate a form. The form values will be validate
 JSON schema form for React is [react-jsonschema-form](https://github.com/rjsf-team/react-jsonschema-form) so we will
 write a web application with it.
 
-In the [Web service](#web-service) an OpenAPI specification was used to specify the request and response schema. For the
-form we need the request schema in JSON format which is
+In the [OpenAPI chapter](#openapi-web-service-using-connexion) a request and response schema was defined. For the
+form we need the request schema is
 
 ```{.js #jsonschema-app}
 // this JavaScript snippet is later referred to as <<jsonschema-app>>
-const schema = {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://nlesc-jcer.github.io/cpp2wasm/NNRequest.json",
-  "type": "object",
-  "properties": {
-    "epsilon": {
-      "title": "Epsilon",
-      "type": "number",
-      "minimum": 0
-    },
-    "guess": {
-      "title": "Initial guess",
-      "type": "integer",
-      "minimum": -100,
-      "maximum": 100
-    }
-  },
-  "required": ["epsilon", "guess"],
-  "additionalProperties": false
-}
+const schema =
+  <<request-schema>>
+;
 ```
 
 To render the application we need a HTML page. We will reuse the imports we did in the previous chapter.
@@ -1309,6 +1798,14 @@ with the class names must be imported from the Bootstrap CSS file.
 <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" crossorigin="anonymous">
 ```
 
+The schema defines a description which we want to replace in the form. This can be done by defining a uiSchema
+
+```{.js #jsonschema-app}
+const uiSchema = {
+  "ui:description": "Find root using Newton-Raphson algorithm"
+}
+```
+
 The values in the form must be initialized and updated whenever the form changes.
 
 ```{.js #jsonschema-app}
@@ -1329,6 +1826,7 @@ The form can be rendered with
 { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
 <Form
   schema={schema}
+  uiSchema={uiSchema}
   formData={formData}
   onChange={handleChange}
   onSubmit={handleSubmit}
@@ -1404,10 +1902,11 @@ pages](https://nlesc-jcer.github.io/cpp2wasm/react/example-app.html)
 
 If you enter a negative number in the `epsilon` field the form will become invalid with a error message.
 
-### Visualization
+### Visualization with Vega-Lite
 
-The plots in web application can be made using [vega-lite](https://vega.github.io/vega-lite/). Vega-lite is a JS library
-which accepts a JSON document describing the plot.
+The plots in web application can be made using [Vega-Lite](https://vega.github.io/vega-lite/).
+Vega-Lite is a JavaScript library which describes a plot using a JSON document.
+In Vega-Lite the JSON Document is called a specification and can be compile to a lower level Vega specifcation to be rendered.
 
 To make an interesting plot we need more than one result. We are going to do a parameter sweep and measure how long each
 calculation takes.
@@ -1424,18 +1923,28 @@ const schema = {
       "type": "object",
       "properties": {
         "min": {
+          "title": "Minimum",
           "type": "number",
           "minimum": 0,
           "default": 0.0001
         },
         "max": {
+          "title": "Maximum",
           "type": "number",
           "minimum": 0,
           "default": 0.001
         },
         "step": {
+          "title": "Step",
           "type": "number",
-          "minimum": 0,
+          "enum": [
+            0.1,
+            0.01,
+            0.001,
+            0.0001,
+            0.00001,
+            0.000001
+          ],
           "default": 0.0001
         }
       },
@@ -1445,14 +1954,27 @@ const schema = {
     "guess": {
       "title": "Initial guess",
       "type": "number",
-      "minimum": -100,
-      "maximum": 100,
       "default": -20
     }
   },
   "required": ["epsilon", "guess"],
   "additionalProperties": false
-}
+};
+```
+
+Let's render the epsilon step field as a radio group
+
+```{.js #plot-app}
+const uiSchema = {
+  "epsilon": {
+    "step": {
+      "ui:widget": "radio",
+      "ui:options": {
+        "inline": true
+      }
+    }
+  }
+};
 ```
 
 We need to rewrite the worker to perform a parameter sweep.
@@ -1703,7 +2225,6 @@ Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.gi
 
 After the submit button is pressed the plot should show that the first calculation took a bit longer then the rest.
 
-
 <!--
 
 ---
@@ -1724,40 +2245,6 @@ format](https://yaml.org/) was not chosen, because it is a superset of JSON and 
 finder required. YAML allows for comments while this is not supported in JSON. Also JSON is the lingua franca for web
 services.
 
-An example of JSON schema:
-
-```json
-{
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://nlesc-jcer.github.io/cpp2wasm/NNRequest.json",
-  "type": "object",
-  "properties": {
-    "epsilon": {
-      "title": "Epsilon",
-      "type": "number",
-      "minimum": 0
-    },
-    "guess": {
-      "title": "Initial guess",
-      "type": "integer",
-      "minimum": -100,
-      "maximum": 100
-    }
-  },
-  "required": ["epsilon", "guess"],
-  "additionalProperties": false
-}
-```
-
-And a valid document:
-
-```json
-{
-  "epsilon": 0.001,
-  "guess": -20
-}
-```
-
 ---
  
 A C++ algorithm is a collection of functions/classes that can perform a mathematical computation.
@@ -1768,46 +2255,14 @@ format like a table, chart/plot and download.
 
 The C++ code has the following characteristics:
 
-- A C++ algorithm which can be called as function in a C++ library or command line executable
-- The input and output files of the command line executables adhere to a JSON schema
-- Uses Makefile as build tool
-- Copies of C++ dependencies are in the git repository
+---
 
 ---
 
-A web application is meant for consumption by humans and web service is meant for consumption by machines or other
-programs. So instead of returning HTML pages a web service will accept and return machine readable documents like JSON
-documents. A web service is an application programming interface (API) based on web technologies.
-
-
----
-
-## Web framework
-
-A web framework is an abstraction layer for making web applications. It takes care of mapping a request on a certain url
-to a user defined function. And mapping the return of a user defined function to a response like an HTML page or an
-error message.
-
-## Python
-
-Writing a web application in C++ can be done, but other languages like Python are better equipped. Python has a big
-community making web applications, which resulted in a big ecosystem of web frameworks, template engines, tutorials.
-
-Python packages can be installed using `pip` from the [Python Package Index](https://pypi.org/). It is customary to work
-with [virtual environments](https://packaging.python.org/tutorials/installing-packages/#creating-virtual-environments)
-to isolate the dependencies for a certain application and not pollute the global OS paths.
 
 ### Web application
 
-Now that the C++ functions can be called from Python it is time to call the function from a web page. To assist in
-making a web application a web framework needs to be picked. The [Flask](https://flask.palletsprojects.com/) web
-framework was chosen as it minimalistic and has a large active community.
-
+Now that the C++ functions can be called from Python it is time to call the function from a web page.
 
 ---
-
-JavaScript is the de facto programming language for web browsers. The JavaScript engine in the Chrome browser called V8
-has been wrapped in a runtime engine called Node.js which can execute JavaScript code outside the browser.
-
-
 -->

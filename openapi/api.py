@@ -1,4 +1,4 @@
-# this Python snippet is stored as openapi/.py
+# this Python snippet is stored as openapi/api.py
 def calculate(body):
   epsilon = body['epsilon']
   guess = body['guess']
