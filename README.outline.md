@@ -1,13 +1,3 @@
-add Announcement, something like _Five ways to host your C++ program online_
-
-1. Web service using Common Gateway Interface
-1. Python web service using Swagger/OpenAPI
-1. Python web application using Flask
-1. JavaScript web service using Emscriptem and WebAssembly
-1. JavaScript web application with React
-
-Consider adding a line that helps people decide which section to focus on.
-
 # Example algorithm
 
 Introduce the example algorithm, as a CLI.
