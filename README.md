@@ -167,8 +167,8 @@ The value of the root is : -1.000000
 
 | Pros | Cons |
 | --- | --- |
-| :heart: pro1 | :no_entry: con1 |
-| :heart: pro2 | :no_entry: con2 |
+| :heart: Very few moving parts, just C++ and Apache | :no_entry: Verbose Apache configuration |
+| :heart: Ancient proven technology | :no_entry: Unsuitable for long initialization or calculations |
 
 The classic way to run programs when accessing a url is to use the Common Gateway Interface (CGI). In the 
 [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.html) you can configure a directory as a
@@ -282,8 +282,8 @@ better to do the initialization once when the web service is starting up.
 
 | Pros | Cons |
 | --- | --- |
-| :heart: pro1 | :no_entry: con1 |
-| :heart: pro2 | :no_entry: con2 |
+| :heart: Python is great glue language | :no_entry: Pure Python is slower than C++ |
+| :heart: Web service discoverable and documented with OpenAPI specification | :no_entry: Exception thrown from C++ has number instead of message   |
 
 Writing a web service in C++ can be done, but other languages like Python are better equipped. Python has a big
 community making web applications, which resulted in a big ecosystem of web frameworks, template engines, tutorials.
@@ -297,7 +297,7 @@ to isolate the dependencies for a certain application and not pollute the global
 To make a web application in Python, the C++ functions need to be called somehow. Python can call functions in a C++
 library if its functions use [Python.h datatypes](https://docs.python.org/3.7/extending/index.html). This requires a lot
 of boilerplate and conversions, several tools are out there that make the boilerplate/conversions much simpler. The tool
-we chose to use is [pybind11](https://github.com/pybind/pybind11) as it is currently (May 2019) actively maintained and
+we chose to use is [pybind11](https://github.com/pybind/pybind11) as it is currently (May 2020) actively maintained and
 is a header-only library.
 
 To use ``pybind11``, it must installed with ``pip``
@@ -491,7 +491,7 @@ The operation identifier (`operationId`) in the specification gets translated by
 be called when the path is requested. Connexion calls the function with the JSON parsed request body.
 
 ```{.python file=openapi/api.py}
-# this Python snippet is stored as openapi/.py
+# this Python snippet is stored as openapi/api.py
 def calculate(body):
   epsilon = body['epsilon']
   guess = body['guess']
@@ -542,8 +542,7 @@ curl --request POST \
 
 | Pros | Cons |
 | --- | --- |
-| :heart: pro1 | :no_entry: con1 |
-| :heart: pro2 | :no_entry: con2 |
+| :heart: Use ecosystem to reduce own code | :no_entry: Lots of moving parts: web service + worker + redis queue |
 
 The Python standard library ships with a [HTTP server](https://docs.python.org/3/library/http.server.html) which is very low level. A web framework is an abstraction layer for making writing web applications more pleasant. To write our web application we will use the [Flask](https://flask.palletsprojects.com/) web framework. Flask was chosen as it minimalistic and has a large active community.
 
@@ -772,7 +771,7 @@ docker stop some-redis
 
 | Pros | Cons |
 | --- | --- |
-| :heart: JavaScript is popular language | :no_entry: Node.js uses legacy syntax |
+| :heart: JavaScript is a popular language | :no_entry: OpenAPI spec and JSON schema are sligthly out of sync |
 | :heart: Same language on server as in web browser | :no_entry: Requires server infrastructure for calculations |
 
 [JavaScript](https://developer.mozilla.org/en-US/docs/Web/javascript) is the de facto programming language for web browsers. The JavaScript engine in the Chrome browser called V8 has been wrapped in a runtime engine called [Node.js](http://nodejs.org/) which can execute JavaScript code outside the browser.
@@ -1250,19 +1249,19 @@ In this chapter we created a web service which
 
 | Pros | Cons |
 | --- | --- |
-| :heart: pro1 | :no_entry: con1 |
-| :heart: pro2 | :no_entry: con2 |
+| :heart: No server infrastucture required except file hosting | :no_entry: Big learning curve |
+| :heart: Ecosystem allows for building application with few lines  | :no_entry: Requires modern web browser |
 
 In the [Web application](#web-application) section, a common approach is to render an entire HTML page even if a subset
 of elements requires a change. With the advances in the web browser (JavaScript) engines including methods to fetch JSON
 documents from a web service, it has become possible to address this shortcoming. The so-called [Single Page
 Applications](https://en.wikipedia.org/wiki/Single-page_application) (SPA) enable changes to be made in a part of the
 page without rendering the entire page. To ease SPA development, a number of frameworks have been developed. The most
-popular front-end web frameworks are (as of July 2019):
+popular front-end web frameworks are (as of June 2020):
 
-- [React](https://reactjs.org/)
-- [Vue.js](https://vuejs.org/)
-- [Angular](https://angular.io/)
+* [React](https://reactjs.org/)
+* [Vue.js](https://vuejs.org/)
+* [Angular](https://angular.io/)
 
 Their pros and cons are summarized [here](https://en.wikipedia.org/wiki/Comparison_of_JavaScript_frameworks#Features).
 
