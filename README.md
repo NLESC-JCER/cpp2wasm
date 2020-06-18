@@ -40,7 +40,7 @@ guide. The code snippets can be [entangled](https://entangled.github.io/) to fil
 [these](CONTRIBUTING.md#tips) methods.
 
 A web application is meant for consumption by humans using [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML) pages and a web service is meant for consumption by machines or other
-programs. A web service will accept and return machine readable documents like [JSON (JavaScript Object Notation)](https://www.json.org/) documents.
+programs. A web service will accept and return machine readable documents like [JSON (JavaScript Object Notation)](https://www.json.org/) documents. JSON is a open standard file format and data interchange format that is human-readable.
 
 ## Example program: Newton-Raphson root finding
 
@@ -193,8 +193,10 @@ The classic way to run programs when accessing a url is to use the Common Gatewa
 [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.html) you can configure a directory as a
 `ScriptAlias`, when visiting a file inside that directory the file will be executed. The executable can read the
 request body from the `stdin` and the response must be printed to the `stdout`. A response should consist of a
-content type such as `application/json` or `text/html`, followed by the content itself. A web service which accepts
-and returns JSON documents can for example look like:
+content type such as `application/json` or `text/html`, followed by the content itself.
+For the web service we retrieve and assemble JSON documents using the [nlohmann/json.hpp](https://github.com/nlohmann/json/) library.
+
+We start writing the CGI script by importing the JSON library and starting the main function.
 
 ```{.cpp file=cgi/cgi-newtonraphson.cpp}
 // this C++ snippet is stored as cgi/cgi-newtonraphson.hpp
@@ -206,28 +208,36 @@ and returns JSON documents can for example look like:
 
 int main(int argc, char *argv[])
 {
-  std::cout << "Content-type: application/json" << std::endl << std::endl;
+```
 
-  // Retrieve epsilon and guess from request body
+We should convert the JSON request body from the `stdin` to get the `epsilon` and `guess` values.
+
+```{.cpp file=cgi/cgi-newtonraphson.cpp}
+  // this C++ snippet is appended to cgi/cgi-newtonraphson.hpp
   nlohmann::json request(nlohmann::json::parse(std::cin));
   double epsilon = request["epsilon"];
   double guess = request["guess"];
+```
 
-  // Find root
+The rood can be found with
+
+```{.cpp file=cgi/cgi-newtonraphson.cpp}
+  // this C++ snippet is appended to cgi/cgi-newtonraphson.hpp
   rootfinding::NewtonRaphson finder(epsilon);
   double root = finder.solve(guess);
+```
 
-  // Assemble response
+And lastly return a JSON document with the result
+
+```{.cpp file=cgi/cgi-newtonraphson.cpp}
+  // this C++ snippet is appended to cgi/cgi-newtonraphson.hpp
   nlohmann::json response;
-  response["guess"] = guess;
   response["root"] = root;
+  std::cout << "Content-type: application/json" << std::endl << std::endl;
   std::cout << response.dump(2) << std::endl;
   return 0;
 }
 ```
-
-Where [nlohmann/json.hpp](https://github.com/nlohmann/json/) is a JSON serialization/unserialization C++ header-only library to convert a JSON string to
-and from a data type.
 
 This can be compiled with
 
@@ -235,7 +245,7 @@ This can be compiled with
 g++ -Icgi/deps/ -Icli/ cgi/cgi-newtonraphson.cpp -o cgi/apache2/cgi-bin/newtonraphson
 ```
 
-The CGI script can be tested directly with
+The CGI script can be tested from the command line without using a http request by piping a JSON document with
 
 ```{.awk #test-cgi}
 echo '{"guess":-20, "epsilon":0.001}' | cgi/apache2/cgi-bin/newtonraphson
@@ -247,12 +257,11 @@ It should output
 Content-type: application/json
 
 {
-  "guess": -20.0,
   "root": -1.0000001181322415
 }
 ```
 
-Example Apache config file to host executables in `cgi/apache2/cgi-bin/` directory as `http://localhost:8080/cgi-bin/`:
+To host the `cgi/apache2/cgi-bin/newtonraphson` executable as `http://localhost:8080/cgi-bin/newtonraphson` CGI script we have to configure Apache like so
 
 ```{.python file=cgi/apache2/apache2.conf}
 # this Apache2 configuration snippet is stored as cgi/apache2/apache2.conf
@@ -287,7 +296,6 @@ Should return the following JSON document as a response
 
 ```json
 {
-  "guess": -20,
   "root":-1.0000001181322415
 }
 ```
