@@ -88,9 +88,9 @@ test-webservice:
 	  http://localhost:8080/api/newtonraphson
 
 run-celery-worker: flask/newtonraphsonpy.*.so
-	PYTHONPATH=openapi celery worker -A tasks
+	PYTHONPATH=flask celery worker -A tasks
 
-run-celery-webapp: flask/newtonraphsonpy.*.so
+run-celery-webapp:
 	python flask/webapp-celery.py
 
 build-wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm

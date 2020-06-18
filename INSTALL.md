@@ -103,7 +103,7 @@ test-webservice:
 run-celery-worker: flask/newtonraphsonpy.*.so
 	<<run-celery-worker>>
 
-run-celery-webapp: flask/newtonraphsonpy.*.so
+run-celery-webapp:
 	<<run-celery-webapp>>
 
 build-wasm: webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm

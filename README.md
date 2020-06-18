@@ -630,6 +630,14 @@ python flask/webapp.py
 
 To test we can visit [http://localhost:5001](http://localhost:5001) fill the form and press submit to get the result.
 
+The form should look like
+
+![Flask form](images/flask-form.png "Flask form")
+
+After pressing submit the result should look like
+
+![Flask result](images/flask-result.png "Flask result")
+
 ### Long-running tasks with Celery
 
 When performing a long calculation (more than 30 seconds), the end-user requires feedback of the progress. In a normal
@@ -747,7 +755,7 @@ python flask/webapp-celery.py
 Tasks will be run by the Celery worker. The worker can be started with
 
 ```{.awk #run-celery-worker}
-PYTHONPATH=openapi celery worker -A tasks
+PYTHONPATH=flask celery worker -A tasks
 ```
 
 (The PYTHONPATH environment variable is set so the Celery worker can find the `tasks.py` and `newtonraphsonpy.*.so`
@@ -756,8 +764,17 @@ files in the `flask/` directory)
 To test the web service
 
 1. Go to [http://localhost:5000](http://localhost:5000),
+
+    ![Celery form](images/celery-form.png "Celery form")
+
 2. Submit form,
 3. Refresh result page until progress states are replaced with result.
+
+    ![Celery sleep initializing](images/celery-init.png "Celery sleep initializing")
+
+    ![Celery sleep finding](images/celery-finding.png "Celery sleep finding")
+
+    ![Celery result](images/celery-result.png "Celery result")
 
 The redis server can be shut down with
 
