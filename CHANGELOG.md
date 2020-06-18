@@ -11,12 +11,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * JavaScript web service chapter ([#83](https://github.com/NLESC-JCER/cpp2wasm/issues/83))
 * Screenshots for Python web application ([#32](https://github.com/NLESC-JCER/cpp2wasm/issues/32))
-* Pros and cons for each way to make C++ code available as a web application or web wervice
+* Pros and cons for each way to make C++ code available as a web application or web wervice ([#66](https://github.com/NLESC-JCER/cpp2wasm/issues/66))
+* Link to nlohmann/json ([#88](https://github.com/NLESC-JCER/cpp2wasm/issues/88))
 
 ## [0.4.0] -  2020-06-10
 
 ### Changed
 
+* Optimize flow of guide ([#51](https://github.com/NLESC-JCER/cpp2wasm/issues/51), [#66](https://github.com/NLESC-JCER/cpp2wasm/issues/66), [#81](https://github.com/NLESC-JCER/cpp2wasm/issues/81), [#82](https://github.com/NLESC-JCER/cpp2wasm/issues/82), [#84](https://github.com/NLESC-JCER/cpp2wasm/issues/84))
 * Directory structure ([#67](https://github.com/NLESC-JCER/cpp2wasm/issues/67))
 * Makefile does less entangles ([#61](https://github.com/NLESC-JCER/cpp2wasm/issues/61))
 
