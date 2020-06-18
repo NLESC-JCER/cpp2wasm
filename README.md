@@ -808,7 +808,7 @@ docker stop some-redis
 
 | Pros | Cons |
 | --- | --- |
-| :heart: JavaScript is a popular language | :no_entry: OpenAPI spec and JSON schema are sligthly out of sync |
+| :heart: JavaScript is a powerful language which runs on many different platforms including mobile devices | :no_entry: OpenAPI spec and JSON schema are slightly out of sync |
 | :heart: Same language on server as in web browser | :no_entry: Requires server infrastructure for calculations |
 
 [JavaScript](https://developer.mozilla.org/en-US/docs/Web/javascript) is the de facto programming language for web browsers. The JavaScript engine in the Chrome browser called V8 has been wrapped in a runtime engine called [Node.js](http://nodejs.org/) which can execute JavaScript code outside the browser.
