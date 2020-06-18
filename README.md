@@ -295,7 +295,7 @@ better to do the initialization once when the web service is starting up.
 | Pros | Cons |
 | --- | --- |
 | :heart: Python is a very popular language and has a large ecosystem | :no_entry: Pure Python is slower than C++ |
-| :heart: Web service discoverable and documented with OpenAPI specification | :no_entry: Exception thrown from C++ has number instead of message   |
+| :heart: Web service is easy to discover and nicely documented with OpenAPI specification | :no_entry: Exception thrown from C++ has number instead of message   |
 
 Writing a web service in C++ can be done, but other languages like Python are better equipped. Python has a big
 community making web applications, which resulted in a big ecosystem of web frameworks, template engines, tutorials.
