@@ -9,29 +9,10 @@
 In this guide, we will describe 5 ways to make your C++ code available as a web application or web wervice
 
 1. [Web service using Common Gateway Interface](#web-service-using-common-gateway-interface),
-
-    * For readers who are not interested in other languages
-    * and just want a quick web service in C++.
-
 1. [Python web service using pybind11 and OpenAPI](#python-web-service),
-
-    * For readers who want to learn how to call C++ from Python
-    * and make a web service which is disoverable, documented and performs validation
-
 1. [Python web application using Flask and Celery](#python-web-application-using-flask),
-
-    * For readers who want to make a user facing web application
-    * and be able to run slow tasks
-
 1. [JavaScript web service using Emscripten and Fastify](#javascript-web-service),
-
-    * For readers who want to learn how to call C++ from JavaScript
-    * and make a web service which is disoverable, documented and performs validation
-
 1. [JavaScript web application using web worker and React](#javascript-web-application)
-
-    * For readers who do not have or want server infrastructure to perform calculations on
-    * and want to make a nice looking web application with form validation and plots
 
 This guide was written and tested on Linux operating system. The required dependencies to run this guide are described
 in the [INSTALL.md](INSTALL.md) document. If you want to contribute to the guide see [CONTRIBUTING.md](CONTRIBUTING.md).
