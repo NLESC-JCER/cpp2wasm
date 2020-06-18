@@ -36,21 +36,17 @@ double NewtonRaphson::solve(double xin)
 
 int main(int argc, char *argv[])
 {
-  std::cout << "Content-type: application/json" << std::endl << std::endl;
-
-  // Retrieve epsilon and guess from request body
+  // this C++ snippet is appended to cgi/cgi-newtonraphson.hpp
   nlohmann::json request(nlohmann::json::parse(std::cin));
   double epsilon = request["epsilon"];
   double guess = request["guess"];
-
-  // Find root
+  // this C++ snippet is appended to cgi/cgi-newtonraphson.hpp
   rootfinding::NewtonRaphson finder(epsilon);
   double root = finder.solve(guess);
-
-  // Assemble response
+  // this C++ snippet is appended to cgi/cgi-newtonraphson.hpp
   nlohmann::json response;
-  response["guess"] = guess;
   response["root"] = root;
+  std::cout << "Content-type: application/json" << std::endl << std::endl;
   std::cout << response.dump(2) << std::endl;
   return 0;
 }
