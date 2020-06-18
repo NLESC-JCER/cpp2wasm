@@ -364,6 +364,8 @@ It will output something like
 -1.0000001181322415
 ```
 
+Now that the C++ functions can be called from Python it is time to call the function from a web service.
+
 ### OpenAPI web service using connexion
 
 A web service has a number of paths or urls to which a request can be sent and a response received. The interface can be
@@ -542,7 +544,7 @@ curl --request POST \
 
 | Pros | Cons |
 | --- | --- |
-| :heart: Use ecosystem to reduce own code | :no_entry: Lots of moving parts: web service + worker + redis queue |
+| :heart: Use ecosystem to minimize own code | :no_entry: Lots of moving parts: web service + worker + redis queue |
 
 The Python standard library ships with a [HTTP server](https://docs.python.org/3/library/http.server.html) which is very low level. A web framework is an abstraction layer for making writing web applications more pleasant. To write our web application we will use the [Flask](https://flask.palletsprojects.com/) web framework. Flask was chosen as it minimalistic and has a large active community.
 
@@ -2224,45 +2226,3 @@ Embedded below is the example app hosted on [GitHub pages](https://nlesc-jcer.gi
 <iframe width="100%" height="1450" src="https://nlesc-jcer.github.io/cpp2wasm/react/example-plot.html" /></iframe>
 
 After the submit button is pressed the plot should show that the first calculation took a bit longer then the rest.
-
-<!--
-
----
-
-# Leftovers
-
-## JSON schema
-
-To make the same input and output reusable from either the command line or web service, the [JSON
-format](http://json.org/) was chosen. As the JSON format is easy read and write by human and machines.
-
-Compared with a binary format or a comma separated file, JSON is more verbose, but is more self documenting. It is less
-verbose than [XML](https://en.wikipedia.org/wiki/XML), and just like there is an [XML schema
-definition](https://en.wikipedia.org/wiki/XML_Schema_(W3C)) for validation of XML, there is an equivalent for JSON
-called [JSON schema](https://json-schema.org/). JSON schema is used to describe the shape of a JSON document and make
-sure root finder consumers know how to provide the input and what to expect from the output. [YAML
-format](https://yaml.org/) was not chosen, because it is a superset of JSON and JSON has all the expressiveness root
-finder required. YAML allows for comments while this is not supported in JSON. Also JSON is the lingua franca for web
-services.
-
----
- 
-A C++ algorithm is a collection of functions/classes that can perform a mathematical computation.
-
-The web application is a set of web pages with a form to fill the input required for the algorithm, a submit button that
-will start the execution and a page that shows the output of the algorithm. The output should be presented in a usable
-format like a table, chart/plot and download.
-
-The C++ code has the following characteristics:
-
----
-
----
-
-
-### Web application
-
-Now that the C++ functions can be called from Python it is time to call the function from a web page.
-
----
--->
