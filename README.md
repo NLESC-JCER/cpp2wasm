@@ -283,12 +283,14 @@ Start Apache httpd web server using
 /usr/sbin/apache2 -X -d ./cgi/apache2
 ```
 
-And in another shell call CGI script using curl
+To test the [CGI script](http://localhost:8080/cgi-bin/newtonraphson) we can not use the web browser, but need to use http client like [curl](https://curl.haxx.se/).
+A web browser uses the [GET http request method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET) and `text/html` as content type, but the CGI script requires a [POST http request method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST) and JSON string as request body.
+The curl command with a POST request can be run in another shell with
 
 ```shell
 curl --request POST \
-  --header "Content-Type: application/json" \
   --data '{"guess":-20, "epsilon":0.001}' \
+  --header "Content-Type: application/json" \
   http://localhost:8080/cgi-bin/newtonraphson
 ```
 
@@ -299,6 +301,8 @@ Should return the following JSON document as a response
   "root":-1.0000001181322415
 }
 ```
+
+Instead of curl we could use any http client in any language to consume the web service.
 
 The problem with CGI scripts is when the program does some initialization, you have to wait for it each visit. It is
 better to do the initialization once when the web service is starting up.
