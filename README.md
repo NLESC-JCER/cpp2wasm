@@ -297,10 +297,10 @@ better to do the initialization once when the web service is starting up.
 | :heart: Python is a very popular language and has a large ecosystem | :no_entry: Pure Python is slower than C++ |
 | :heart: Web service is easy to discover and nicely documented with OpenAPI specification | :no_entry: Exception thrown from C++ has number instead of message   |
 
-Writing a web service in C++ can be done, but other languages like Python are better equipped. Python has a big
+Writing a web service in C++ is possible, but other languages like Python are better equipped. Python has a big
 community making web applications, which resulted in a big ecosystem of web frameworks, template engines, tutorials.
 
-Python packages can be installed using `pip` from the [Python Package Index](https://pypi.org/). It is customary to work
+Python packages can be installed using a package manager (`pip`) from the [Python Package Index](https://pypi.org/). It is customary to work
 with [virtual environments](https://packaging.python.org/tutorials/installing-packages/#creating-virtual-environments)
 to isolate the dependencies for a certain application and not pollute the global OS paths.
 
