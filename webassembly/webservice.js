@@ -65,7 +65,7 @@ fastify.route({
 // this JavaScript snippet is later referred to as <<fastify-listen>>
 const main = async (port) => {
   try {
-    const host = '127.0.0.1'
+    const host = 'localhost'
     console.log('Server listening on http://%s:%d (Press CTRL+C to quit)', host, port)
     await fastify.listen(port, host)
   } catch (err) {

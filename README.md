@@ -968,13 +968,13 @@ fastify.route({
 })
 ```
 
-Now that the route have been defined we can tell Fastify to listen on `http://127.0.0.1:<port>` for requests and die when an error is thrown.
+Now that the route have been defined we can tell Fastify to listen on `http://localhost:<port>` for requests and die when an error is thrown.
 
 ```{.js #fastify-listen}
 // this JavaScript snippet is later referred to as <<fastify-listen>>
 const main = async (port) => {
   try {
-    const host = '127.0.0.1'
+    const host = 'localhost'
     console.log('Server listening on http://%s:%d (Press CTRL+C to quit)', host, port)
     await fastify.listen(port, host)
   } catch (err) {
@@ -984,7 +984,7 @@ const main = async (port) => {
 }
 ```
 
-Let's listen on `http://127.0.0.1:3000`
+Let's listen on `http://localhost:3000`
 
 ```{.js file=webassembly/webservice.js}
 // this JavaScript snippet is appended to webassembly/webservice.js
@@ -1136,7 +1136,7 @@ Let's load the WebAssembly module, add the plugin, add the handler and add the r
 <<fastify-openapi-route>>
 ```
 
-Next we listen on [http://127.0.0.1:3001](http://127.0.0.1:3001).
+Next we listen on [http://localhost:3001](http://localhost:3001).
 
 ```{.js file=webassembly/openapi.js}
 // this JavaScript snippet is appended to webassembly/openapi.js
@@ -1239,7 +1239,7 @@ And send the result back to the web service handler by posting a message to the 
 })
 ```
 
-Similar to the previous chapter we register the OpenAPI plugin, define a route and listen on [http://127.0.0.1:3002](http://127.0.0.1:3002)
+Similar to the previous chapter we register the OpenAPI plugin, define a route and listen on [http://localhost:3002](http://localhost:3002)
 
 ```{.js file=webassembly/webservice-threaded.js}
 // this JavaScript snippet is appended to webassembly/webservice-threaded.js
