@@ -1,13 +1,3 @@
-# Python web service
-
-- pybind11
-- OpenApi, Swagger, JSON schema
-
-# Python web application
-
-- web app v web service difference
-- explanation of what is a web framework using @route decorator
-- long running tasks, celery
 
 # JavaScript web service
 

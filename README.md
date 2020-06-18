@@ -587,11 +587,10 @@ We'll use the shared library that the openapi example also uses:
 cd flask && ln -s ../openapi/newtonraphsonpy`python3-config --extension-suffix` . && cd -
 ```
 
-The web application has 3 pages:
+Our web application will have 2 pages:
 
 1. a page with form and submit button,
-2. a page to show the progress of the calculation
-3. and a page which shows the result of the calculation. Each calculation will have it's own submit and result page.
+1. and a page which shows the result of the calculation.
 
 Each page is available on a different url. In Flask the way urls are mapped to Python function is done by adding a
 [route decorator](https://flask.palletsprojects.com/en/1.1.x/quickstart/#routing) (`@app.route`) to the function.
@@ -674,6 +673,12 @@ request/response cycle, feedback is only returned in the response. To give feedb
 computation must be offloaded to a task queue. In Python, a commonly used task queue is
 [celery](http://docs.celeryproject.org/). While the calculation is running on some worker it is possible to have a
 progress page which can check in the queue what the progress is of the calculation.
+
+Our Celery powered web application will have 3 pages:
+
+1. a page with form and submit button,
+1. a page to show the progress of the calculation,
+1. and a page which shows the result of the calculation. Each calculation will have it's own progress and result page.
 
 Celery needs a broker for a queue and result storage. We'll use [redis](https://redis.io/) in a Docker container as
 Celery broker, because it's simple to setup. Redis can be started with the following command
