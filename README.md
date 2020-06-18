@@ -167,15 +167,15 @@ The value of the root is : -1.000000
 
 | Pros | Cons |
 | --- | --- |
-| :heart: Very few moving parts, just C++ and Apache | :no_entry: Verbose Apache configuration |
-| :heart: Ancient proven technology | :no_entry: Unsuitable for long initialization or calculations |
+| :heart: Very few moving parts, just C++ and Apache web server | :no_entry: Complicated Apache web server configuration |
+| :heart: Proven technology | :no_entry: Not suitable for long initialization or calculations |
 
 The classic way to run programs when accessing a url is to use the Common Gateway Interface (CGI). In the 
 [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.html) you can configure a directory as a
 `ScriptAlias`, when visiting a file inside that directory the file will be executed. The executable can read the
 request body from the `stdin` and the response must be printed to the `stdout`. A response should consist of a
 content type such as `application/json` or `text/html`, followed by the content itself.
-For the web service we retrieve and assemble JSON documents using the [nlohmann/json.hpp](https://github.com/nlohmann/json/) library.
+For the web service, we parse and assemble JSON documents using the [nlohmann/json.hpp](https://github.com/nlohmann/json/) library.
 
 We start writing the CGI script by importing the JSON library and starting the main function.
 
@@ -191,7 +191,7 @@ int main(int argc, char *argv[])
 {
 ```
 
-We should convert the JSON request body from the `stdin` to get the `epsilon` and `guess` values.
+We should parse the JSON request body from the `stdin` to get the `epsilon` and `guess` values.
 
 ```{.cpp file=cgi/cgi-newtonraphson.cpp}
   // this C++ snippet is appended to cgi/cgi-newtonraphson.hpp
@@ -200,7 +200,7 @@ We should convert the JSON request body from the `stdin` to get the `epsilon` an
   double guess = request["guess"];
 ```
 
-The rood can be found with
+The root can be found with
 
 ```{.cpp file=cgi/cgi-newtonraphson.cpp}
   // this C++ snippet is appended to cgi/cgi-newtonraphson.hpp
@@ -208,7 +208,7 @@ The rood can be found with
   double root = finder.solve(guess);
 ```
 
-And lastly return a JSON document with the result
+And lastly, return a JSON document with the result
 
 ```{.cpp file=cgi/cgi-newtonraphson.cpp}
   // this C++ snippet is appended to cgi/cgi-newtonraphson.hpp
@@ -226,7 +226,7 @@ This can be compiled with
 g++ -Icgi/deps/ -Icli/ cgi/cgi-newtonraphson.cpp -o cgi/apache2/cgi-bin/newtonraphson
 ```
 
-The CGI script can be tested from the command line without using a http request by piping a JSON document with
+The CGI script can be tested from the command line
 
 ```{.awk #test-cgi}
 echo '{"guess":-20, "epsilon":0.001}' | cgi/apache2/cgi-bin/newtonraphson
@@ -264,8 +264,8 @@ Start Apache httpd web server using
 /usr/sbin/apache2 -X -d ./cgi/apache2
 ```
 
-To test the [CGI script](http://localhost:8080/cgi-bin/newtonraphson) we can not use the web browser, but need to use http client like [curl](https://curl.haxx.se/).
-A web browser uses the [GET http request method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET) and `text/html` as content type, but the CGI script requires a [POST http request method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST) and JSON string as request body.
+To test the [CGI script](http://localhost:8080/cgi-bin/newtonraphson) we can not use a web browser, but need to use http client like [curl](https://curl.haxx.se/).
+Because, a web browser uses the [GET http request method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/GET) and `text/html` as content type, but the CGI script requires a [POST http request method](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods/POST) and JSON string as request body.
 The curl command with a POST request can be run in another shell with
 
 ```shell
@@ -283,9 +283,9 @@ Should return the following JSON document as a response
 }
 ```
 
-Instead of curl we could use any http client in any language to consume the web service.
+Instead of curl, we could use any http client in any language to consume the web service.
 
-The problem with CGI scripts is when the program does some initialization, you have to wait for it each visit. It is
+The problem with CGI scripts is when the program does some initialization, you have to wait for it on each visit. It is
 better to do the initialization once when the web service is starting up.
 
 ## Python web service
@@ -294,7 +294,7 @@ better to do the initialization once when the web service is starting up.
 
 | Pros | Cons |
 | --- | --- |
-| :heart: Python is great glue language | :no_entry: Pure Python is slower than C++ |
+| :heart: Python is a very popular language and has a large ecosystem | :no_entry: Pure Python is slower than C++ |
 | :heart: Web service discoverable and documented with OpenAPI specification | :no_entry: Exception thrown from C++ has number instead of message   |
 
 Writing a web service in C++ can be done, but other languages like Python are better equipped. Python has a big
