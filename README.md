@@ -37,7 +37,7 @@ root is `-1`.
 
 [![Plotted equation](images/equation.svg)](https://www.wolframalpha.com/input/?i=x%5E3+-+x%5E2+%2B+2)
 
-```{.hpp file=cli/algebra.hpp}
+```{.cpp file=cli/algebra.hpp}
 // this C++ code snippet is store as cli/algebra.hpp
 
 namespace algebra
@@ -145,13 +145,13 @@ int main()
 
 The program can be compiled with
 
-```{.awk #build-cli}
+```{.shell #build-cli}
 g++ cli/cli-newtonraphson.cpp -o cli/newtonraphson.exe
 ```
 
 and it can be run with
 
-```{.awk #test-cli}
+```{.shell #test-cli}
 ./cli/newtonraphson.exe
 ```
 
@@ -170,7 +170,7 @@ The value of the root is : -1.000000
 | :heart: Very few moving parts, just C++ and Apache web server | :no_entry: Complicated Apache web server configuration |
 | :heart: Proven technology | :no_entry: Not suitable for long initialization or calculations |
 
-The classic way to run programs when accessing a url is to use the Common Gateway Interface (CGI). In the 
+The classic way to run programs when accessing a url is to use the Common Gateway Interface (CGI). In the
 [Apache httpd web server](https://httpd.apache.org/docs/2.4/howto/cgi.html) you can configure a directory as a
 `ScriptAlias`, when visiting a file inside that directory the file will be executed. The executable can read the
 request body from the `stdin` and the response must be printed to the `stdout`. A response should consist of a
@@ -222,13 +222,13 @@ And lastly, return a JSON document with the result
 
 This can be compiled with
 
-```{.awk #build-cgi}
+```{.shell #build-cgi}
 g++ -Icgi/deps/ -Icli/ cgi/cgi-newtonraphson.cpp -o cgi/apache2/cgi-bin/newtonraphson
 ```
 
 The CGI script can be tested from the command line
 
-```{.awk #test-cgi}
+```{.shell #test-cgi}
 echo '{"guess":-20, "epsilon":0.001}' | cgi/apache2/cgi-bin/newtonraphson
 ```
 
@@ -314,7 +314,7 @@ is a header-only library.
 
 To use ``pybind11``, it must installed with ``pip``
 
-```{.awk #pip-pybind11}
+```{.shell #pip-pybind11}
 pip install pybind11
 ```
 
@@ -347,7 +347,7 @@ PYBIND11_MODULE(newtonraphsonpy, m) {
 
 Compile with
 
-```{.awk #build-py}
+```{.shell #build-py}
 g++ -O3 -Wall -shared -std=c++14 -fPIC -Icli/ `python3 -m pybind11 --includes` \
 openapi/py-newtonraphson.cpp -o openapi/newtonraphsonpy`python3-config --extension-suffix`
 ```
@@ -366,7 +366,7 @@ print ("{0:.6f}".format(root))
 
 The Python example can be run with
 
-```{.awk #test-py}
+```{.shell #test-py}
 python openapi/example.py
 ```
 
@@ -563,7 +563,7 @@ The Python standard library ships with a [HTTP server](https://docs.python.org/3
 
 The Flask Python library can be installed with
 
-```{.awk #pip-flask}
+```{.shell #pip-flask}
 pip install flask
 ```
 
@@ -638,7 +638,7 @@ app.run(port=5001)
 
 And running it with
 
-```{.awk #run-webapp}
+```{.shell #run-webapp}
 python flask/webapp.py
 ```
 
@@ -669,13 +669,13 @@ Our Celery powered web application will have 3 pages:
 Celery needs a broker for a queue and result storage. We'll use [redis](https://redis.io/) in a Docker container as
 Celery broker, because it's simple to setup. Redis can be started with the following command
 
-```{.awk #start-redis}
+```{.shell #start-redis}
 docker run --rm -d -p 6379:6379 --name some-redis redis
 ```
 
 To use Celery we must install the redis flavored version with
 
-```{.awk #pip-celery}
+```{.shell #pip-celery}
 pip install celery[redis]
 ```
 
@@ -768,13 +768,13 @@ if __name__ == '__main__':
 
 Start the web application like before with
 
-```{.awk #run-celery-webapp}
+```{.shell #run-celery-webapp}
 python flask/webapp-celery.py
 ```
 
 Tasks will be run by the Celery worker. The worker can be started with
 
-```{.awk #run-celery-worker}
+```{.shell #run-celery-worker}
 PYTHONPATH=flask celery worker -A tasks
 ```
 
@@ -1165,7 +1165,7 @@ curl --request POST \
 
 ### Long running task with worker threads
 
-The web service we made in the prevous chapter will block any other requests while the algorithm solving is running. This is due to the inner workings of Node.js. Node.js uses a single threaded event loop, so while an event is being handled Node.js is busy. Node.js uses callbacks and promises to handle long IO tasks efficiently. 
+The web service we made in the prevous chapter will block any other requests while the algorithm solving is running. This is due to the inner workings of Node.js. Node.js uses a single threaded event loop, so while an event is being handled Node.js is busy. Node.js uses callbacks and promises to handle long IO tasks efficiently.
 
 To use the CPU in parallel Node.js has [worker threads](https://nodejs.org/dist/latest-v12.x/docs/api/worker_threads.html). We don't want to start a new thread each time a request is recieved to perform the calculation, we want to use a pool of waiting threads. So each request will be computed by a thread from the pool.
 Node.js gives use the low level primitives to create a thread. A thread pool implementation is explained in the [Node.js documentation](https://nodejs.org/docs/latest-v12.x/api/async_hooks.html#async_hooks_using_asyncresource_for_a_worker_thread_pool), we could copy it here or use an existing package.
@@ -1367,12 +1367,12 @@ document.getElementById('answer').innerHTML = root.toFixed(2);
 The web browser can only load the `newtonraphsonwasm.js` file when hosted by a web server. Python ships with a built-in
 web server, we will use it to host all files of the repository on port 8000.
 
-```{.awk #host-files}
+```{.shell #host-files}
 python3 -m http.server 8000
 ```
 
 Visit [http://localhost:8000/webassembly/example.html](http://localhost:8000/webassembly/example.html) to see the result
-of the calculation. Embedded below is the example hosted on 
+of the calculation. Embedded below is the example hosted on
 [GitHub pages](https://nlesc-jcer.github.io/cpp2wasm/webassembly/example.html)
 
 [https://nlesc-jcer.github.io/cpp2wasm/webassembly/example.html](https://nlesc-jcer.github.io/cpp2wasm/webassembly/example.html ':include :type=iframe width=100% height=60px').
@@ -1583,7 +1583,7 @@ offline.
 The web application in our example should have a form with `epsilon` and `guess` input fields, as well as a ``submit`` button.
 The form in JSX can be written in the following way:
 
-```{.jsx #react-form}
+```{.jsxinline #react-form}
 { /* this JavaScript snippet is later referred to as <<react-form>> */ }
 <form onSubmit={handleSubmit}>
   <label>
@@ -1842,7 +1842,7 @@ function handleChange(event) {
 
 The form can be rendered with
 
-```{.jsx #jsonschema-form}
+```{.jsxinline #jsonschema-form}
 { /* this JavaScript snippet is later referred to as <<jsonschema-form>>  */}
 <Form
   schema={schema}

@@ -4,11 +4,12 @@
 HOST_UID := $(shell id -u)
 HOST_GID := $(shell id -g)
 # Prevent suicide by excluding Makefile
-ENTANGLED := $(shell perl -ne 'print $$1,"\n" if /^```\{.*file=(.*)\}/' *.md | grep -v Makefile | sort -u)
+ENTANGLED := $(shell docker run --rm --user ${HOST_UID}:${HOST_GID} -v ${PWD}:/data nlesc/entangled list)
 COMPILED := cli/newtonraphson.exe openapi/newtonraphsonpy.*.so flask/newtonraphsonpy.*.so cgi/apache2/cgi-bin/newtonraphson webassembly/newtonraphsonwasm.js webassembly/newtonraphsonwasm.wasm react/newtonraphsonwasm.js react/newtonraphsonwasm.wasm
 
 entangle: *.md
-	docker run --rm --user ${HOST_UID}:${HOST_GID} -v ${PWD}:/data nlesc/pandoc-tangle:0.5.0 --preserve-tabs *.md
+	docker run --rm --user ${HOST_UID}:${HOST_GID} -v ${PWD}:/data nlesc/entangled insert -s *.md
+	docker run --rm --user ${HOST_UID}:${HOST_GID} -v ${PWD}:/data nlesc/entangled tangle -a
 
 $(ENTANGLED): entangle
 
@@ -179,3 +180,6 @@ init-git-hook:
 
 check: entangle
 	git diff-index --quiet HEAD --
+# TODO entangled always OK due to entangle target being run before. `make check` should not have entangle target called.
+#check:
+#	docker run --rm --user ${UID} -v ${PWD}:/data nlesc/entangled -c tangle -a
