@@ -4,7 +4,7 @@
 
 Before you submit a pull request, check that it meets these guidelines:
 
-1. Tests described in [TESTING.md](TESTING.md) should continue to pass.
+1. Read getting started in [CONTRIBUTING.md](CONTRIBUTING.md#get-started).
 1. If the pull request adds functionality, it is good practice to also add tests for the functionality.
 1. Update the [CHANGELOG](CHANGELOG.md) in accordance with the nature of your Pull Request.
 1. The pull request should work for C++, emscripten, web browser, Python 3.6, 3.7 and 3.8.

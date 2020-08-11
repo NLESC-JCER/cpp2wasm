@@ -27,13 +27,12 @@ Report bugs at [https://github.com/NLESC-JCER/cpp2wasm/issues/new?labels=bug&tem
 
 ### Fix Bugs
 
-Look through the GitHub issues for bugs. Anything tagged with "bug" and "help
-wanted" is open to whoever wants to implement it.
+Look through the GitHub issues for bugs. Anything tagged with ["bug"](https://github.com/NLESC-JCER/cpp2wasm/issues?q=is%3Aopen+is%3Aissue+label%3Abug) is open to whoever wants to implement it.
 
 ### Implement Features
 
-Look through the GitHub issues for features. Anything tagged with "enhancement"
-and "help wanted" is open to whoever wants to implement it.
+Look through the GitHub issues for features. Anything tagged with ["enhancement"](https://github.com/NLESC-JCER/cpp2wasm/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement)
+ is open to whoever wants to implement it.
 
 ### Submit Feedback
 
@@ -45,7 +44,7 @@ If you are proposing a feature go [here](https://github.com/NLESC-JCER/cpp2wasm/
 
 Ready to contribute? Here's how to set up `cpp2wasm` for local development.
 
-1. Fork the `cpp2wasm` repo on GitHub.
+1. Fork the [cpp2wasm repo](https://github.com/NLESC-JCER/cpp2wasm) on GitHub.
 2. Clone your fork locally::
 
     ```shell
