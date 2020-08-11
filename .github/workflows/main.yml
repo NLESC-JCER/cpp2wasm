@@ -28,7 +28,7 @@ jobs:
     - name: Install Python dependencies
       run: make py-deps
     - name: Install emscripten
-      uses: mymindstorm/setup-emsdk@v5
+      uses: mymindstorm/setup-emsdk@v6
       with:
         version: 1.39.17
         actions-cache-folder: 'emsdk-cache'
@@ -42,7 +42,7 @@ jobs:
       if: steps.cache-bw.outputs.cache-hit != 'true'
       run: |
         wget https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
-        unzip build-wrapper-linux-x86.zip 
+        unzip build-wrapper-linux-x86.zip
         rm -f build-wrapper-linux-x86.zip
     - name: Remove all compiled files
       run: make clean-compiled
