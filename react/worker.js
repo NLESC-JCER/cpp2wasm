@@ -1,0 +1,1 @@
+../webassembly/worker.js

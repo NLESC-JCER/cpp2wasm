@@ -1,14 +1,10 @@
-# ~\~ language=Bash filename=.githooks/pre-commit
-# ~\~ begin <<CONTRIBUTING.md|.githooks/pre-commit>>[0]
 #!/bin/sh
 # this shell script is stored as .githooks/pre-commit
-
-UID=$(id -u)
 
 echo 'Check entangled files are up to date'
 
 # Entangle Markdown to source code and store the output
-LOG=$(docker run --rm --user ${UID} -v ${PWD}:/data nlesc/entangled -m tangle -a 2>&1 > /dev/null)
+LOG=$(docker run --rm --user $(id -u):$(id -g) -v ${PWD}:/data nlesc/entangled -m tangle -a 2>&1 > /dev/null)
 # Parse which filenames have been created or modified from output, ignoring deleted files (start with `- `)
 FILES=$(echo $LOG | grep -v '^-' | cut -c 3-)
 [ -z "$FILES" ] && exit 0
@@ -16,4 +12,3 @@ echo $FILES
 
 echo 'Adding written files to commit'
 echo $FILES | xargs git add
-# ~\~ end

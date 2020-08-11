@@ -10,7 +10,7 @@
   - [Pull Request Guidelines](#pull-request-guidelines)
   - [Tips](#tips)
     - [Generating code from Markdown](#generating-code-from-markdown)
-    - [Generate code from Markdown and vice versa](generate-code-from-markdown-and-vice-versa)
+    - [Generate code from Markdown and vice versa](#generate-code-from-markdown-and-vice-versa)
     - [Generate code from Markdown on commit](#generate-code-from-markdown-on-commit)
   - [New release](#new-release)
 
@@ -75,13 +75,13 @@ Ready to contribute? Here's how to set up `cpp2wasm` for local development.
 
 5. Write tests where possible. Writing tests should be done in a literate way in [TESTING.md](TESTING.md)
 
-6. When you're done making changes, make sure the Markdown and source code files are entangled with.
+6. When you're done making changes, make sure the Markdown and source code files are entangled with
 
     ```shell
     make entangle
     ```
 
-7. When `src/js/newtonraphsonwasm.js` changes, the WebAssembly module also has to be rebuilt. This will require [emscripten](README.md#accessing-c-function-from-JavaScript-in-web-browser). To rebuild the WebAssembly module run:
+7. When `cli/*hpp` or `webassembly/wasm-newtonraphson.cpp` changes, the WebAssembly module also has to be rebuilt. This will require [emscripten](README.md#accessing-c-function-from-JavaScript-in-web-browser). To rebuild the WebAssembly module run:
 
     ```shell
     make build-wasm
@@ -102,12 +102,13 @@ Ready to contribute? Here's how to set up `cpp2wasm` for local development.
 Before you submit a pull request, check that it meets these guidelines:
 
 1. The pull request should include tests.
-2. If the pull request adds functionality, the docs should be updated. Put
+1. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 3.5, 3.6, 3.7 and 3.8, and for PyPy. Check
-   https://travis-ci.com/{{ cookiecutter.github_username }}/cpp2wasm/pull_requests
-   and make sure that the tests pass for all supported Python versions.
+1. Update the [CHANGELOG](CHANGELOG.md) in accordance with the nature of your Pull Request.
+1. The pull request should work for C++, emscripten, web browser, Python 3.6, 3.7 and 3.8. A continuous integration job will run tests for you. Check
+   green check mark on https://github.com/NLESC-JCER/cpp2wasm/pulls
+   and make sure that the tests pass.
 
 ## Tips
 
@@ -115,9 +116,18 @@ Before you submit a pull request, check that it meets these guidelines:
 
 The [Entangled](https://github.com/entangled/entangled) Docker image can be used to generate source code files from the Markdown files.
 
+First, store your user id and group as environment variables:
+
+```shell
+export HOST_UID=$(id -u)
+export HOST_GID=$(id -g)
+```
+
+Then,
+
 ```{.shell #entangled-tangle}
-docker run --rm --user ${UID} -v ${PWD}:/data nlesc/entangled insert -s *.md
-docker run --rm --user ${UID} -v ${PWD}:/data nlesc/entangled tangle -a
+docker run --rm --user ${HOST_UID}:${HOST_GID} -v ${PWD}:/data nlesc/entangled insert -s *.md
+docker run --rm --user ${HOST_UID}:${HOST_GID} -v ${PWD}:/data nlesc/entangled tangle -a
 ```
 
 ## Generate code from Markdown and vice versa
@@ -149,12 +159,10 @@ The pre-commit hook script runs entangle using Docker and adds newly written fil
 #!/bin/sh
 # this shell script is stored as .githooks/pre-commit
 
-UID=$(id -u)
-
 echo 'Check entangled files are up to date'
 
 # Entangle Markdown to source code and store the output
-LOG=$(docker run --rm --user ${UID} -v ${PWD}:/data nlesc/entangled -m tangle -a 2>&1 > /dev/null)
+LOG=$(docker run --rm --user $(id -u):$(id -g) -v ${PWD}:/data nlesc/entangled -m tangle -a 2>&1 > /dev/null)
 # Parse which filenames have been created or modified from output, ignoring deleted files (start with `- `)
 FILES=$(echo $LOG | grep -v '^-' | cut -c 3-)
 [ -z "$FILES" ] && exit 0
@@ -162,6 +170,7 @@ echo $FILES
 
 echo 'Adding written files to commit'
 echo $FILES | xargs git add
+
 ```
 
 The hook must be made executable with
@@ -183,5 +192,7 @@ git config --local core.hooksPath .githooks
 A reminder for the maintainers on how to create a new release.
 
 1. Make sure all your changes are committed.
+1. Verify that [``CHANGELOG.md``](CHANGELOG.md) has all the relevant changes. Visit [releases page](https://github.com/NLESC-JCER/cpp2wasm/releases) and click on the `?? commits to master since this release` link in the latest release to see the diff between the latest release and ``master``.
+1. Verify that the authors list in [``CITATION.cff``](CITATION.cff) is up to date
+1. If needed, generate updated Zenodo metadata using the [cffconvert web service](https://us-central1-cffconvert.cloudfunctions.net/cffconvert?url=https://github.com/NLESC-JCER/cpp2wasm/tree/master/&outputformat=zenodo&ignore_suspect_keys), then use its result to update [``.zenodo.json``](.zenodo.json).
 1. Create a GitHub release
-1. Check and fix author list on Zenodo

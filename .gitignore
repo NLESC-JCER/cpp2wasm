@@ -4,11 +4,22 @@ __pycache__/
 cypress/plugins
 cypress/support
 cypress/videos
+/cypress/screenshots
 
 # Ignore compiled files
-bin/newtonraphson.exe
-src/py/newtonraphsonpy.*.so
-apache2/cgi-bin/newtonraphson
+/cli/newtonraphson.exe
+/cgi/apache2/cgi-bin/newtonraphson
+/openapi/newtonraphsonpy.*.so
+/flask/newtonraphsonpy.*.so
 
 # Ignore entangled db
 .entangled/db.sqlite
+
+# other ignores
+node_modules
+
+# SonarCloud
+.scannerwork
+build-wrapper-linux-x86.zip
+build-wrapper-linux-x86/
+bw-output/
