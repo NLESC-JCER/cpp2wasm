@@ -4,7 +4,7 @@ name: CI
 
 # Controls when the action will run. Triggers the workflow on push or pull request
 # events but only for the master branch
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -28,7 +28,7 @@ jobs:
     - name: Install Python dependencies
       run: make py-deps
     - name: Install emscripten
-      uses: mymindstorm/setup-emsdk@v5
+      uses: mymindstorm/setup-emsdk@v6
       with:
         version: 1.39.17
         actions-cache-folder: 'emsdk-cache'
@@ -42,7 +42,7 @@ jobs:
       if: steps.cache-bw.outputs.cache-hit != 'true'
       run: |
         wget https://sonarcloud.io/static/cpp/build-wrapper-linux-x86.zip
-        unzip build-wrapper-linux-x86.zip 
+        unzip build-wrapper-linux-x86.zip
         rm -f build-wrapper-linux-x86.zip
     - name: Remove all compiled files
       run: make clean-compiled

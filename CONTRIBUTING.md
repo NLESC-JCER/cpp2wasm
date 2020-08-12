@@ -23,44 +23,32 @@ You can contribute in many ways:
 
 ### Report Bugs
 
-Report bugs at [https://github.com/NLESC-JCER/cpp2wasm/issues](https://github.com/NLESC-JCER/cpp2wasm/issues).
-
-If you are reporting a bug, please include:
-
-- Your operating system name and version.
-- Any details about your local setup that might be helpful in troubleshooting.
-- Detailed steps to reproduce the bug.
+Report bugs at [https://github.com/NLESC-JCER/cpp2wasm/issues/new?labels=bug&template=10_bug_report.md](https://github.com/NLESC-JCER/cpp2wasm/issues/new?labels=bug&template=10_bug_report.md).
 
 ### Fix Bugs
 
-Look through the GitHub issues for bugs. Anything tagged with "bug" and "help
-wanted" is open to whoever wants to implement it.
+Look through the GitHub issues for bugs. Anything tagged with ["bug"](https://github.com/NLESC-JCER/cpp2wasm/issues?q=is%3Aopen+is%3Aissue+label%3Abug) is open to whoever wants to implement it.
 
 ### Implement Features
 
-Look through the GitHub issues for features. Anything tagged with "enhancement"
-and "help wanted" is open to whoever wants to implement it.
+Look through the GitHub issues for features. Anything tagged with ["enhancement"](https://github.com/NLESC-JCER/cpp2wasm/issues?q=is%3Aopen+is%3Aissue+label%3Aenhancement)
+ is open to whoever wants to implement it.
 
 ### Submit Feedback
 
 The best way to send feedback is to file an issue at [https://github.com/NLESC-JCER/cpp2wasm/issues](https://github.com/NLESC-JCER/cpp2wasm/issues).
 
-If you are proposing a feature:
-
-- Explain in detail how it would work.
-- Keep the scope as narrow as possible, to make it easier to implement.
-- Remember that this is a volunteer-driven project, and that contributions
-  are welcome :)
+If you are proposing a feature go [here](https://github.com/NLESC-JCER/cpp2wasm/issues/new?labels=enhancement&template=20_feature_request.md).
 
 ## Get Started!
 
 Ready to contribute? Here's how to set up `cpp2wasm` for local development.
 
-1. Fork the `cpp2wasm` repo on GitHub.
-2. Clone your fork locally::
+1. Fork the [cpp2wasm repo](https://github.com/NLESC-JCER/cpp2wasm) on GitHub.
+2. Clone your fork locally:
 
     ```shell
-    git clone git@github.com:your_name_here/cpp2wasm.git
+    git clone https://github.com/your_name_here/cpp2wasm.git
     ```
 
 3. Install the dependencies as listed in [INSTALL.md#dependencies](INSTALL.md#dependencies).
@@ -99,16 +87,7 @@ Ready to contribute? Here's how to set up `cpp2wasm` for local development.
 
 ## Pull Request Guidelines
 
-Before you submit a pull request, check that it meets these guidelines:
-
-1. The pull request should include tests.
-1. If the pull request adds functionality, the docs should be updated. Put
-   your new functionality into a function with a docstring, and add the
-   feature to the list in README.rst.
-1. Update the [CHANGELOG](CHANGELOG.md) in accordance with the nature of your Pull Request.
-1. The pull request should work for C++, emscripten, web browser, Python 3.6, 3.7 and 3.8. A continuous integration job will run tests for you. Check
-   green check mark on https://github.com/NLESC-JCER/cpp2wasm/pulls
-   and make sure that the tests pass.
+See [.github/PULL_REQUEST_TEMPLATE.md](.github/PULL_REQUEST_TEMPLATE.md) for guidelines.
 
 ## Tips
 
