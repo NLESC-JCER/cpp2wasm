@@ -2,8 +2,8 @@ name: Check Markdown links
 
 on:
   push:
-    branches:
-    - master
+  pull_request:
+  workflow_dispatch:
   schedule:
   # https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html#tag_20_25_07
   # https://crontab.guru/#0_9_7_*_*
@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
+    - name: Inject GH token into config
+      run: sed -i 's/GITHUB_TOKEN/${{ secrets.GITHUB_TOKEN }}/g' .mlc-config.json
     - uses: gaurav-nelson/github-action-markdown-link-check@v1
       with:
         config-file: '.mlc-config.json'
