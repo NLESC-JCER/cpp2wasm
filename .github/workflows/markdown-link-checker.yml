@@ -2,8 +2,8 @@ name: Check Markdown links
 
 on:
   push:
-    branches:
-    - master
+  pull_request:
+  workflow_dispatch:
   schedule:
   # https://pubs.opengroup.org/onlinepubs/9699919799/utilities/crontab.html#tag_20_25_07
   # https://crontab.guru/#0_9_7_*_*
