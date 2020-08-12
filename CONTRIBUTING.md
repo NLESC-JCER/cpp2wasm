@@ -45,7 +45,7 @@ If you are proposing a feature go [here](https://github.com/NLESC-JCER/cpp2wasm/
 Ready to contribute? Here's how to set up `cpp2wasm` for local development.
 
 1. Fork the [cpp2wasm repo](https://github.com/NLESC-JCER/cpp2wasm) on GitHub.
-2. Clone your fork locally::
+2. Clone your fork locally:
 
     ```shell
     git clone https://github.com/your_name_here/cpp2wasm.git
