@@ -26,13 +26,17 @@ Current TOC
         Visualization with vega
 
 Series:
-    JavaScript web application
-        explain algorithm point to C++ code in repo
-        for short running calculation, 
-        no web worker
+    JavaScript web application js-webapp.md
+        briefly explain Newton-Raphson algorithm
         just web assembly
-    Long running JS web application
-        web worker
-    Fancy JS web appliction
-        react, json-schema form , vega plot
+        (don't talk about long running calculations, web workers)
+    Long running JS web application js-async.md
+        briefly explain problem of blocking; solution is async with web worker
+    Fancy JS web application js-react.md
+        react, json-schema form, vega plot
 
+    Python web service python-openapi.md
+        Accessing C++ functions with pybind11 
+        OpenAPI web service using connexion
+    Python web application using Flask python-flask.md
+    Long-running tasks with Celery python-async.md
